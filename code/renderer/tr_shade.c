@@ -972,7 +972,7 @@ void RB_StageIteratorGeneric( void )
 #ifdef USE_PMLIGHT
 	if ( !r_dlightMode->integer )
 #endif
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) )
+	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE && !(tess.shader->surfaceFlags & (SURF_Q3_NODLIGHT | SURF_SKY) ) )
 	{
 		ProjectDlightTexture();
 	}

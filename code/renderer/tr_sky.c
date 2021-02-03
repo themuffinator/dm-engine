@@ -340,7 +340,7 @@ CullPoints
 */
 static qboolean CullPoints( vec4_t v[], const int count )
 {
-	const cplane_t *frust;
+	const cPlane_t *frust;
 	int i, j;
 	float dist;
 
@@ -546,7 +546,7 @@ static void FillCloudBox( void )
 			MIN_T = -HALF_SKY_SUBDIVISIONS;
 
 			// still don't want to draw the bottom, even if fullClouds
-			if ( i == 5 )
+			if (i == 5 && !r_drawSkyFloor->integer)
 				continue;
 		}
 		else

@@ -609,7 +609,7 @@ static void FillCloudBox( const shader_t *shader, int stage )
 			MIN_T = -HALF_SKY_SUBDIVISIONS;
 
 			// still don't want to draw the bottom, even if fullClouds
-			if ( i == 5 )
+			if (i == 5 && !r_drawSkyFloor->integer)
 				continue;
 		}
 		else

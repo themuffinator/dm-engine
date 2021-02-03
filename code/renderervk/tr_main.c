@@ -55,7 +55,7 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 	vec3_t	transformed[8];
 	float	dists[8];
 	vec3_t	v;
-	cplane_t	*frust;
+	cPlane_t	*frust;
 	int			anyBack;
 	int			front, back;
 
@@ -127,7 +127,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 {
 	int		i;
 	float	dist;
-	cplane_t	*frust;
+	cPlane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
 	if ( r_nocull->integer ) {
@@ -166,7 +166,7 @@ int R_CullDlight( const dlight_t* dl )
 {
 	int		i;
 	float	dist, dist2;
-	cplane_t	*frust;
+	cPlane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
 	if ( r_nocull->integer )
@@ -730,7 +730,7 @@ static void R_MirrorVector( const vec3_t in, const orientation_t *surface, const
 R_PlaneForSurface
 =============
 */
-static void R_PlaneForSurface( const surfaceType_t *surfType, cplane_t *plane ) {
+static void R_PlaneForSurface( const surfaceType_t *surfType, cPlane_t *plane ) {
 	srfTriangles_t	*tri;
 	srfPoly_t		*poly;
 	drawVert_t		*v1, *v2, *v3;
@@ -782,7 +782,7 @@ static qboolean R_GetPortalOrientations( const drawSurf_t *drawSurf, int entityN
 							 orientation_t *surface, orientation_t *camera,
 							 vec3_t pvsOrigin, portalView_t *portalView ) {
 	int			i;
-	cplane_t	originalPlane, plane;
+	cPlane_t	originalPlane, plane;
 	trRefEntity_t	*e;
 	float		d;
 	vec3_t		transformed;
@@ -902,7 +902,7 @@ static qboolean R_GetPortalOrientations( const drawSurf_t *drawSurf, int entityN
 static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
 {
 	int			i;
-	cplane_t	originalPlane, plane;
+	cPlane_t	originalPlane, plane;
 	trRefEntity_t	*e;
 	float		d;
 

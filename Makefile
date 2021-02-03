@@ -19,17 +19,19 @@ ifeq ($(COMPILE_PLATFORM),mingw32)
   endif
 endif
 
-BUILD_CLIENT     = 1
-BUILD_SERVER     = 1
+BUILD_CLIENT		= 1
+BUILD_SERVER		= 1
 
-USE_SDL          = 1
-USE_CURL         = 1
-USE_LOCAL_HEADERS= 0
-USE_VULKAN       = 1
-USE_SYSTEM_JPEG  = 0
-USE_VULKAN_API   = 1
+USE_SDL				= 1
+USE_CURL			= 1
+USE_LOCAL_HEADERS	= 0
+USE_VULKAN			= 1
+USE_SYSTEM_JPEG		= 0
+USE_SYSTEM_OGG		= 0
+USE_SYSTEM_VORBIS	= 0
+USE_VULKAN_API		= 0
 
-USE_RENDERER_DLOPEN = 0
+USE_RENDERER_DLOPEN = 1
 
 CNAME            = fnq3
 DNAME            = fnq3.ded
@@ -154,7 +156,6 @@ ifneq ($(USE_VULKAN),0)
 USE_VULKAN_API=1
 endif
 
-
 #############################################################################
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
@@ -174,6 +175,7 @@ W32DIR=$(MOUNT_DIR)/win32
 BLIBDIR=$(MOUNT_DIR)/botlib
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/libjpeg
+VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.6
 
 bin_path=$(shell which $(1) 2> /dev/null)
 
@@ -201,7 +203,7 @@ SDL_LIBS = -lSDL2
 endif
 
 # extract version info
-VERSION=$(shell grep "\#define Q3_VERSION" $(CMDIR)/q_shared.h | \
+VERSION=$(shell grep "\#define PRODUCT_VERSION" $(CMDIR)/q_shared.h | \
   sed -e 's/.*".* \([^ ]*\)"/\1/')
 
 # common qvm definition
@@ -241,6 +243,10 @@ ifeq ($(USE_CODEC_VORBIS),1)
   BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
 endif
 
+ifeq ($(USE_SYSTEM_VORBIS),1)
+  BASE_CFLAGS += -DUSE_SYSTEM_VORBIS
+endif
+
 ifdef DEFAULT_BASEDIR
   BASE_CFLAGS += -DDEFAULT_BASEDIR=\\\"$(DEFAULT_BASEDIR)\\\"
 endif
@@ -258,6 +264,30 @@ ifeq ($(USE_CURL),1)
       BASE_CFLAGS += -DCURL_STATICLIB
     endif
   endif
+endif
+
+ifeq ($(USE_CODEC_VORBIS),1)
+  BASE_CFLAGS += -DUSE_CODEC_VORBIS
+  ifeq ($(USE_SYSTEM_VORBIS),1)
+    BASE_CFLAGS += -I$(VORBISDIR)/include -I$(VORBISDIR)/lib
+  else
+    VORBIS_CFLAGS ?= $(shell $(PKG_CONFIG) --silence-errors --cflags vorbisfile vorbis || true)
+    VORBIS_LIBS ?= $(shell $(PKG_CONFIG) --silence-errors --libs vorbisfile vorbis || echo -lvorbisfile -lvorbis)
+  endif
+  BASE_CFLAGS += $(VORBIS_CFLAGS)
+  BASE_LIBS += $(VORBIS_LIBS)
+  NEED_OGG=1
+endif
+
+ifeq ($(NEED_OGG),1)
+  ifeq ($(USE_SYSTEM_OGG),1)
+    OGG_CFLAGS = -I$(OGGDIR)/include
+  else
+    OGG_CFLAGS ?= $(shell $(PKG_CONFIG) --silence-errors --cflags ogg || true)
+    OGG_LIBS ?= $(shell $(PKG_CONFIG) --silence-errors --libs ogg || echo -logg)
+  endif
+  BASE_CFLAGS += $(OGG_CFLAGS)
+  BASE_LIBS += $(OGG_LIBS)
 endif
 
 ifeq ($(USE_VULKAN_API),1)
@@ -909,6 +939,41 @@ ifneq ($(USE_SYSTEM_JPEG),1)
   Q3OBJ += $(JPGOBJ)
 endif
 
+ifeq ($(NEED_OGG),1)
+ifeq ($(USE_SYSTEM_OGG),1)
+Q3OBJ += \
+  $(B)/client/bitwise.o \
+  $(B)/client/framing.o
+endif
+endif
+
+ifeq ($(USE_CODEC_VORBIS),1)
+ifeq ($(USE_SYSTEM_VORBIS),1)
+Q3OBJ += \
+  $(B)/client/vorbis/analysis.o \
+  $(B)/client/vorbis/bitrate.o \
+  $(B)/client/vorbis/block.o \
+  $(B)/client/vorbis/codebook.o \
+  $(B)/client/vorbis/envelope.o \
+  $(B)/client/vorbis/floor0.o \
+  $(B)/client/vorbis/floor1.o \
+  $(B)/client/vorbis/info.o \
+  $(B)/client/vorbis/lookup.o \
+  $(B)/client/vorbis/lpc.o \
+  $(B)/client/vorbis/lsp.o \
+  $(B)/client/vorbis/mapping0.o \
+  $(B)/client/vorbis/mdct.o \
+  $(B)/client/vorbis/psy.o \
+  $(B)/client/vorbis/registry.o \
+  $(B)/client/vorbis/res0.o \
+  $(B)/client/vorbis/smallft.o \
+  $(B)/client/vorbis/sharedbook.o \
+  $(B)/client/vorbis/synthesis.o \
+  $(B)/client/vorbis/vorbisfile.o \
+  $(B)/client/vorbis/window.o
+endif
+endif
+
 ifneq ($(USE_RENDERER_DLOPEN),1)
   ifeq ($(USE_VULKAN),1)
     Q3OBJ += $(Q3RENDVOBJ)
@@ -1142,6 +1207,9 @@ $(B)/client/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
 $(B)/client/%.o: $(JPDIR)/%.c
+	$(DO_CC)
+
+$(B)/client/vorbis/%.o: $(VORBISDIR)/lib/%.c
 	$(DO_CC)
 
 $(B)/client/%.o: $(SDLDIR)/%.c

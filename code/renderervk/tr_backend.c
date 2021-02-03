@@ -451,19 +451,21 @@ static void RB_Hyperspace( void ) {
 		// do initialization shit
 	}
 
+	if (r_teleporterFlash->integer) {
 #ifdef USE_VULKAN
-	{
-		vec4_t color;
-		c = ( backEnd.refdef.time & 255 ) / 255.0f;
-		color[0] = color[1] = color[2] = c;
-		color[3] = 1.0;
-		vk_clear_color( color );
-	}
+		{
+			vec4_t color;
+			c = (backEnd.refdef.time & 255) / 255.0f;
+			color[0] = color[1] = color[2] = c;
+			color[3] = 1.0;
+			vk_clear_color(color);
+		}
 #else
-	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	qglClearColor( c, c, c, 1 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+		c = (backEnd.refdef.time & 255) / 255.0f;
+		qglClearColor(c, c, c, 1);
+		qglClear(GL_COLOR_BUFFER_BIT);
 #endif
+	}
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -1485,19 +1487,38 @@ static const void *RB_DrawBuffer( const void *data ) {
 	// force depth range and viewport/scissor updates
 	vk.cmd->depth_range = DEPTH_RANGE_COUNT;
 
-	if ( r_clear->integer ) {
-		const vec4_t color = {1, 0, 0.5, 1};
+	if (r_clear->integer) {
+		byte bcol[4];
+		char *scol = r_clearColor->string;
+		vec4_t color;
+
+		if (!scol) scol = "0x202020";
+
+		hexToRGBA(bcol, scol, qtrue);
+		color[0] = bcol[0] / 255.0;
+		color[1] = bcol[1] / 255.0;
+		color[2] = bcol[2] / 255.0;
+		color[3] = bcol[3] / 255.0;
+
 		backEnd.projection2D = qtrue; // to ensure we have viewport that occupies entire window
-		vk_clear_color( color );
+		vk_clear_color(color);
 		backEnd.projection2D = qfalse;
 	}
 #else
 	qglDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
-	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
-		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	if (r_clear->integer) {
+		byte bcol[4];
+		char *scol = r_clearColor->string;
+
+		if (!scol) scol = "0x202020";
+
+		hexToRGBA(bcol, scol, qtrue);
+
+		//qglClearColor( 1, 0, 0.5, 1 );
+		qglClearColor((float)bcol[0] / 255.0, (float)bcol[1] / 255.0, (float)bcol[2] / 255.0, 1.0);
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 #endif
 

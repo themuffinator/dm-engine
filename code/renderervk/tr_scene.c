@@ -410,7 +410,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 
 		// compare the area bits
 		areaDiff = 0;
-		for (i = 0 ; i < MAX_MAP_AREA_BYTES/4 ; i++) {
+		for (i = 0 ; i < Q3_MAX_MAP_AREA_BYTES/4 ; i++) {
 			areaDiff |= ((int *)tr.refdef.areamask)[i] ^ ((int *)fd->areamask)[i];
 			((int *)tr.refdef.areamask)[i] = ((int *)fd->areamask)[i];
 		}
@@ -524,6 +524,18 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	}
 	// leilei - end
 //-openarena
+
+	if (r_pixelsize->integer > 1 && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+		parms.viewportX /= r_pixelsize->integer;
+		parms.viewportY /= r_pixelsize->integer;
+		parms.viewportWidth /= r_pixelsize->integer;
+		parms.viewportHeight /= r_pixelsize->integer;
+
+		parms.scissorX = floor(parms.scissorX / r_pixelsize->integer);
+		parms.scissorY = floor(parms.scissorY / r_pixelsize->integer);
+		parms.scissorWidth = floor(parms.scissorWidth / r_pixelsize->integer);
+		parms.scissorHeight = floor(parms.scissorHeight / r_pixelsize->integer);
+	}
 	
 	parms.stereoFrame = tr.refdef.stereoFrame;
 
@@ -539,7 +551,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	tr.drawSurfCmd = NULL;
 	tr.numDrawSurfCmds = 0;
 #endif
-
+	
 	R_RenderView( &parms );
 
 #ifdef USE_VULKAN

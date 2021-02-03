@@ -26,21 +26,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define Q3_VERSION            "Q3 1.32e"
+#define PRODUCT_NAME			"FnQUAKE3"
+#define CONSOLE_WINDOW_TITLE	PRODUCT_NAME " Console"
+
+#define PRODUCT_VERSION			PRODUCT_NAME " 1.32e"
 #ifndef SVN_VERSION
-  #define SVN_VERSION Q3_VERSION
+  #define SVN_VERSION PRODUCT_VERSION
 #endif
-#define CLIENT_WINDOW_TITLE   "Quake 3: Arena"
-#define CONSOLE_WINDOW_TITLE  "Quake 3 Console"
 // 1.32 released 7-10-2002
 
 //#define DEFAULT_GAME			"edawn"
 
-#define BASEGAME				"baseq3"
-#define BASEDEMO				"demoq3"
+#define USE_PROFILES			1
+//#define QUAKE2					0
+
+#define BASEGAME				"base"
+
+#define BASEQ1					"Id1"
+#define BASEQ2					"baseq2"
+#define BASEQ3					"baseq3"
+#define BASEQ3DEMO				"demoq3"
 #define BASETA					"missionpack"
-#define STEAMPATH_NAME			"Quake 3 Arena"
-#define STEAMPATH_APPID			"2200"
+#define BASEQL					"baseq3"
+
+#define STEAMPATH_Q1_GAMEDIR	"Quake"
+#define STEAMPATH_Q1_APPID		"2310"
+#define STEAMPATH_Q2_GAMEDIR	"Quake 2"
+#define STEAMPATH_Q2_APPID		"2320"
+#define STEAMPATH_Q3_GAMEDIR	"Quake 3 Arena"
+#define STEAMPATH_Q3_APPID		"2200"
+#define STEAMPATH_QL_GAMEDIR	"Quake Live"
+#define STEAMPATH_QL_APPID		"282440"
+
+#define GOGPATH_Q2_APPID		""	//TODO: what's the ID?
+#define GOGPATH_Q3_APPID		""	//TODO: what's the ID?
 
 #define MAX_TEAMNAME            32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers
@@ -256,7 +275,7 @@ typedef enum {
 //
 // these aren't needed by any of the VMs.  put in another header?
 //
-#define	MAX_MAP_AREA_BYTES		32		// bit vector of area visibility
+#define	Q3_MAX_MAP_AREA_BYTES		32		// bit vector of area visibility
 
 
 // print levels from renderer (FIXME: set up for game / cgame?)
@@ -998,7 +1017,7 @@ typedef struct cplane_s {
 	byte	type;			// for fast side tests: 0,1,2 = axial, 3 = nonaxial
 	byte	signbits;		// signx + (signy<<1) + (signz<<2), used as lookup during collision
 	byte	pad[2];
-} cplane_t;
+} cPlane_t;
 
 
 // a trace is returned when a box is swept through the world
@@ -1007,7 +1026,7 @@ typedef struct {
 	qboolean	startsolid;	// if true, the initial point was in a solid area
 	float		fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t		endpos;		// final position
-	cplane_t	plane;		// surface normal at impact, transformed to world space
+	cPlane_t	plane;		// surface normal at impact, transformed to world space
 	int			surfaceFlags;	// surface hit
 	int			contents;	// contents on other side of surface hit
 	int			entityNum;	// entity the contacted sirface is a part of
@@ -1323,6 +1342,8 @@ typedef enum {
 	CA_ACTIVE,			// game views should be displayed
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 } connstate_t;
+
+void hexToRGBA(byte out[4], char *instring, const qboolean noAlpha);
 
 // font support 
 

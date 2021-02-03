@@ -151,12 +151,12 @@ POSITION TESTING
 CM_TestBoxInBrush
 ================
 */
-static void CM_TestBoxInBrush( traceWork_t *tw, const cbrush_t *brush ) {
+static void CM_TestBoxInBrush( traceWork_t *tw, const q3_cBrush_t *brush ) {
 	int			i;
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	double		dist;
 	double		d1;
-	cbrushside_t	*side;
+	q3_cBrushSide_t	*side;
 	double		t;
 	vec3_t		startp;
 
@@ -231,11 +231,11 @@ static void CM_TestBoxInBrush( traceWork_t *tw, const cbrush_t *brush ) {
 CM_TestInLeaf
 ================
 */
-static void CM_TestInLeaf( traceWork_t *tw, const cLeaf_t *leaf ) {
+static void CM_TestInLeaf( traceWork_t *tw, const q3_cLeaf_t *leaf ) {
 	int			k;
 	int			brushnum;
-	cbrush_t	*b;
-	cPatch_t	*patch;
+	q3_cBrush_t	*b;
+	q3_cPatch_t	*patch;
 
 	// test box position against all brushes in the leaf
 	for (k=0 ; k<leaf->numLeafBrushes ; k++) {
@@ -367,7 +367,7 @@ bounding box inside capsule check
 static void CM_TestBoundingBoxInCapsule( traceWork_t *tw, clipHandle_t model ) {
 	vec3_t mins, maxs, offset, size[2];
 	clipHandle_t h;
-	cmodel_t *cmod;
+	q3_cModel_t *cmod;
 	int i;
 
 	// mins maxs of the capsule
@@ -453,7 +453,7 @@ TRACING
 CM_TraceThroughPatch
 ================
 */
-static void CM_TraceThroughPatch( traceWork_t *tw, const cPatch_t *patch ) {
+static void CM_TraceThroughPatch( traceWork_t *tw, const q3_cPatch_t *patch ) {
 	float		oldFrac;
 
 	c_patch_traces++;
@@ -474,15 +474,15 @@ static void CM_TraceThroughPatch( traceWork_t *tw, const cPatch_t *patch ) {
 CM_TraceThroughBrush
 ================
 */
-static void CM_TraceThroughBrush( traceWork_t *tw, const cbrush_t *brush ) {
+static void CM_TraceThroughBrush( traceWork_t *tw, const q3_cBrush_t *brush ) {
 	int			i;
-	cplane_t	*plane, *clipplane;
+	cPlane_t	*plane, *clipplane;
 	double		dist;
 	float		enterFrac, leaveFrac;
 	double		d1, d2;
 	qboolean	getout, startout;
 	float		f;
-	cbrushside_t	*side, *leadside;
+	q3_cBrushSide_t	*side, *leadside;
 	double		t;
 	vec3_t		startp;
 	vec3_t		endp;
@@ -662,11 +662,11 @@ static void CM_TraceThroughBrush( traceWork_t *tw, const cbrush_t *brush ) {
 CM_TraceThroughLeaf
 ================
 */
-static void CM_TraceThroughLeaf( traceWork_t *tw, const cLeaf_t *leaf ) {
+static void CM_TraceThroughLeaf( traceWork_t *tw, const q3_cLeaf_t *leaf ) {
 	int			k;
 	int			brushnum;
-	cbrush_t	*b;
-	cPatch_t	*patch;
+	q3_cBrush_t	*b;
+	q3_cPatch_t	*patch;
 
 	// trace line against all brushes in the leaf
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
@@ -991,7 +991,7 @@ bounding box vs. capsule collision
 static void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
 	vec3_t mins, maxs, offset, size[2];
 	clipHandle_t h;
-	cmodel_t *cmod;
+	q3_cModel_t *cmod;
 	int i;
 
 	// mins maxs of the capsule
@@ -1033,7 +1033,7 @@ a smaller intercept fraction.
 */
 static void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, const vec3_t p1, const vec3_t p2 ) {
 	cNode_t		*node;
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	double		t1, t2, offset;
 	float		frac, frac2;
 	float		idist;
@@ -1146,7 +1146,7 @@ static void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end, co
 	int			i;
 	traceWork_t	tw;
 	vec3_t		offset;
-	cmodel_t	*cmod;
+	q3_cModel_t	*cmod;
 
 	cmod = CM_ClipHandleToModel( model );
 

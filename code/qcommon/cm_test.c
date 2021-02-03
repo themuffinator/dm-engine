@@ -31,7 +31,7 @@ CM_PointLeafnum_r
 int CM_PointLeafnum_r( const vec3_t p, int num ) {
 	float		d;
 	cNode_t		*node;
-	cplane_t	*plane;
+	cPlane_t	*plane;
 
 	while (num >= 0)
 	{
@@ -91,8 +91,8 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 	int			i, k;
 	int			leafnum;
 	int			brushnum;
-	cLeaf_t		*leaf;
-	cbrush_t	*b;
+	q3_cLeaf_t		*leaf;
+	q3_cBrush_t	*b;
 
 	leafnum = -1 - nodenum;
 
@@ -117,7 +117,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 			ll->overflowed = qtrue;
 			return;
 		}
-		((cbrush_t **)ll->list)[ ll->count++ ] = b;
+		((q3_cBrush_t **)ll->list)[ ll->count++ ] = b;
 	}
 #if 0
 	// store patches?
@@ -138,7 +138,7 @@ Fills in a list of all the leafs touched
 =============
 */
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	cNode_t		*node;
 	int			s;
 
@@ -194,7 +194,7 @@ int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsiz
 CM_BoxBrushes
 ==================
 */
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize ) {
+int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, q3_cBrush_t **list, int listsize ) {
 	leafList_t	ll;
 
 	cm.checkcount++;
@@ -227,11 +227,11 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int			leafnum;
 	int			i, k;
 	int			brushnum;
-	cLeaf_t		*leaf;
-	cbrush_t	*b;
+	q3_cLeaf_t		*leaf;
+	q3_cBrush_t	*b;
 	int			contents;
 	float		d;
-	cmodel_t	*clipm;
+	q3_cModel_t	*clipm;
 
 	if (!cm.numNodes) {	// map not loaded
 		return 0;
@@ -331,9 +331,58 @@ AREAPORTALS
 ===============================================================================
 */
 
-void CM_FloodArea_r( int areaNum, int floodnum) {
+#ifdef QUAKE2
+void CM_Q2_FloodArea_r( int areaNum, int floodnum ) {
+	int					i;
+	q2_cArea_t			*area;
+	q2_dAreaPortal_t	*p;
+
+	area = &cm.q2_areas[areaNum];
+
+	if (area->floodvalid == cm.floodvalid) {
+		if (area->floodnum == floodnum)
+			return;
+		Com_Error(ERR_DROP, "FloodArea_r: reflooded");
+	}
+
+	area->floodnum = floodnum;
+	area->floodvalid = cm.floodvalid;
+	p = &cm.q2_areaportals[area->firstareaportal];
+	for ( i = 0; i < area->numareaportals; i++, p++ ) {
+		if ( cm.portalopen[p->portalnum] )
+			CM_Q2_FloodArea_r( p->otherarea, floodnum );
+	}
+}
+
+/*
+====================
+CM_Q2_FloodAreaConnections
+
+====================
+*/
+void CM_Q2_FloodAreaConnections( void ) {
+	int			i;
+	q2_cArea_t	*area;
+	int			floodnum;
+
+	// all current floods are now invalid
+	cm.floodvalid++;
+	floodnum = 0;
+
+	// area 0 is not used
+	for (i = 1; i < cm.numAreas; i++) {
+		area = &cm.q2_areas[i];
+		if (area->floodvalid == cm.floodvalid)
+			continue;		// already flooded into
+		floodnum++;
+		CM_Q2_FloodArea_r(i, floodnum);
+	}
+}
+#endif //QUAKE2
+
+void CM_Q3_FloodArea_r( int areaNum, int floodnum ) {
 	int		i;
-	cArea_t *area;
+	q3_cArea_t *area;
 	int		*con;
 
 	area = &cm.areas[ areaNum ];
@@ -349,21 +398,21 @@ void CM_FloodArea_r( int areaNum, int floodnum) {
 	con = cm.areaPortals + areaNum * cm.numAreas;
 	for ( i=0 ; i < cm.numAreas  ; i++ ) {
 		if ( con[i] > 0 ) {
-			CM_FloodArea_r( i, floodnum );
+			CM_Q3_FloodArea_r( i, floodnum );
 		}
 	}
 }
 
 /*
 ====================
-CM_FloodAreaConnections
+CM_Q3_FloodAreaConnections
 
 ====================
 */
-void	CM_FloodAreaConnections( void ) {
-	int		i;
-	cArea_t	*area;
-	int		floodnum;
+void CM_Q3_FloodAreaConnections( void ) {
+	int			i;
+	q3_cArea_t	*area;
+	int			floodnum;
 
 	// all current floods are now invalid
 	cm.floodvalid++;
@@ -375,10 +424,10 @@ void	CM_FloodAreaConnections( void ) {
 			continue;		// already flooded into
 		}
 		floodnum++;
-		CM_FloodArea_r (i, floodnum);
+		CM_Q3_FloodArea_r (i, floodnum);
 	}
-
 }
+
 
 /*
 ====================
@@ -406,7 +455,7 @@ void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 		}
 	}
 
-	CM_FloodAreaConnections ();
+	CM_Q3_FloodAreaConnections ();
 }
 
 /*

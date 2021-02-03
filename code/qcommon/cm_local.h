@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	BOX_MODEL_HANDLE		255
 #define CAPSULE_MODEL_HANDLE	254
 
+//fnq
+#define ErrorDrop( x ) Com_Error(ERR_DROP, "%s: %s", __func__, x )
+//-fnq
 
 // forced double-precison functions
 #define DotProductDP(x,y)		((double)(x)[0]*(y)[0]+(double)(x)[1]*(y)[1]+(double)(x)[2]*(y)[2])
@@ -72,11 +75,39 @@ static ID_INLINE vec_t VectorNormalizeDP( vec3_t v ) {
 	return length;
 }
 
+// QUAKE 2 BELOW
+
+// plane_t structure
+// !!! if this is changed, it must be changed in asm code too !!!
+//	q2_cplane_t	// same as q3
+
+typedef struct q2_csurface_s {
+	char		name[16];
+	int			flags;
+	int			value;
+} q2_cSurface_t;
+
+typedef struct q2_mapsurface_s {  // used internally due to name len probs //ZOID
+	q2_cSurface_t	c;
+	char		rname[32];
+} q2_mapSurface_t;
+
+// ===============================
 
 typedef struct {
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	int			children[2];		// negative numbers are leafs
 } cNode_t;
+
+typedef struct {
+	int			contents;
+
+	int			cluster;
+	int			area;
+
+	unsigned short	firstLeafBrush;
+	unsigned short	numLeafBrushes;
+} q2_cLeaf_t;
 
 typedef struct {
 	int			cluster;
@@ -87,71 +118,101 @@ typedef struct {
 
 	int			firstLeafSurface;
 	int			numLeafSurfaces;
-} cLeaf_t;
+} q3_cLeaf_t;
+
+typedef struct q2_cmodel_s {
+	vec3_t		mins, maxs;
+	vec3_t		origin;		// for sounds or lights
+	int			headnode;
+} q2_cModel_t;
 
 typedef struct cmodel_s {
 	vec3_t		mins, maxs;
-	cLeaf_t		leaf;			// submodels don't reference the main tree
-} cmodel_t;
+	q3_cLeaf_t		leaf;			// submodels don't reference the main tree
+} q3_cModel_t;
 
 typedef struct {
-	cplane_t	*plane;
+	cPlane_t	*plane;
+	q2_mapSurface_t *surface;
+} q2_cBrushSide_t;
+
+typedef struct {
+	cPlane_t	*plane;
 	int			surfaceFlags;
 	int			shaderNum;
-} cbrushside_t;
+} q3_cBrushSide_t;
+
+typedef struct {
+	int			contents;
+	int			numsides;
+	int			firstBrushSide;
+	int			checkcount;		// to avoid repeated testings
+} q2_cBrush_t;
 
 typedef struct {
 	int			shaderNum;		// the shader that determined the contents
 	int			contents;
 	vec3_t		bounds[2];
 	int			numsides;
-	cbrushside_t	*sides;
+	q3_cBrushSide_t	*sides;
 	int			checkcount;		// to avoid repeated testings
-} cbrush_t;
-
+} q3_cBrush_t;
 
 typedef struct {
 	int			checkcount;				// to avoid repeated testings
 	int			surfaceFlags;
 	int			contents;
 	struct patchCollide_s	*pc;
-} cPatch_t;
+} q3_cPatch_t;
 
+typedef struct {
+	int			numareaportals;
+	int			firstareaportal;
+	int			floodnum;			// if two areas have equal floodnums, they are connected
+	int			floodvalid;
+} q2_cArea_t;
 
 typedef struct {
 	int			floodnum;
 	int			floodvalid;
-} cArea_t;
+} q3_cArea_t;
 
 typedef struct {
 	char		name[MAX_QPATH];
 
 	int			numShaders;
-	dshader_t	*shaders;
+	q3_dShader_t	*shaders;
 
 	int			numBrushSides;
-	cbrushside_t *brushsides;
+	q2_cBrushSide_t *q2_brushsides;	// [Q2_MAX_MAP_BRUSHSIDES] ;
+	q3_cBrushSide_t *brushsides;
 
 	int			numPlanes;
-	cplane_t	*planes;
+	cPlane_t	*q2_planes;	// [Q2_MAX_MAP_PLANES + 6] ;	// extra for box hull
+	cPlane_t	*planes;
 
 	int			numNodes;
+	cNode_t		*q2_nodes;	// [Q2_MAX_MAP_NODES + 6];		// extra for box hull
 	cNode_t		*nodes;
 
 	int			numLeafs;
-	cLeaf_t		*leafs;
+	q2_cLeaf_t *q2_leafs;	// [Q2_MAX_MAP_LEAFS] ;
+	q3_cLeaf_t	*leafs;
 
 	int			numLeafBrushes;
 	int			*leafbrushes;
+	unsigned short	*q2_leafbrushes;	// [Q2_MAX_MAP_LEAFBRUSHES] ;
 
 	int			numLeafSurfaces;
 	int			*leafsurfaces;
 
 	int			numSubModels;
-	cmodel_t	*cmodels;
+	q2_cModel_t	q2_cmodels[MAX_MAP_MODELS];
+	q3_cModel_t	*cmodels;
 
 	int			numBrushes;
-	cbrush_t	*brushes;
+	q2_cBrush_t *q2_brushes;		// [Q2_MAX_MAP_BRUSHES] ;
+	q3_cBrush_t	*brushes;
 
 	int			numClusters;
 	int			clusterBytes;
@@ -162,18 +223,32 @@ typedef struct {
 	char		*entityString;
 
 	int			numAreas;
-	cArea_t		*areas;
+	q3_cArea_t	*areas;
+	q2_cArea_t	q2_areas[MAX_MAP_AREAS];
 	int			*areaPortals;	// [ numAreas*numAreas ] reference counts
 
 	int			numSurfaces;
-	cPatch_t	**surfaces;			// non-patches will be NULL
+	q3_cPatch_t	**surfaces;			// non-patches will be NULL
 
 	int			floodvalid;
 	int			checkcount;					// incremented on each trace
 
 	unsigned int checksum;
-} clipMap_t;
+#ifdef QUAKE2
+	// QUAKE 2 ONLY BELOW
 
+	int			numTexInfo;
+	q2_mapSurface_t *q2_surfaces;	// [Q2_MAX_MAP_TEXINFO] ;
+
+	int			numVisibility;
+	byte		q2_visibility[Q2_MAX_MAP_VISIBILITY];
+
+	int			numAreaPortals;
+	q2_dAreaPortal_t q2_areaportals[Q2_MAX_MAP_AREAPORTALS];
+
+	qboolean	portalopen[Q2_MAX_MAP_AREAPORTALS];
+#endif
+} clipMap_t;
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
@@ -223,14 +298,16 @@ typedef struct leafList_s {
 } leafList_t;
 
 
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize );
+int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, q3_cBrush_t **list, int listsize );
 
 void CM_StoreLeafs( leafList_t *ll, int nodenum );
 void CM_StoreBrushes( leafList_t *ll, int nodenum );
 
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
-
-cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle );
+#ifdef QUAKE2
+q2_cModel_t	*CM_Q2_ClipHandleToModel( clipHandle_t handle );
+#endif //QUAKE2
+q3_cModel_t	*CM_ClipHandleToModel( clipHandle_t handle );
 qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
 qboolean CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );
 

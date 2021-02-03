@@ -820,13 +820,13 @@ static qboolean CM_ValidateFacet( const facet_t *facet ) {
 	FreeWinding( w );
 	
 	for ( j = 0 ; j < 3 ; j++ ) {
-		if ( bounds[1][j] - bounds[0][j] > MAX_MAP_BOUNDS ) {
+		if ( bounds[1][j] - bounds[0][j] > Q3_MAX_MAP_BOUNDS ) {
 			return qfalse;		// we must be missing a plane
 		}
-		if ( bounds[0][j] >= MAX_MAP_BOUNDS ) {
+		if ( bounds[0][j] >= Q3_MAX_MAP_BOUNDS ) {
 			return qfalse;
 		}
-		if ( bounds[1][j] <= -MAX_MAP_BOUNDS ) {
+		if ( bounds[1][j] <= -Q3_MAX_MAP_BOUNDS ) {
 			return qfalse;
 		}
 	}

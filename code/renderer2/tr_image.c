@@ -2671,38 +2671,142 @@ static void R_CreateFogImage( void ) {
 
 /*
 ==================
+R_BuildDefaultImage
+
+Create solid color texture from following input formats (hex):
+#rgb
+#rrggbb
+==================
+*/
+static byte notex[4][4] = {
+	{0, 0, 0, 0},
+	{0, 0, 1, 1},
+	{0, 1, 1, 1},
+	{0, 1, 1, 1}
+};
+
+#define	DEFAULT_SIZE 16
+static qboolean R_BuildDefaultImage(const char *format) {
+	byte data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	byte color[4];
+	int i, len, hex[6];
+	int x, y;
+
+	if (*format++ != '#') {
+		return qfalse;
+	}
+
+	len = (int)strlen(format);
+	if (len <= 0 || len > 6) {
+		return qfalse;
+	}
+
+	for (i = 0; i < len; i++) {
+		hex[i] = Hex(format[i]);
+		if (hex[i] == -1) {
+			return qfalse;
+		}
+	}
+
+	switch (len) {
+	case 3: // #rgb
+		color[0] = hex[0] << 4 | hex[0];
+		color[1] = hex[1] << 4 | hex[1];
+		color[2] = hex[2] << 4 | hex[2];
+		color[3] = 255;
+		break;
+	case 6: // #rrggbb
+		color[0] = hex[0] << 4 | hex[1];
+		color[1] = hex[2] << 4 | hex[3];
+		color[2] = hex[4] << 4 | hex[5];
+		color[3] = 255;
+		break;
+	default: // unsupported format
+		return qfalse;
+	}
+
+	for (y = 0; y < r_defaultImageSize->integer; y++) {
+		for (x = 0; x < r_defaultImageSize->integer; x++) {
+			data[x][y][0] = color[0];
+			data[x][y][1] = color[1];
+			data[x][y][2] = color[2];
+			data[x][y][3] = color[3];
+		}
+	}
+
+	tr.defaultImage = R_CreateImage("*default", NULL, (byte *)data, r_defaultImageSize->integer, r_defaultImageSize->integer, IMGFLAG_MIPMAP);
+
+	return qtrue;
+}
+
+
+/*
+==================
 R_CreateDefaultImage
 ==================
 */
-#define	DEFAULT_SIZE	16
-static void R_CreateDefaultImage( void ) {
+static void R_CreateDefaultImage(void) {
 	int		x;
-	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	byte	data[r_defaultImageSize->integer][r_defaultImageSize->integer][4];
+	int			size = r_defaultImageSize->integer;	//size = r_defaultImageSize->integer;
 
-	// the default image will be a box, to allow you to see the mapping coordinates
-	Com_Memset( data, 32, sizeof( data ) );
-	for ( x = 0 ; x < DEFAULT_SIZE ; x++ ) {
-		data[0][x][0] =
-		data[0][x][1] =
-		data[0][x][2] =
-		data[0][x][3] = 255;
+	if (size >= 1024)		size = 1024;
+	else if (size >= 512)	size = 512;
+	else if (size >= 256)	size = 256;
+	else if (size >= 128)	size = 128;
+	else if (size >= 64)	size = 64;
+	else if (size >= 32)	size = 32;
+	else if (size >= 16)	size = 16;
 
-		data[x][0][0] =
-		data[x][0][1] =
-		data[x][0][2] =
-		data[x][0][3] = 255;
-
-		data[DEFAULT_SIZE-1][x][0] =
-		data[DEFAULT_SIZE-1][x][1] =
-		data[DEFAULT_SIZE-1][x][2] =
-		data[DEFAULT_SIZE-1][x][3] = 255;
-
-		data[x][DEFAULT_SIZE-1][0] =
-		data[x][DEFAULT_SIZE-1][1] =
-		data[x][DEFAULT_SIZE-1][2] =
-		data[x][DEFAULT_SIZE-1][3] = 255;
+	if (r_defaultImage->string[0])
+	{
+		// build from format
+		if (R_BuildDefaultImage(r_defaultImage->string))
+			return;
+		// load from external file
+		tr.defaultImage = R_FindImageFile(r_defaultImage->string, IMGFLAG_MIPMAP | IMGFLAG_PICMIP);
+		if (tr.defaultImage)
+			return;
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_MIPMAP, 0);
+
+	if (r_defaultImageStyle->integer == 1) {	// q2 style
+		int y;
+		for (x = 0; x < size; x++) {
+			for (y = 0; y < size; y++) {
+				data[y][x][0] = notex[x & 3][y & 3] * 255;
+				data[y][x][1] = 0;
+				data[y][x][2] = 0;
+				data[y][x][3] = 255;
+			}
+		}
+	}
+	else {
+		// the default image will be a box, to allow you to see the mapping coordinates
+		Com_Memset(data, 32, sizeof(data));
+		for (x = 0; x < size; x++) {
+			data[0][x][0] =
+				data[0][x][1] =
+				data[0][x][2] =
+				data[0][x][3] = 255;
+
+			data[x][0][0] =
+				data[x][0][1] =
+				data[x][0][2] =
+				data[x][0][3] = 255;
+
+			data[size - 1][x][0] =
+				data[size - 1][x][1] =
+				data[size - 1][x][2] =
+				data[size - 1][x][3] = 255;
+
+			data[x][size - 1][0] =
+				data[x][size - 1][1] =
+				data[x][size - 1][2] =
+				data[x][size - 1][3] = 255;
+		}
+	}
+
+	tr.defaultImage = R_CreateImage("*default", NULL, (byte *)data, size, size, IMGFLAG_MIPMAP | IMGFLAG_LIGHTMAP);
 }
 
 /*

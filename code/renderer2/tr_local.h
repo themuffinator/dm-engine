@@ -732,7 +732,7 @@ typedef struct {
 	int			rdflags;			// RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
-	byte		areamask[MAX_MAP_AREA_BYTES];
+	byte		areamask[Q3_MAX_MAP_AREA_BYTES];
 	qboolean	areamaskModified;	// qtrue if areamask changed since last scene
 
 	double		floatTime;			// tr.refdef.time / 1000.0
@@ -823,14 +823,14 @@ typedef struct {
 	viewParmFlags_t flags;
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
-	cplane_t	portalPlane;		// clip anything behind this if mirroring
+	cPlane_t	portalPlane;		// clip anything behind this if mirroring
 	int			viewportX, viewportY, viewportWidth, viewportHeight;
 	FBO_t		*targetFbo;
 	int         targetFboLayer;
 	int         targetFboCubemapIndex;
 	float		fovX, fovY;
 	float		projectionMatrix[16];
-	cplane_t	frustum[5];
+	cPlane_t	frustum[5];
 	vec3_t		visBounds[2];
 	float		zFar;
 	float       zNear;
@@ -926,7 +926,7 @@ typedef struct srfBspSurface_s
 	vec3_t			cullBounds[2];
 	vec3_t			cullOrigin;
 	float			cullRadius;
-	cplane_t        cullPlane;
+	cPlane_t        cullPlane;
 
 	// indexes
 	int             numIndexes;
@@ -1067,7 +1067,7 @@ typedef struct pshadow_s
 	vec3_t lightViewAxis[3];
 	vec3_t lightOrigin;
 	float  lightRadius;
-	cplane_t cullPlane;
+	cPlane_t cullPlane;
 } pshadow_t;
 
 
@@ -1098,7 +1098,7 @@ typedef struct cullinfo_s {
 	vec3_t          bounds[2];
 	vec3_t			localOrigin;
 	float			radius;
-	cplane_t        plane;
+	cPlane_t        plane;
 } cullinfo_t;
 
 typedef struct msurface_s {
@@ -1120,7 +1120,7 @@ typedef struct mnode_s {
 	struct mnode_s	*parent;
 
 	// node specific
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	struct mnode_s	*children[2];	
 
 	// leaf specific
@@ -1129,7 +1129,7 @@ typedef struct mnode_s {
 
 	int         firstmarksurface;
 	int			nummarksurfaces;
-} mnode_t;
+} mNode_t;
 
 typedef struct {
 	vec3_t		bounds[2];		// for culling
@@ -1144,17 +1144,17 @@ typedef struct {
 	int			dataSize;
 
 	int			numShaders;
-	dshader_t	*shaders;
+	q3_dShader_t	*shaders;
 
 	int			numBModels;
 	bmodel_t	*bmodels;
 
 	int			numplanes;
-	cplane_t	*planes;
+	cPlane_t	*planes;
 
 	int			numnodes;		// includes leafs
 	int			numDecisionNodes;
-	mnode_t		*nodes;
+	mNode_t		*nodes;
 
 	int         numWorldSurfaces;
 
@@ -1184,6 +1184,12 @@ typedef struct {
 
 	char		*entityString;
 	char		*entityParsePoint;
+//qlbsp
+	int					numAds;
+	q3_dAdvertisement_t	ads[Q3_MAX_MAP_ADVERTS];
+	int					adsLightmap[Q3_MAX_MAP_ADVERTS];
+	char				adShaders[Q3_MAX_MAP_ADVERTS][MAX_QPATH];
+//-qlbsp
 } world_t;
 
 
@@ -1826,7 +1832,25 @@ extern	cvar_t *r_arc_fov;
 extern	cvar_t *r_arc_uiMode;
 extern	cvar_t *r_arc_crosshairs;
 extern	cvar_t *r_arc_threewave_menu_fix;
+
+extern	cvar_t *r_teleporterFlash;
+
+extern	cvar_t *r_clearColor;
+
+extern	cvar_t *r_defaultImageSize;
+extern	cvar_t *r_defaultImageStyle;
+
+extern	cvar_t *r_drawSkyFloor;
+extern	cvar_t *r_mapOverBrightCap;
+
+extern	cvar_t *r_picmip_filter;
+extern	cvar_t *r_pixelsize;
 //-fnq
+//cnq3
+extern	cvar_t *r_brightness;
+extern	cvar_t *r_mapBrightness;
+extern	cvar_t *r_lightmapGreyscale;
+//-cnq3
 
 //====================================================================
 
@@ -1890,7 +1914,7 @@ void R_LocalNormalToWorld (const vec3_t local, vec3_t world);
 void R_LocalPointToWorld (const vec3_t local, vec3_t world);
 int R_CullBox (vec3_t bounds[2]);
 int R_CullLocalBox (vec3_t bounds[2]);
-int R_CullPointAndRadiusEx( const vec3_t origin, float radius, const cplane_t* frustum, int numPlanes );
+int R_CullPointAndRadiusEx( const vec3_t origin, float radius, const cPlane_t* frustum, int numPlanes );
 int R_CullPointAndRadius( const vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( const vec3_t origin, float radius );
 

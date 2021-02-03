@@ -642,7 +642,7 @@ issues.
 #define FS_UI_REF		0x02
 #define FS_CGAME_REF	0x04
 // number of id paks that will never be autodownloaded from baseq3/missionpack
-#define NUM_ID_PAKS		9
+#define NUM_Q3_PAKS		9
 #define NUM_TA_PAKS		4
 
 typedef enum {
@@ -665,12 +665,19 @@ typedef enum {
 #define	MAX_FOUND_FILES		0x5000
 
 #ifdef DEDICATED
-#define Q3CONFIG_CFG "q3config_server.cfg"
-#define CONSOLE_HISTORY_FILE "q3history_server"
+#define SERVER_PATH				"sv/"
 #else
-#define Q3CONFIG_CFG "q3config.cfg"
-#define CONSOLE_HISTORY_FILE "q3history"
+#define SERVER_PATH				""
 #endif
+#define CONFIG_PATH				"cfg/"
+#define LOGS_PATH				"logs/"
+#define CONFIG_PATH_FULL		SERVER_PATH CONFIG_PATH
+#define LOGS_PATH_FULL			SERVER_PATH LOGS_PATH
+#define CONFIG_FILE				"config.cfg"
+#define DEFAULT_FILE			"default.cfg"
+#define AUTOEXEC_FILE			"autoexec.cfg"
+#define CONSOLE_HISTORY_FILE	"console_history.log"
+#define CONSOLE_LOG_FILE		"console.log"
 
 typedef	time_t fileTime_t;
 typedef	off_t  fileOffset_t;
@@ -1287,7 +1294,18 @@ qboolean Sys_ResetReadOnlyAttribute( const char *ospath );
 const char *Sys_Pwd( void );
 const char *Sys_DefaultBasePath( void );
 const char *Sys_DefaultHomePath( void );
-const char *Sys_SteamPath( void );
+const char *Sys_Q1_Path( void );
+const char *Sys_Q2_Path( void );
+const char *Sys_Q3_Path( void );
+const char *Sys_Q1_SteamPath(const char *appID, const char *gameDir);
+const char *Sys_Q2_SteamPath(const char *appID, const char *gameDir);
+const char *Sys_Q3_SteamPath(const char *appID, const char *gameDir);
+const char *Sys_QL_SteamPath(const char *appID, const char *gameDir);
+
+//const char *Sys_SteamPath(const char *appID, const char *gameDir);
+const char *Sys_Q1_GOGPath( void );
+const char *Sys_Q2_GOGPath( void );
+const char *Sys_Q3_GOGPath( void );
 
 char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void Sys_FreeFileList( char **list );

@@ -327,10 +327,10 @@ static sfxHandle_t S_Base_RegisterSound( const char *name, qboolean compressed )
 	if ( !sfx ) {
 		return 0;
 	}
-
+	
 	if ( sfx->soundData ) {
 		if ( sfx->defaultSound ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
+			Com_Printf( S_COLOR_YELLOW "WARNING: Could not find %s - using default\n", sfx->soundName );
 			return 0;
 		}
 		return sfx - s_knownSfx;
@@ -342,7 +342,7 @@ static sfxHandle_t S_Base_RegisterSound( const char *name, qboolean compressed )
 	S_memoryLoad( sfx );
 
 	if ( sfx->defaultSound ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
+		Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default!\n", sfx->soundName );
 		return 0;
 	}
 
@@ -374,8 +374,11 @@ void S_memoryLoad( sfx_t *sfx ) {
 
 	// load the sound file
 	if ( !S_LoadSound ( sfx ) ) {
-		Com_DPrintf( S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n", sfx->soundName );
-		sfx->defaultSound = qtrue;
+		Q_strncpyz(sfx->soundName, va("sound/%s", sfx->soundName), sizeof(sfx->soundName));
+		if (!S_LoadSound(sfx)) {
+			Com_DPrintf(S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n", sfx->soundName);
+			sfx->defaultSound = qtrue;
+		}
 	}
 
 	sfx->inMemory = qtrue;

@@ -162,8 +162,8 @@ void WindingBounds( const winding_t *w, vec3_t mins, vec3_t maxs )
 	vec_t	v;
 	int		i,j;
 
-	mins[0] = mins[1] = mins[2] = MAX_MAP_BOUNDS;
-	maxs[0] = maxs[1] = maxs[2] = -MAX_MAP_BOUNDS;
+	mins[0] = mins[1] = mins[2] = Q3_MAX_MAP_BOUNDS;
+	maxs[0] = maxs[1] = maxs[2] = -Q3_MAX_MAP_BOUNDS;
 
 	for (i=0 ; i<w->numpoints ; i++)
 	{
@@ -210,7 +210,7 @@ winding_t *BaseWindingForPlane (vec3_t normal, vec_t dist)
 	double	dot;
 	
 	// find the major axis
-	max = -MAX_MAP_BOUNDS;
+	max = -Q3_MAX_MAP_BOUNDS;
 	x = -1;
 	for (i=0 ; i<3; i++)
 	{
@@ -244,8 +244,8 @@ winding_t *BaseWindingForPlane (vec3_t normal, vec_t dist)
 	
 	CrossProductDP( vup, normal, vright );
 	
-	VectorScale (vup, MAX_MAP_BOUNDS, vup);
-	VectorScale (vright, MAX_MAP_BOUNDS, vright);
+	VectorScale (vup, Q3_MAX_MAP_BOUNDS, vup);
+	VectorScale (vright, Q3_MAX_MAP_BOUNDS, vright);
 
 // project a really big	axis aligned box onto the plane
 	w = AllocWinding (4);
@@ -579,7 +579,7 @@ void CheckWinding (winding_t *w)
 		p1 = w->p[i];
 
 		for (j=0 ; j<3 ; j++)
-			if (p1[j] > MAX_MAP_BOUNDS || p1[j] < -MAX_MAP_BOUNDS)
+			if (p1[j] > Q3_MAX_MAP_BOUNDS || p1[j] < -Q3_MAX_MAP_BOUNDS)
 				Com_Error (ERR_DROP, "CheckFace: BUGUS_RANGE: %f",p1[j]);
 
 		j = i+1 == w->numpoints ? 0 : i+1;

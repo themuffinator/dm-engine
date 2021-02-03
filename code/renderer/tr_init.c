@@ -171,6 +171,19 @@ cvar_t	*r_arc_fov;
 cvar_t	*r_arc_uiMode;
 cvar_t	*r_arc_crosshairs;
 cvar_t	*r_arc_threewave_menu_fix;
+
+cvar_t	*r_teleporterFlash;
+
+cvar_t	*r_clearColor;
+
+cvar_t	*r_defaultImageSize;
+cvar_t	*r_defaultImageStyle;
+
+cvar_t *r_drawSkyFloor;
+
+cvar_t *r_picmip_filter;
+cvar_t *r_pixelsize;
+cvar_t *r_fogGreyscale;
 //-fnq
 
 cvar_t	*r_aviMotionJpegQuality;
@@ -1426,11 +1439,11 @@ static void R_Register( void )
 	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
 	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
-	r_picmip = ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_picmip = ri.Cvar_Get( "r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	ri.Cvar_CheckRange( r_picmip, "0", "16", CV_INTEGER );
 	ri.Cvar_SetDescription( r_picmip, "Set texture quality, lower is better" );
 
-	r_nomip = ri.Cvar_Get( "r_nomip", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_nomip = ri.Cvar_Get( "r_nomip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	ri.Cvar_CheckRange( r_nomip, "0", "1", CV_INTEGER );
 	ri.Cvar_SetDescription( r_nomip, "Apply picmip only on worldspawn textures" );
 
@@ -1583,6 +1596,24 @@ static void R_Register( void )
 	ri.Cvar_CheckRange(r_arc_crosshairs, "0", "1", qtrue );
 	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE );
 	ri.Cvar_CheckRange(r_arc_threewave_menu_fix, "0", "1", qtrue );
+
+	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "1", CVAR_ARCHIVE);
+	ri.Cvar_CheckRange(r_teleporterFlash, "0", "1", qtrue);
+
+	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE);
+
+	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	ri.Cvar_CheckRange(r_defaultImageStyle, "0", "1", qtrue);
+	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH);
+	ri.Cvar_CheckRange(r_defaultImageSize, "16", "128", qtrue);
+
+	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE);
+	ri.Cvar_CheckRange(r_drawSkyFloor, "0", "1", qtrue);
+
+	r_picmip_filter = ri.Cvar_Get("r_picmip_filter", "63", CVAR_ARCHIVE | CVAR_LATCH);
+	ri.Cvar_CheckRange(r_picmip_filter, "0", "63", qtrue);
+	r_pixelsize = ri.Cvar_Get("r_pixelsize", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	ri.Cvar_CheckRange(r_pixelsize, "1", "16", qtrue);
 //-fnq
 
 	r_aviMotionJpegQuality = ri.Cvar_Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE_ND );

@@ -96,7 +96,7 @@ automatically restricts where game media can come from to prevent add-ons from w
 After the paths are initialized, quake will look for the product.txt file.  If not
 found and verified, the game will run in restricted mode.  In restricted mode, only 
 files contained in demoq3/pak0.pk3 will be available for loading, and only if the zip header is
-verified to not have been modified.  A single exception is made for q3config.cfg.  Files
+verified to not have been modified.  A single exception is made for config.cfg.  Files
 can still be written out in restricted mode, so screenshots and demos are allowed.
 Restricted mode can be tested by setting "+set fs_restrict 1" on the command line, even
 if there is a valid product.txt under the basepath or cdpath.
@@ -104,7 +104,7 @@ if there is a valid product.txt under the basepath or cdpath.
 If not running in restricted mode, and a file is not found in any local filesystem,
 an attempt will be made to download it and save it under the base path.
 
-If the "fs_copyfiles" cvar is set to 1, then every time a file is sourced from the cd
+If the "fs_copyFiles" cvar is set to 1, then every time a file is sourced from the cd
 path, it will be copied over to the base path.  This is a development aid to help build
 test releases and to copy working sets over slow network links.
 
@@ -184,7 +184,7 @@ Read / write config to floppy option.
 
 Different version coexistance?
 
-When building a pak file, make sure a q3config.cfg isn't present in it,
+When building a pak file, make sure a config.cfg isn't present in it,
 or configs will never get loaded from disk!
 
   todo:
@@ -294,12 +294,20 @@ static	char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no 
 static	cvar_t		*fs_debug;
 static	cvar_t		*fs_homepath;
 
-static	cvar_t		*fs_steampath;
+static	cvar_t		*fs_q_path;
+static	cvar_t		*fs_q2_path;
+static	cvar_t		*fs_q3_path;
+static	cvar_t		*fs_ql_path;
+
+static	cvar_t		*fs_q_load;
+static	cvar_t		*fs_q2_load;
+static	cvar_t		*fs_q3_load;
+static	cvar_t		*fs_ql_load;
 
 static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
-static	cvar_t		*fs_copyfiles;
-static	cvar_t		*fs_gamedirvar;
+static	cvar_t		*fs_copyFiles;
+static	cvar_t		*fs_game;
 #ifndef USE_HANDLE_CACHE
 static	cvar_t		*fs_locked;
 #endif
@@ -969,18 +977,60 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 			fd->handleFiles.file.o = Sys_FOpen( ospath, "rb" );
 		}
 
-		// Check fs_steampath too
-		if ( !fd->handleFiles.file.o && fs_steampath->string[0] )
+		// Check fs_q3_path too
+		if ( !fd->handleFiles.file.o && fs_q3_path->string[0] )
 		{
-			// search steampath
-			ospath = FS_BuildOSPath( fs_steampath->string, filename, NULL );
+			// search path
+			ospath = FS_BuildOSPath( fs_q3_path->string, filename, NULL );
 
 			if ( fs_debug->integer )
 			{
-				Com_Printf( "FS_SV_FOpenFileRead (fs_steampath): %s\n", ospath );
+				Com_Printf( "FS_SV_FOpenFileRead (fs_q3_path): %s\n", ospath );
 			}
 
 			fd->handleFiles.file.o = Sys_FOpen( ospath, "rb" );
+		}
+
+		// Check fs_ql_path too
+		if (!fd->handleFiles.file.o && fs_ql_path->string[0])
+		{
+			// search path
+			ospath = FS_BuildOSPath(fs_ql_path->string, filename, NULL);
+
+			if (fs_debug->integer)
+			{
+				Com_Printf("FS_SV_FOpenFileRead (fs_ql_path): %s\n", ospath);
+			}
+
+			fd->handleFiles.file.o = Sys_FOpen(ospath, "rb");
+		}
+
+		// Check fs_q2_path too
+		if (!fd->handleFiles.file.o && fs_q2_path->string[0])
+		{
+			// search path
+			ospath = FS_BuildOSPath(fs_q2_path->string, filename, NULL);
+
+			if (fs_debug->integer)
+			{
+				Com_Printf("FS_SV_FOpenFileRead (fs_q2_path): %s\n", ospath);
+			}
+
+			fd->handleFiles.file.o = Sys_FOpen(ospath, "rb");
+		}
+
+		// Check fs_q_path too
+		if (!fd->handleFiles.file.o && fs_q_path->string[0])
+		{
+			// search path
+			ospath = FS_BuildOSPath(fs_q_path->string, filename, NULL);
+
+			if (fs_debug->integer)
+			{
+				Com_Printf("FS_SV_FOpenFileRead (fs_q_path): %s\n", ospath);
+			}
+
+			fd->handleFiles.file.o = Sys_FOpen(ospath, "rb");
 		}
 	}
 
@@ -2275,7 +2325,7 @@ Check if file should NOT be added to hash search table
 */
 static qboolean FS_BannedPakFile( const char *filename )
 {
-	if ( !strcmp( filename, "autoexec.cfg" ) || !strcmp( filename, Q3CONFIG_CFG ) )
+	if ( !strcmp( filename, AUTOEXEC_FILE ) || !strcmp( filename, CONFIG_FILE ) )
 		return qtrue;
 	else
 		return qfalse;
@@ -2313,7 +2363,7 @@ static pack_t *pakHashTable[ PK3_HASH_SIZE ];
 
 #ifdef USE_PK3_CACHE_FILE
 
-#define CACHE_FILE_NAME "pk3cache.dat"
+#define CACHE_FILE_NAME		LOGS_PATH_FULL "pk3cache.dat"
 
 #define CACHE_SYNC_CONDITION ( fs_paksReaded + fs_paksSkipped + fs_paksReleased >= 8 )
 
@@ -3665,7 +3715,7 @@ static int FS_GetModList( char *listbuf, int bufsize ) {
 	qboolean bDrop = qfalse;
 
 	// paths to search for mods
-	cvar_t *const *paths[] = { &fs_basepath, &fs_homepath, &fs_steampath };
+	cvar_t *const *paths[] = { &fs_basepath, &fs_homepath, &fs_q3_path };
 
 	*listbuf = '\0';
 	nMods = nTotal = 0;
@@ -3955,7 +4005,7 @@ static void FS_Path_f( void ) {
 FS_TouchFile_f
 
 The only purpose of this function is to allow game script files to copy
-arbitrary files furing an "fs_copyfiles 1" run.
+arbitrary files furing an "fs_copyFiles 1" run.
 ============
 */
 static void FS_TouchFile_f( void ) {
@@ -4245,7 +4295,7 @@ qboolean FS_idPak(const char *pak, const char *base, int numPaks)
 {
 	int i;
 
-	for (i = 0; i < NUM_ID_PAKS; i++) {
+	for (i = 0; i < NUM_Q3_PAKS; i++) {
 		if ( !FS_FilenameCompare(pak, va("%s/pak%d", base, i)) ) {
 			break;
 		}
@@ -4318,7 +4368,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		havepak = qfalse;
 
 		// never autodownload any of the id paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME, NUM_ID_PAKS) || FS_idPak(fs_serverReferencedPakNames[i], BASETA, NUM_TA_PAKS) ) {
+		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEQ3, NUM_Q3_PAKS) || FS_idPak(fs_serverReferencedPakNames[i], BASETA, NUM_TA_PAKS) ) {
 			continue;
 		}
 
@@ -4640,15 +4690,50 @@ FS_Startup
 static void FS_Startup( void ) {
 	const char *homePath;
 	int start, end;
+	char *path;
 
 	Com_Printf( "----- FS_Startup -----\n" );
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
-	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
+	fs_copyFiles = Cvar_Get( "fs_copyFiles", "0", CVAR_INIT );
 	fs_basepath = Cvar_Get( "fs_basepath", Sys_DefaultBasePath(), CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE );
 	fs_basegame = Cvar_Get( "fs_basegame", BASEGAME, CVAR_INIT | CVAR_PROTECTED );
-	fs_steampath = Cvar_Get( "fs_steampath", Sys_SteamPath(), CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE );
 
+	fs_q_load = Cvar_Get("fs_q_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_q2_load = Cvar_Get("fs_q2_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_q3_load = Cvar_Get("fs_q3_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_ql_load = Cvar_Get("fs_ql_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	
+	fs_q_path = Cvar_Get("fs_q_path", "", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_q2_path = Cvar_Get("fs_q2_path", "", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_q3_path = Cvar_Get("fs_q3_path", "", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+	fs_ql_path = Cvar_Get("fs_ql_path", "", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE);
+
+	path = "";
+	if (fs_q_load->integer && !fs_q_path->string[0]) {
+		if (fs_q_load->integer < 2) path = (char *)Sys_Q1_Path();
+		if (!path[0] && fs_q_load->integer < 3) path = (char *)Sys_Q1_SteamPath(STEAMPATH_Q1_APPID, STEAMPATH_Q1_GAMEDIR);
+		if (!path[0] && fs_q_load->integer < 4) path = (char *)Sys_Q1_GOGPath();
+		if (path) Cvar_Set("fs_q_path", (const char *)path);
+	}
+	path = "";
+	if (fs_q2_load->integer && !fs_q2_path->string[0]) {
+		if (fs_q2_load->integer < 2) path = (char *)Sys_Q2_Path();
+		if (!path[0] && fs_q2_load->integer < 3) path = (char *)Sys_Q2_SteamPath(STEAMPATH_Q2_APPID, STEAMPATH_Q2_GAMEDIR);
+		if (!path[0] && fs_q2_load->integer < 4) path = (char *)Sys_Q2_GOGPath();
+		if (path) Cvar_Set("fs_q2_path", (const char *)path);
+	}
+	path = "";
+	if (fs_q3_load->integer && !fs_q3_path->string[0]) {
+		if (fs_q3_load->integer < 2) path = (char *)Sys_Q3_Path();
+		if (!path[0] && fs_q3_load->integer < 3) path = (char *)Sys_Q3_SteamPath(STEAMPATH_Q3_APPID, STEAMPATH_Q3_GAMEDIR);
+		if (!path[0] && fs_q3_load->integer < 4) path = (char *)Sys_Q3_GOGPath();
+		if (path) Cvar_Set("fs_q3_path", (const char *)path);
+	}
+	if (fs_ql_load->integer && !fs_ql_path->string[0]) {
+		Cvar_Set("fs_ql_path", (char *)Sys_QL_SteamPath(STEAMPATH_QL_APPID, STEAMPATH_QL_GAMEDIR));
+	}
+	
 #ifndef USE_HANDLE_CACHE
 	fs_locked = Cvar_Get( "fs_locked", "0", CVAR_INIT );
 	Cvar_SetDescription( fs_locked, "Set file handle policy for pk3 files:\n"
@@ -4667,10 +4752,10 @@ static void FS_Startup( void ) {
 	fs_homepath = Cvar_Get( "fs_homepath", homePath, CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE );
 	Cvar_SetDescription( fs_homepath, "Directory to store user configuration and downloaded files." );
 
-	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-	Cvar_CheckRange( fs_gamedirvar, NULL, NULL, CV_FSPATH );
+	fs_game = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
+	Cvar_CheckRange( fs_game, NULL, NULL, CV_FSPATH );
 
-	if ( !Q_stricmp( fs_basegame->string, fs_gamedirvar->string ) ) {
+	if ( !Q_stricmp( fs_basegame->string, fs_game->string ) ) {
 		Cvar_ForceReset( "fs_game" );
 	}
 
@@ -4688,8 +4773,20 @@ static void FS_Startup( void ) {
 #endif
 
 	// add search path elements in reverse priority order
-	if ( fs_steampath->string[0] ) {
-		FS_AddGameDirectory( fs_steampath->string, fs_basegame->string );
+	if ( fs_q_path->string[0] ) {
+		FS_AddGameDirectory( fs_q_path->string, BASEQ1 );
+	}
+
+	if ( fs_q2_path->string[0] ) {
+		FS_AddGameDirectory( fs_q2_path->string, BASEQ2 );
+	}
+
+	if ( fs_q3_path->string[0] ) {
+		FS_AddGameDirectory( fs_q3_path->string, BASEQ3 );
+	}
+
+	if ( fs_ql_path->string[0] ) {
+		FS_AddGameDirectory( fs_ql_path->string, BASEQL );
 	}
 
 	if ( fs_basepath->string[0] ) {
@@ -4703,15 +4800,15 @@ static void FS_Startup( void ) {
 	}
 
 	// check for additional game folder for mods
-	if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, fs_basegame->string ) ) {
-		if ( fs_steampath->string[0] ) {
-			FS_AddGameDirectory( fs_steampath->string, fs_gamedirvar->string );
+	if ( fs_game->string[0] && Q_stricmp( fs_game->string, fs_basegame->string ) ) {
+		if ( fs_q3_path->string[0] ) {
+			FS_AddGameDirectory( fs_q3_path->string, fs_game->string );
 		}
 		if ( fs_basepath->string[0] ) {
-			FS_AddGameDirectory( fs_basepath->string, fs_gamedirvar->string );
+			FS_AddGameDirectory( fs_basepath->string, fs_game->string );
 		}
 		if ( fs_homepath->string[0] && Q_stricmp( fs_homepath->string, fs_basepath->string ) ) {
-			FS_AddGameDirectory( fs_homepath->string, fs_gamedirvar->string );
+			FS_AddGameDirectory( fs_homepath->string, fs_game->string );
 		}
 	}
 
@@ -4729,8 +4826,8 @@ static void FS_Startup( void ) {
 
 	Com_ReadCDKey( fs_basegame->string );
 
-	if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, fs_basegame->string ) ) {
-		Com_AppendCDKey( fs_gamedirvar->string );
+	if ( fs_game->string[0] && Q_stricmp( fs_game->string, fs_basegame->string ) ) {
+		Com_AppendCDKey( fs_game->string );
 	}
 
 	// add our commands
@@ -4750,10 +4847,10 @@ static void FS_Startup( void ) {
 	Com_Printf( "----------------------\n" );
 	Com_Printf( "%d files in %d pk3 files\n", fs_packFiles, fs_packCount );
 
-	fs_gamedirvar->modified = qfalse; // We just loaded, it's not modified
+	fs_game->modified = qfalse; // We just loaded, it's not modified
 
 	// check original q3a files
-	if ( !Q_stricmp( fs_basegame->string, BASEGAME ) || !Q_stricmp( fs_basegame->string, BASEDEMO ) )
+	if ( !Q_stricmp( fs_basegame->string, BASEGAME ) || !Q_stricmp( fs_basegame->string, BASEQ3DEMO ) )
 		FS_CheckIdPaks();
 
 #ifdef FS_MISSING
@@ -4795,7 +4892,7 @@ static void FS_CheckIdPaks( void )
 
 		pakBasename = path->pack->pakBasename;
 
-		if(!Q_stricmpn( path->pack->pakGamename, BASEDEMO, MAX_OSPATH )
+		if(!Q_stricmpn( path->pack->pakGamename, BASEQ3DEMO, MAX_OSPATH )
 		   && !Q_stricmpn( pakBasename, "pak0", MAX_OSPATH ))
 		{
 			founddemo = qtrue;
@@ -4811,7 +4908,7 @@ static void FS_CheckIdPaks( void )
 			}
 		}
 
-		else if(!Q_stricmpn( path->pack->pakGamename, BASEGAME, MAX_OSPATH )
+		else if(!Q_stricmpn( path->pack->pakGamename, BASEQ3, MAX_OSPATH )
 			&& strlen(pakBasename) == 4 && !Q_stricmpn( pakBasename, "pak", 3 )
 			&& pakBasename[3] >= '0' && pakBasename[3] <= '8')
 		{
@@ -4863,11 +4960,11 @@ static void FS_CheckIdPaks( void )
 		Com_Printf("\n\n"
 			"Also check that your Q3 executable is in\n"
 			"the correct place and that every file\n"
-			"in the %s directory is present and readable.\n", BASEGAME);
+			"in the %s directory is present and readable.\n", BASEQ3);
 
-		if(!fs_gamedirvar->string[0]
-		|| !Q_stricmp( fs_gamedirvar->string, BASEGAME )
-		|| !Q_stricmp( fs_gamedirvar->string, BASETA ))
+		if(!fs_game->string[0]
+		|| !Q_stricmp( fs_game->string, BASEQ3 )
+		|| !Q_stricmp( fs_game->string, BASETA ))
 			Com_Error(ERR_FATAL, "\n*** you need to install Quake III Arena in order to play ***");
 	}
 }
@@ -5299,7 +5396,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
 	Com_StartupVariable( "fs_basegame" );
-	Com_StartupVariable( "fs_copyfiles" );
+	Com_StartupVariable( "fs_copyFiles" );
 	Com_StartupVariable( "fs_restrict" );
 #ifndef USE_HANDLE_CACHE
 	Com_StartupVariable( "fs_locked" );
@@ -5339,8 +5436,8 @@ void FS_Restart( int checksumFeed ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
-	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
-		// this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
+	if ( FS_ReadFile(CONFIG_PATH_FULL DEFAULT_FILE, NULL) <= 0 && FS_ReadFile(DEFAULT_FILE, NULL) <= 0 ) {
+		// this might happen when connecting to a pure server not using BASEQ3/pak0.pk3
 		// (for instance a TA demo server)
 		if (lastValidBase[0]) {
 			FS_PureServerSetLoadedPaks("", "");
@@ -5358,16 +5455,19 @@ void FS_Restart( int checksumFeed ) {
 	}
 
 	// new check before safeMode
-	if ( Q_stricmp(fs_gamedirvar->string, lastValidGame) && execConfig ) {
-		// skip the q3config.cfg if "safe" is on the command line
+	if ( Q_stricmp(fs_game->string, lastValidGame) && execConfig ) {
+		// skip the config.cfg if "safe" is on the command line
 		if ( !Com_SafeMode() ) {
-			Cbuf_AddText( "exec " Q3CONFIG_CFG "\n" );
+			if ( FS_ReadFile(CONFIG_PATH_FULL CONFIG_FILE, NULL) <= 0 )
+				Cbuf_AddText("exec " CONFIG_FILE "\n");
+			else
+				Cbuf_AddText( "exec " CONFIG_PATH_FULL CONFIG_FILE "\n" );
 		}
 	}
 	execConfig = qfalse;
 
 	Q_strncpyz( lastValidBase, fs_basepath->string, sizeof( lastValidBase ) );
-	Q_strncpyz( lastValidGame, fs_gamedirvar->string, sizeof( lastValidGame ) );
+	Q_strncpyz( lastValidGame, fs_game->string, sizeof( lastValidGame ) );
 }
 
 
@@ -5390,7 +5490,7 @@ restart if necessary
 */
 qboolean FS_ConditionalRestart( int checksumFeed, qboolean clientRestart )
 {
-	if ( fs_gamedirvar->modified )
+	if ( fs_game->modified )
 	{
 		Com_GameRestart( checksumFeed, clientRestart );
 		return qtrue;
@@ -5593,8 +5693,8 @@ void FS_VM_CloseFiles( handleOwner_t owner )
 
 const char *FS_GetCurrentGameDir( void )
 {
-	if ( fs_gamedirvar->string[0] )
-		return fs_gamedirvar->string;
+	if ( fs_game->string[0] )
+		return fs_game->string;
 
 	return fs_basegame->string;
 }
@@ -5627,9 +5727,9 @@ const char *FS_GetHomePath( void )
 const char *FS_GetGamePath( void )
 {
 	static char buffer[ MAX_OSPATH + MAX_CVAR_VALUE_STRING + 1 ];
-	if ( fs_gamedirvar && fs_gamedirvar->string[0] ) {
+	if ( fs_game && fs_game->string[0] ) {
 		Com_sprintf( buffer, sizeof( buffer ), "%s%c%s", FS_GetHomePath(), 
-			PATH_SEP, fs_gamedirvar->string );
+			PATH_SEP, fs_game->string );
 		return buffer;
 	} else {
 		buffer[0] = '\0';

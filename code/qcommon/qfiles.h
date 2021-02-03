@@ -306,35 +306,54 @@ typedef struct {
 #define BSP_IDENT	(('P'<<24)+('S'<<16)+('B'<<8)+'I')
 		// little-endian "IBSP"
 
+#define IBSP_Q2			38
 #define IBSP_Q3A		46
 #define IBSP_QL			47
 
-
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
-#define	MAX_MAP_MODELS		0x400
-#define	MAX_MAP_BRUSHES		0x8000
-#define	MAX_MAP_ENTITIES	0x800
-#define	MAX_MAP_ENTSTRING	0x40000
-#define	MAX_MAP_SHADERS		0x400
 
-#define	MAX_MAP_AREAS		0x100	// MAX_MAP_AREA_BYTES in q_shared must match!
-#define	MAX_MAP_FOGS		0x100
-#define	MAX_MAP_PLANES		0x20000
-#define	MAX_MAP_NODES		0x20000
-#define	MAX_MAP_BRUSHSIDES	0x20000
-#define	MAX_MAP_LEAFS		0x20000
-#define	MAX_MAP_LEAFFACES	0x20000
-#define	MAX_MAP_LEAFBRUSHES 0x40000
-#define	MAX_MAP_PORTALS		0x20000
-#define	MAX_MAP_LIGHTING	0x800000
-#define	MAX_MAP_LIGHTGRID	0x800000
-#define	MAX_MAP_VISIBILITY	0x200000
+#define	Q2_MAX_MAP_BRUSHES		0x2000
+#define	Q2_MAX_MAP_TEXINFO		0x2000
+#define	Q2_MAX_MAP_AREAPORTALS	0x400
+#define	Q2_MAX_MAP_PLANES		0x10000
+#define	Q2_MAX_MAP_NODES		0x10000
+#define	Q2_MAX_MAP_BRUSHSIDES	0x10000
+#define	Q2_MAX_MAP_LEAFS		0x10000
+#define	Q2_MAX_MAP_VERTS		0x10000
+#define	Q2_MAX_MAP_FACES		0x10000
+#define	Q2_MAX_MAP_LEAFFACES	0x10000
+#define	Q2_MAX_MAP_LEAFBRUSHES	0x10000
+#define	Q2_MAX_MAP_PORTALS		0x10000
+#define	Q2_MAX_MAP_EDGES		0x1F400
+#define	Q2_MAX_MAP_SURFEDGES	0x3E800
+#define	Q2_MAX_MAP_LIGHTING		0x200000
+#define	Q2_MAX_MAP_VISIBILITY	0x100000
 
-#define	MAX_MAP_DRAW_SURFS	0x20000
-#define	MAX_MAP_DRAW_VERTS	0x80000
-#define	MAX_MAP_DRAW_INDEXES	0x80000
+#define	MAX_MAP_MODELS			0x400		// shared by Q2 and Q3
+#define	Q3_MAX_MAP_BRUSHES		0x8000
+#define	MAX_MAP_ENTITIES		0x800		// shared by Q2 and Q3
+#define	MAX_MAP_ENTSTRING		0x40000		// shared by Q2 and Q3
+#define	Q3_MAX_MAP_SHADERS		0x400
 
+#define	MAX_MAP_AREAS			0x100	// Q3_MAX_MAP_AREA_BYTES in q_shared must match!		// shared by Q2 and Q3
+#define	Q3_MAX_MAP_FOGS			0x100
+#define	Q3_MAX_MAP_PLANES		0x20000
+#define	Q3_MAX_MAP_NODES		0x20000
+#define	Q3_MAX_MAP_BRUSHSIDES	0x20000
+#define	Q3_MAX_MAP_LEAFS		0x20000
+#define	Q3_MAX_MAP_LEAFFACES	0x20000
+#define	Q3_MAX_MAP_LEAFBRUSHES	0x40000
+#define	Q3_MAX_MAP_PORTALS		0x20000
+#define	Q3_MAX_MAP_LIGHTING		0x800000
+#define	Q3_MAX_MAP_LIGHTGRID	0x800000
+#define	Q3_MAX_MAP_VISIBILITY	0x200000
+
+#define	Q3_MAX_MAP_DRAW_SURFS	0x20000
+#define	Q3_MAX_MAP_DRAW_VERTS	0x80000
+#define	Q3_MAX_MAP_DRAW_INDEXES	0x80000
+
+#define Q3_MAX_MAP_ADVERTS		0x20
 
 // key / value pair sizes in the entities lump
 #define	MAX_KEY				32
@@ -358,57 +377,125 @@ typedef struct {
 	int		fileofs, filelen;
 } lump_t;
 
-#define	LUMP_ENTITIES		0
-#define	LUMP_SHADERS		1
-#define	LUMP_PLANES			2
-#define	LUMP_NODES			3
-#define	LUMP_LEAFS			4
-#define	LUMP_LEAFSURFACES	5
-#define	LUMP_LEAFBRUSHES	6
-#define	LUMP_MODELS			7
-#define	LUMP_BRUSHES		8
-#define	LUMP_BRUSHSIDES		9
-#define	LUMP_DRAWVERTS		10
-#define	LUMP_DRAWINDEXES	11
-#define	LUMP_FOGS			12
-#define	LUMP_SURFACES		13
-#define	LUMP_LIGHTMAPS		14
-#define	LUMP_LIGHTGRID		15
-#define	LUMP_VISIBILITY		16
-#define	HEADER_LUMPS		17
+#define	Q2_LUMP_ENTITIES		0
+#define	Q2_LUMP_PLANES			1
+#define	Q2_LUMP_VERTEXES		2
+#define	Q2_LUMP_VISIBILITY		3
+#define	Q2_LUMP_NODES			4
+#define	Q2_LUMP_TEXINFO			5
+#define	Q2_LUMP_FACES			6
+#define	Q2_LUMP_LIGHTING		7
+#define	Q2_LUMP_LEAFS			8
+#define	Q2_LUMP_LEAFFACES		9
+#define	Q2_LUMP_LEAFBRUSHES		10
+#define	Q2_LUMP_EDGES			11
+#define	Q2_LUMP_SURFEDGES		12
+#define	Q2_LUMP_MODELS			13
+#define	Q2_LUMP_BRUSHES			14
+#define	Q2_LUMP_BRUSHSIDES		15
+#define	Q2_LUMP_POP				16
+#define	Q2_LUMP_AREAS			17
+#define	Q2_LUMP_AREAPORTALS		18
+#define	Q2_HEADER_LUMPS			19
+
+#define	Q3_LUMP_ENTITIES		0
+#define	Q3_LUMP_SHADERS			1
+#define	Q3_LUMP_PLANES			2
+#define	Q3_LUMP_NODES			3
+#define	Q3_LUMP_LEAFS			4
+#define	Q3_LUMP_LEAFSURFACES	5
+#define	Q3_LUMP_LEAFBRUSHES		6
+#define	Q3_LUMP_MODELS			7
+#define	Q3_LUMP_BRUSHES			8
+#define	Q3_LUMP_BRUSHSIDES		9
+#define	Q3_LUMP_DRAWVERTS		10
+#define	Q3_LUMP_DRAWINDEXES		11
+#define	Q3_LUMP_FOGS			12
+#define	Q3_LUMP_SURFACES		13
+#define	Q3_LUMP_LIGHTMAPS		14
+#define	Q3_LUMP_LIGHTGRID		15
+#define	Q3_LUMP_VISIBILITY		16
+#define	Q3_LUMP_ADVERTS			17	//QL exclusive
+#define	Q3_HEADER_LUMPS			18
 
 typedef struct {
 	int			ident;
 	int			version;
 
-	lump_t		lumps[HEADER_LUMPS];
-} dheader_t;
+	lump_t		lumps[Q2_HEADER_LUMPS];
+} q2_dHeader_t;
+
+typedef struct {
+	int			ident;
+	int			version;
+
+	lump_t		lumps[Q3_HEADER_LUMPS];
+} q3_dHeader_t;
 
 typedef struct {
 	float		mins[3], maxs[3];
 	int			firstSurface, numSurfaces;
 	int			firstBrush, numBrushes;
-} dmodel_t;
+} q3_dModel_t;
+
+typedef struct texinfo_s {
+	float		vecs[2][4];		// [s/t][xyz offset]
+	int			flags;			// miptex flags + overrides
+	int			value;			// light emission, etc
+	char		texture[32];	// texture name (textures/*.wal)
+	int			nexttexinfo;	// for animations, -1 = end of chain
+} q2_texInfo_t;
 
 typedef struct {
 	char		shader[MAX_QPATH];
 	int			surfaceFlags;
 	int			contentFlags;
-} dshader_t;
+} q3_dShader_t;
 
-// planes x^1 is allways the opposite of plane x
-
+// planes (x&~1) and (x&~1)+1 are always opposites
 typedef struct {
 	float		normal[3];
 	float		dist;
-} dplane_t;
+	int			type;		// PLANE_X - PLANE_ANYZ ?remove? trivial to regenerate
+} q2_dPlane_t;
+
+// planes x^1 is always the opposite of plane x
+typedef struct {
+	float		normal[3];
+	float		dist;
+} q3_dPlane_t;
+
+typedef struct {
+	int			planeNum;
+	int			children[2];	// negative numbers are -(leafs+1), not nodes
+	short		mins[3];		// for frustom culling
+	short		maxs[3];
+	unsigned short	firstface;
+	unsigned short	numfaces;	// counting both sides
+} q2_dNode_t;
 
 typedef struct {
 	int			planeNum;
 	int			children[2];	// negative numbers are -(leafs+1), not nodes
 	int			mins[3];		// for frustom culling
 	int			maxs[3];
-} dnode_t;
+} q3_dNode_t;
+
+typedef struct {
+	int				contents;			// OR of all brushes (not needed?)
+
+	short			cluster;
+	short			area;
+
+	short			mins[3];			// for frustum culling
+	short			maxs[3];
+
+	unsigned short	firstLeafSurface;
+	unsigned short	numLeafSurfaces;
+
+	unsigned short	firstLeafBrush;
+	unsigned short	numLeafBrushes;
+} q2_dLeaf_t;
 
 typedef struct {
 	int			cluster;			// -1 = opaque cluster (do I still store these?)
@@ -422,24 +509,35 @@ typedef struct {
 
 	int			firstLeafBrush;
 	int			numLeafBrushes;
-} dleaf_t;
+} q3_dLeaf_t;
+
+typedef struct {
+	unsigned short	planeNum;		// facing out of the leaf
+	short			texInfo;
+} q2_dBrushSide_t;
 
 typedef struct {
 	int			planeNum;			// positive plane side faces out of the leaf
 	int			shaderNum;
-} dbrushside_t;
+} q3_dBrushSide_t;
+
+typedef struct {
+	int				firstSide;
+	int				numSides;
+	int				contents;
+} q2_dBrush_t;
 
 typedef struct {
 	int			firstSide;
 	int			numSides;
 	int			shaderNum;		// the shader that determines the contents flags
-} dbrush_t;
+} q3_dBrush_t;
 
 typedef struct {
 	char		shader[MAX_QPATH];
 	int			brushNum;
 	int			visibleSide;	// the brush side that ray tests need to clip against (-1 == none)
-} dfog_t;
+} q3_dFog_t;
 
 typedef struct {
 	vec3_t		xyz;
@@ -479,7 +577,74 @@ typedef struct {
 
 	int			patchWidth;
 	int			patchHeight;
-} dsurface_t;
+} q3_dSurface_t;
 
+//qlbsp: from wolfcamql
+typedef struct {
+	int			cellId;
+	vec3_t		normal;
+	vec3_t		rect[4];
+	char		model[MAX_QPATH];
+} q3_dAdvertisement_t;
+//-qlbsp
 
+// =========================
+// QUAKE 2
+// =========================
+
+typedef struct {
+	float		mins[3], maxs[3];
+	float		origin[3];		// for sounds or lights
+	int			headnode;
+	int			firstface, numfaces;	// submodels just draw faces
+										// without walking the bsp tree
+} q2_dModel_t;
+
+typedef struct {
+	float		point[3];
+} q2_dVertex_t;
+
+// note that edge 0 is never used, because negative edge nums are used for
+// counterclockwise use of the edge in a face
+typedef struct {
+	unsigned short	v[2];		// vertex numbers
+} q2_dEdge_t;
+
+#define	MAXLIGHTMAPS	4
+typedef struct {
+	unsigned short	planenum;
+	short			side;
+
+	int				firstedge;		// we must support > 64k edges
+	short			numedges;
+	short			texinfo;
+
+	// lighting info
+	byte			styles[MAXLIGHTMAPS];
+	int				lightofs;		// start of [numstyles*surfsize] samples
+} q2_dFace_t;
+
+// the visibility lump consists of a header with a count, then
+// byte offsets for the PVS and PHS of each cluster, then the raw
+// compressed bit vectors
+#define	DVIS_PVS	0
+#define	DVIS_PHS	1
+typedef struct {
+	int				numclusters;
+	int				bitofs[8][2];	// bitofs[numclusters][2]
+} q2_dVis_t;
+
+// each area has a list of portals that lead into other areas
+// when portals are closed, other areas may not be visible or
+// hearable even if the vis info says that it should be
+typedef struct {
+	int		portalnum;
+	int		otherarea;
+} q2_dAreaPortal_t;
+
+typedef struct {
+	int		numareaportals;
+	int		firstareaportal;
+} q2_dArea_t;
 #endif
+

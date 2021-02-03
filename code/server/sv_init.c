@@ -394,7 +394,7 @@ This is NOT called for map_restart
 */
 void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 	int			i;
-	int			checksum;
+	int			checksum, version;
 	qboolean	isBot;
 	const char	*p;
 
@@ -501,7 +501,8 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 	FS_Restart( sv.checksumFeed );
 
 	Sys_SetStatus( "Loading map %s", mapname );
-	CM_LoadMap( va( "maps/%s.bsp", mapname ), qfalse, &checksum );
+	CM_LoadMap( va( "maps/%s.bsp", mapname ), qfalse, &checksum, &version );
+	Com_Printf(S_COLOR_CYAN "Loadmap done\n");
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", mapname );
@@ -515,7 +516,8 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 	Cvar_Set( "sv_serverid", va( "%i", sv.serverId ) );
 
 	// clear physics interaction links
-	SV_ClearWorld();
+	SV_ClearWorld(version);
+	Com_Printf(S_COLOR_CYAN "Clear world done\n");
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -527,6 +529,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 
 	// load and spawn all other entities
 	SV_InitGameProgs();
+	Com_Printf(S_COLOR_CYAN "Initgameprogs done\n");
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;

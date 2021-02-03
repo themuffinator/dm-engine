@@ -367,7 +367,7 @@ Just adds default parameters that cgame doesn't need to know about
 static void CL_CM_LoadMap( const char *mapname ) {
 	int		checksum;
 
-	CM_LoadMap( mapname, qtrue, &checksum );
+	CM_LoadMap( mapname, qtrue, &checksum, 0 );
 }
 
 

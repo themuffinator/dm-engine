@@ -399,7 +399,7 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 R_RecursiveWorldNode
 ================
 */
-static void R_RecursiveWorldNode( mnode_t *node, uint32_t planeBits, uint32_t dlightBits, uint32_t pshadowBits ) {
+static void R_RecursiveWorldNode( mNode_t *node, uint32_t planeBits, uint32_t dlightBits, uint32_t pshadowBits ) {
 
 	do {
 		uint32_t newDlights[2];
@@ -589,10 +589,10 @@ static void R_RecursiveWorldNode( mnode_t *node, uint32_t planeBits, uint32_t dl
 R_PointInLeaf
 ===============
 */
-static mnode_t *R_PointInLeaf( const vec3_t p ) {
-	mnode_t		*node;
+static mNode_t *R_PointInLeaf( const vec3_t p ) {
+	mNode_t		*node;
 	float		d;
-	cplane_t	*plane;
+	cPlane_t	*plane;
 	
 	if ( !tr.world ) {
 		ri.Error (ERR_DROP, "R_PointInLeaf: bad model");
@@ -634,7 +634,7 @@ R_inPVS
 =================
 */
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 ) {
-	mnode_t *leaf;
+	mNode_t *leaf;
 	byte	*vis;
 
 	leaf = R_PointInLeaf( p1 );
@@ -657,7 +657,7 @@ cluster
 */
 static void R_MarkLeaves (void) {
 	const byte	*vis;
-	mnode_t	*leaf, *parent;
+	mNode_t	*leaf, *parent;
 	int		i;
 	int		cluster;
 

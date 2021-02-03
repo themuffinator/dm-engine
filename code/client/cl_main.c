@@ -91,6 +91,8 @@ cvar_t *cl_stencilbits;
 cvar_t *cl_depthbits;
 cvar_t *cl_drawBuffer;
 
+cvar_t *cl_cinematics_arc;
+
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
@@ -1215,6 +1217,8 @@ qboolean CL_Disconnect( qboolean showMainMenu ) {
 	*clc.downloadTempName = *clc.downloadName = '\0';
 	Cvar_Set( "cl_downloadName", "" );
 
+	Cvar_Set("com_bspversion", "");
+
 	// Stop recording any video
 	if ( CL_VideoRecording() ) {
 		// Finish rendering current frame
@@ -2334,7 +2338,7 @@ static void CL_CheckForResend( void ) {
 
 		// for now - this will be used to inform server about q3msgboom fix
 		// this is optional key so will not trigger oversize warning
-		Info_SetValueForKey_s( info, MAX_USERINFO_LENGTH, "client", Q3_VERSION );
+		Info_SetValueForKey_s( info, MAX_USERINFO_LENGTH, "client", PRODUCT_VERSION );
 
 		if ( !notOverflowed ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: oversize userinfo, you might be not able to join remote server!\n" );
@@ -3770,6 +3774,8 @@ static void CL_InitGLimp_Cvars( void )
 	Cvar_CheckRange( cl_depthbits, "0", "32", CV_INTEGER );
 
 	cl_drawBuffer = Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT );
+
+	cl_cinematics_arc = Cvar_Get( "cl_cinematics_arc", "1", 0 );
 
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get( "cl_renderer", "opengl", CVAR_ARCHIVE | CVAR_LATCH );

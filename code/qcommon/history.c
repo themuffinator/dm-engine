@@ -147,10 +147,10 @@ static void Con_LoadHistory( void )
 		Field_Clear( &historyEditLines[i] );
 	}
 
-	consoleSaveBufferSize = FS_Home_FOpenFileRead( CONSOLE_HISTORY_FILE, &f );
+	consoleSaveBufferSize = FS_Home_FOpenFileRead(LOGS_PATH_FULL CONSOLE_HISTORY_FILE, &f );
 	if ( f == FS_INVALID_HANDLE )
 	{
-		Com_Printf( "Couldn't read %s.\n", CONSOLE_HISTORY_FILE );
+		Com_Printf( "Couldn't read %s.\n", LOGS_PATH_FULL CONSOLE_HISTORY_FILE );
 		return;
 	}
 
@@ -210,7 +210,7 @@ static void Con_LoadHistory( void )
 		historyLine = nextHistoryLine = numLines;
 	}
 	else
-		Com_Printf( "Couldn't read %s.\n", CONSOLE_HISTORY_FILE );
+		Com_Printf( "Couldn't read %s.\n", LOGS_PATH_FULL CONSOLE_HISTORY_FILE );
 
 	FS_FCloseFile( f );
 }
@@ -260,15 +260,15 @@ static void Con_SaveHistory( void )
 
 	consoleSaveBufferSize = strlen( consoleSaveBuffer );
 
-	f = FS_FOpenFileWrite( CONSOLE_HISTORY_FILE );
+	f = FS_FOpenFileWrite(LOGS_PATH_FULL CONSOLE_HISTORY_FILE );
 	if( f == FS_INVALID_HANDLE )
 	{
-		Com_Printf( "Couldn't write %s.\n", CONSOLE_HISTORY_FILE );
+		Com_Printf( "Couldn't write %s.\n", LOGS_PATH_FULL CONSOLE_HISTORY_FILE );
 		return;
 	}
 
 	if( FS_Write( consoleSaveBuffer, consoleSaveBufferSize, f ) < consoleSaveBufferSize )
-		Com_Printf( "Couldn't write %s.\n", CONSOLE_HISTORY_FILE );
+		Com_Printf( "Couldn't write %s.\n", LOGS_PATH_FULL CONSOLE_HISTORY_FILE );
 
 	FS_FCloseFile( f );
 }

@@ -128,7 +128,7 @@ const char *Sys_DefaultHomePath( void )
 		return NULL;
 	}
 	Q_strncpyz( path, szPath, sizeof(path) );
-	Q_strcat( path, sizeof(path), "\\Quake3" );
+	Q_strcat( path, sizeof(path), "\\" PRODUCT_NAME );
 	FreeLibrary(shfolder);
 	if( !CreateDirectory( path, NULL ) )
 	{
@@ -147,62 +147,563 @@ const char *Sys_DefaultHomePath( void )
 
 /*
 ================
-Sys_SteamPath
+Sys_Q1_Path
+	//fnq3 FIXME: is this correct?
 ================
 */
-const char *Sys_SteamPath( void )
-{
-	static TCHAR steamPath[ MAX_OSPATH ]; // will be converted from TCHAR to ANSI
+const char *Sys_Q1_Path(void) {
+	static TCHAR q1Path[MAX_OSPATH];
+	return q1Path;
+#if 0
+	HKEY q1RegKey;
+	DWORD pathLen = MAX_OSPATH;
 
-#if defined(STEAMPATH_NAME) || defined(STEAMPATH_APPID)
+	if (!q1Path[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Id\\Quake", 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &q1RegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(q1RegKey, "INSTALLPATH", NULL, NULL, (LPBYTE)q1Path, &pathLen))
+			q1Path[0] = '\0';
+
+		RegCloseKey(q1RegKey);
+	}
+
+	return q1Path;
+#endif
+}
+
+
+/*
+================
+Sys_Q2_Path
+	//fnq3 FIXME: is this correct?
+================
+*/
+const char *Sys_Q2_Path(void) {
+	static TCHAR q2Path[MAX_OSPATH];
+	HKEY q2RegKey;
+	DWORD pathLen = MAX_OSPATH;
+	char *s = "";
+#if defined(__x86_64__)
+	s = "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Quake2_exe";
+#else
+	s = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Quake2_exe";
+#endif
+	if (!q2Path[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, s, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &q2RegKey)) {
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(q2RegKey, "Path", NULL, NULL, (LPBYTE)q2Path, &pathLen))
+			q2Path[0] = '\0';
+
+		RegCloseKey(q2RegKey);
+	}
+
+	return q2Path;
+}
+
+
+/*
+================
+Sys_Q3_Path
+
+================
+*/
+const char *Sys_Q3_Path(void) {
+	static TCHAR q3Path[MAX_OSPATH];
+	HKEY q3RegKey;
+	DWORD pathLen = MAX_OSPATH;
+	char *s = "";
+#if defined(__x86_64__)
+	s = "SOFTWARE\\WOW6432Node\\Id\\Quake III Arena";
+#else
+	s = "SOFTWARE\\Id\\Quake III Arena";
+#endif
+
+	if (!q3Path[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, s, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &q3RegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(q3RegKey, "INSTALLPATH", NULL, NULL, (LPBYTE)q3Path, &pathLen))
+			q3Path[0] = '\0';
+
+		RegCloseKey(q3RegKey);
+	}
+
+	return q3Path;
+}
+
+#if 0
+/*
+================
+Sys_Q1_SteamPath
+================
+*/
+const char *Sys_Q1_SteamPath(void)
+{
+	static TCHAR steamPathQ1[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+#if defined(STEAMPATH_Q1_GAMEDIR) || defined(STEAMPATH_Q1_APPID)
 	HKEY steamRegKey;
 	DWORD pathLen = MAX_OSPATH;
 	qboolean finishPath = qfalse;
 #endif
 
-#ifdef STEAMPATH_APPID
+#ifdef STEAMPATH_Q1_APPID
 	// Assuming Steam is a 32-bit app
-	if ( !steamPath[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_APPID), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey ) == ERROR_SUCCESS ) 
+	if (!steamPathQ1[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_Q1_APPID), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS)
 	{
-		pathLen = sizeof( steamPath );
-		if ( RegQueryValueEx( steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPath, &pathLen ) != ERROR_SUCCESS )
-			steamPath[ 0 ] = '\0';
+		pathLen = sizeof(steamPathQ1);
+		if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPathQ1, &pathLen) != ERROR_SUCCESS)
+			steamPathQ1[0] = '\0';
 
-		RegCloseKey( steamRegKey );
+		RegCloseKey(steamRegKey);
 	}
 
-#ifdef STEAMPATH_NAME
-	if ( !steamPath[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey ) == ERROR_SUCCESS )
+#ifdef STEAMPATH_Q1_GAMEDIR
+	if (!steamPathQ1[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS)
 	{
-		pathLen = sizeof( steamPath );
-		if ( RegQueryValueEx( steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen ) != ERROR_SUCCESS ) {
-			pathLen = sizeof( steamPath );
-			if ( RegQueryValueEx( steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen ) != ERROR_SUCCESS )
-				steamPath[ 0 ] = '\0';
+		pathLen = sizeof(steamPathQ1);
+		if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPathQ1, &pathLen) != ERROR_SUCCESS) {
+			pathLen = sizeof(steamPathQ1);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPathQ1, &pathLen) != ERROR_SUCCESS)
+				steamPathQ1[0] = '\0';
 		}
 
-		if ( steamPath[ 0 ] )
+		if (steamPathQ1[0])
 			finishPath = qtrue;
 
-		RegCloseKey( steamRegKey );
+		RegCloseKey(steamRegKey);
 	}
 #endif
 
-	if ( steamPath[ 0 ] )
+	if (steamPathQ1[0])
 	{
-		if ( pathLen == sizeof( steamPath ) )
+		if (pathLen == sizeof(steamPathQ1))
 			pathLen--;
 
-		*( ((char*)steamPath) + pathLen )  = '\0';
+		*(((char *)steamPathQ1) + pathLen) = '\0';
 #ifdef UNICODE
-		strcpy( (char*)steamPath, WtoA( steamPath ) );
+		strcpy((char *)steamPathQ1, WtoA(steamPathQ1));
 #endif
-		if ( finishPath )
-			Q_strcat( (char*)steamPath, MAX_OSPATH, "\\SteamApps\\common\\" STEAMPATH_NAME );
+		if (finishPath)
+			Q_strcat((char *)steamPathQ1, MAX_OSPATH, "\\SteamApps\\common\\" STEAMPATH_Q1_GAMEDIR);
 	}
 #endif
 
-	return (const char*)steamPath;
+	return (const char *)steamPathQ1;
+}
+
+
+/*
+================
+Sys_Q2_SteamPath
+================
+*/
+const char *Sys_Q2_SteamPath(void)
+{
+	static TCHAR steamPathQ2[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+#if defined(STEAMPATH_Q2_GAMEDIR) || defined(STEAMPATH_Q2_APPID)
+	HKEY steamRegKey;
+	DWORD pathLen = MAX_OSPATH;
+	qboolean finishPath = qfalse;
+#endif
+
+#ifdef STEAMPATH_Q2_APPID
+	// Assuming Steam is a 32-bit app
+	if (!steamPathQ2[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_Q2_APPID), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS)
+	{
+		pathLen = sizeof(steamPathQ2);
+		if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPathQ2, &pathLen) != ERROR_SUCCESS)
+			steamPathQ2[0] = '\0';
+
+		RegCloseKey(steamRegKey);
+	}
+
+#ifdef STEAMPATH_Q2_GAMEDIR
+	if (!steamPathQ2[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS)
+	{
+		pathLen = sizeof(steamPathQ2);
+		if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPathQ2, &pathLen) != ERROR_SUCCESS) {
+			pathLen = sizeof(steamPathQ2);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPathQ2, &pathLen) != ERROR_SUCCESS)
+				steamPathQ2[0] = '\0';
+		}
+
+		if (steamPathQ2[0])
+			finishPath = qtrue;
+
+		RegCloseKey(steamRegKey);
+	}
+#endif
+
+	if (steamPathQ2[0])
+	{
+		if (pathLen == sizeof(steamPathQ2))
+			pathLen--;
+
+		*(((char *)steamPathQ2) + pathLen) = '\0';
+#ifdef UNICODE
+		strcpy((char *)steamPathQ2, WtoA(steamPathQ2));
+#endif
+		if (finishPath)
+			Q_strcat((char *)steamPathQ2, MAX_OSPATH, "\\SteamApps\\common\\" STEAMPATH_Q2_GAMEDIR);
+	}
+#endif
+
+	return (const char *)steamPathQ2;
+}
+#endif
+
+/*
+================
+Sys_SteamPath
+================
+*/
+const char *Sys_Q1_SteamPath(const char *appID, const char *gameDir) {
+	static TCHAR steamPath[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+	if (!appID[0] || !gameDir[0]) return "";
+	else {
+		HKEY steamRegKey;
+		DWORD pathLen = MAX_OSPATH;
+		qboolean finishPath = qfalse;
+
+		// Assuming Steam is a 32-bit app
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW(va("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App %s", appID)), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+				steamPath[0] = '\0';
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS) {
+				pathLen = sizeof(steamPath);
+				if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+					steamPath[0] = '\0';
+			}
+
+			if (steamPath[0])
+				finishPath = qtrue;
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (steamPath[0]) {
+			if (pathLen == sizeof(steamPath))
+				pathLen--;
+
+			*(((char *)steamPath) + pathLen) = '\0';
+#ifdef UNICODE
+			strcpy((char *)steamPath, WtoA(steamPath));
+#endif
+			if (finishPath)
+				Q_strcat((char *)steamPath, MAX_OSPATH, va("\\SteamApps\\common\\%s", gameDir));
+		}
+	}
+
+	return va("%s", (const char *)steamPath);
+}
+const char *Sys_Q2_SteamPath( const char *appID, const char *gameDir ) {
+	static TCHAR steamPath[ MAX_OSPATH ]; // will be converted from TCHAR to ANSI
+
+	if (!appID[0] || !gameDir[0]) return "";
+	else {
+		HKEY steamRegKey;
+		DWORD pathLen = MAX_OSPATH;
+		qboolean finishPath = qfalse;
+
+		// Assuming Steam is a 32-bit app
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW(va("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App %s", appID)), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+				steamPath[0] = '\0';
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS) {
+				pathLen = sizeof(steamPath);
+				if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+					steamPath[0] = '\0';
+			}
+
+			if (steamPath[0])
+				finishPath = qtrue;
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (steamPath[0]) {
+			if (pathLen == sizeof(steamPath))
+				pathLen--;
+
+			*(((char *)steamPath) + pathLen) = '\0';
+#ifdef UNICODE
+			strcpy((char *)steamPath, WtoA(steamPath));
+#endif
+			if (finishPath)
+				Q_strcat((char *)steamPath, MAX_OSPATH, va("\\SteamApps\\common\\%s", gameDir));
+		}
+	}
+
+	return va("%s", (const char*)steamPath);
+}
+const char *Sys_Q3_SteamPath(const char *appID, const char *gameDir) {
+	static TCHAR steamPath[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+	if (!appID[0] || !gameDir[0]) return "";
+	else {
+		HKEY steamRegKey;
+		DWORD pathLen = MAX_OSPATH;
+		qboolean finishPath = qfalse;
+
+		// Assuming Steam is a 32-bit app
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW(va("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App %s", appID)), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+				steamPath[0] = '\0';
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS) {
+				pathLen = sizeof(steamPath);
+				if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+					steamPath[0] = '\0';
+			}
+
+			if (steamPath[0])
+				finishPath = qtrue;
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (steamPath[0]) {
+			if (pathLen == sizeof(steamPath))
+				pathLen--;
+
+			*(((char *)steamPath) + pathLen) = '\0';
+#ifdef UNICODE
+			strcpy((char *)steamPath, WtoA(steamPath));
+#endif
+			if (finishPath)
+				Q_strcat((char *)steamPath, MAX_OSPATH, va("\\SteamApps\\common\\%s", gameDir));
+		}
+	}
+
+	return va("%s", (const char *)steamPath);
+}
+const char *Sys_QL_SteamPath(const char *appID, const char *gameDir) {
+	static TCHAR steamPath[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+	if (!appID[0] || !gameDir[0]) return "";
+	else {
+		HKEY steamRegKey;
+		DWORD pathLen = MAX_OSPATH;
+		qboolean finishPath = qfalse;
+
+		// Assuming Steam is a 32-bit app
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW(va("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App %s", appID)), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+				steamPath[0] = '\0';
+
+			RegCloseKey(steamRegKey);
+}
+
+		if (!steamPath[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS) {
+			pathLen = sizeof(steamPath);
+			if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS) {
+				pathLen = sizeof(steamPath);
+				if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPath, &pathLen) != ERROR_SUCCESS)
+					steamPath[0] = '\0';
+			}
+
+			if (steamPath[0])
+				finishPath = qtrue;
+
+			RegCloseKey(steamRegKey);
+		}
+
+		if (steamPath[0]) {
+			if (pathLen == sizeof(steamPath))
+				pathLen--;
+
+			*(((char *)steamPath) + pathLen) = '\0';
+#ifdef UNICODE
+			strcpy((char *)steamPath, WtoA(steamPath));
+#endif
+			if (finishPath)
+				Q_strcat((char *)steamPath, MAX_OSPATH, va("\\SteamApps\\common\\%s", gameDir));
+		}
+	}
+
+	return va("%s", (const char *)steamPath);
+}
+
+#if 0
+/*
+================
+Sys_QL_SteamPath
+================
+*/
+const char *Sys_QL_SteamPath(void)
+{
+	static TCHAR steamPathQL[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+
+#if defined(STEAMPATH_QL_GAMEDIR) || defined(STEAMPATH_QL_APPID)
+	HKEY steamRegKey;
+	DWORD pathLen = MAX_OSPATH;
+	qboolean finishPath = qfalse;
+#endif
+
+#ifdef STEAMPATH_QL_APPID
+	// Assuming Steam is a 32-bit app
+	if (!steamPathQL[0] && RegOpenKeyEx(HKEY_LOCAL_MACHINE, AtoW("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_QL_APPID), 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey) == ERROR_SUCCESS)
+	{
+		pathLen = sizeof(steamPathQL);
+		if (RegQueryValueEx(steamRegKey, AtoW("InstallLocation"), NULL, NULL, (LPBYTE)steamPathQL, &pathLen) != ERROR_SUCCESS)
+			steamPathQL[0] = '\0';
+
+		RegCloseKey(steamRegKey);
+	}
+
+#ifdef STEAMPATH_QL_GAMEDIR
+	if (!steamPathQL[0] && RegOpenKeyEx(HKEY_CURRENT_USER, AtoW("Software\\Valve\\Steam"), 0, KEY_QUERY_VALUE, &steamRegKey) == ERROR_SUCCESS)
+	{
+		pathLen = sizeof(steamPathQL);
+		if (RegQueryValueEx(steamRegKey, AtoW("SteamPath"), NULL, NULL, (LPBYTE)steamPathQL, &pathLen) != ERROR_SUCCESS) {
+			pathLen = sizeof(steamPathQL);
+			if (RegQueryValueEx(steamRegKey, AtoW("InstallPath"), NULL, NULL, (LPBYTE)steamPathQL, &pathLen) != ERROR_SUCCESS)
+				steamPathQL[0] = '\0';
+		}
+
+		if (steamPathQL[0])
+			finishPath = qtrue;
+
+		RegCloseKey(steamRegKey);
+	}
+#endif
+
+	if (steamPathQL[0])
+	{
+		if (pathLen == sizeof(steamPathQL))
+			pathLen--;
+
+		*(((char *)steamPathQL) + pathLen) = '\0';
+#ifdef UNICODE
+		strcpy((char *)steamPathQL, WtoA(steamPathQL));
+#endif
+		if (finishPath)
+			Q_strcat((char *)steamPathQL, MAX_OSPATH, "\\SteamApps\\common\\" STEAMPATH_QL_GAMEDIR);
+	}
+#endif
+
+	return (const char *)steamPathQL;
+}
+#endif
+
+/*
+================
+Sys_Q1_GOGPath
+================
+*/
+const char *Sys_Q1_GOGPath(void) {
+	static TCHAR gogPathQ1[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+#ifdef GOGPATH_Q1_APPID
+	HKEY gogRegKey;
+	DWORD pathLen = MAX_OSPATH;
+
+	if (!gogPathQ1[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\Games\\" GOGPATH_Q1_APPID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &gogRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(gogRegKey, "PATH", NULL, NULL, (LPBYTE)gogPathQ1, &pathLen))
+			gogPathQ1[0] = '\0';
+
+		RegCloseKey(gogRegKey);
+	}
+
+	if (gogPathQ1[0])
+	{
+		if (pathLen == MAX_OSPATH)
+			pathLen--;
+
+		gogPathQ1[pathLen] = '\0';
+	}
+#endif
+
+	return (const char *)gogPathQ1;
+}
+
+
+/*
+================
+Sys_Q2_GOGPath
+================
+*/
+const char *Sys_Q2_GOGPath(void) {
+	static TCHAR gogPathQ2[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+#ifdef GOGPATH_Q2_APPID
+	HKEY gogRegKey;
+	DWORD pathLen = MAX_OSPATH;
+
+	if (!gogPathQ2[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\Games\\" GOGPATH_Q2_APPID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &gogRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(gogRegKey, "PATH", NULL, NULL, (LPBYTE)gogPathQ2, &pathLen))
+			gogPathQ2[0] = '\0';
+
+		RegCloseKey(gogRegKey);
+	}
+
+	if (gogPathQ2[0])
+	{
+		if (pathLen == MAX_OSPATH)
+			pathLen--;
+
+		gogPathQ2[pathLen] = '\0';
+	}
+#endif
+
+	return (const char *)gogPathQ2;
+}
+
+
+/*
+================
+Sys_Q3_GOGPath
+================
+*/
+const char *Sys_Q3_GOGPath( void ) {
+	static TCHAR gogPathQ3[MAX_OSPATH]; // will be converted from TCHAR to ANSI
+#ifdef GOGPATH_Q3_APPID
+	HKEY gogRegKey;
+	DWORD pathLen = MAX_OSPATH;
+
+	if (!gogPathQ3[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\Games\\" GOGPATH_Q3_APPID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &gogRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(gogRegKey, "PATH", NULL, NULL, (LPBYTE)gogPathQ3, &pathLen))
+			gogPathQ3[0] = '\0';
+
+		RegCloseKey(gogRegKey);
+	}
+
+	if (gogPathQ3[0])
+	{
+		if (pathLen == MAX_OSPATH)
+			pathLen--;
+
+		gogPathQ3[pathLen] = '\0';
+	}
+#endif
+
+	return (const char *)gogPathQ3;
 }
 
 

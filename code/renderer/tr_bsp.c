@@ -107,10 +107,10 @@ void R_ColorShiftLightingBytes( const byte in[4], byte out[4] ) {
 	r = in[0] << shift;
 	g = in[1] << shift;
 	b = in[2] << shift;
-	
+
 	// normalize by color instead of saturating to white
-	if ( ( r | g | b ) > 255 ) {
-		int		max;
+	if ((r | g | b) > 255) {
+		int max;
 
 		max = r > g ? r : g;
 		max = max > b ? max : b;
@@ -131,10 +131,10 @@ void R_ColorShiftLightingBytes( const byte in[4], byte out[4] ) {
 		out[1] = LERP( g, luma, scale );
 		out[2] = LERP( b, luma, scale );
 	} else {
-		out[0] = r;
-		out[1] = g;
-		out[2] = b;
-	}
+	out[0] = r;
+	out[1] = g;
+	out[2] = b;
+}
 	out[3] = in[3];
 }
 
@@ -380,10 +380,10 @@ static void R_LoadMergedLightmaps( const lump_t *l, byte *image )
 
 /*
 ===============
-R_LoadLightmaps
+R_Q3_LoadLightmaps
 ===============
 */
-static void R_LoadLightmaps( const lump_t *l ) {
+static void R_Q3_LoadLightmaps( const lump_t *l ) {
 	const byte	*buf;
 	int			len;
 	byte		image[LIGHTMAP_LEN*LIGHTMAP_LEN*4];
@@ -453,10 +453,10 @@ void RE_SetWorldVisData( const byte *vis ) {
 
 /*
 =================
-R_LoadVisibility
+R_Q3_LoadVisibility
 =================
 */
-static void R_LoadVisibility( const lump_t *l ) {
+static void R_Q3_LoadVisibility( const lump_t *l ) {
 	int		len;
 	byte	*buf;
 
@@ -496,7 +496,7 @@ ShaderForShaderNum
 */
 static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shader_t	*shader;
-	dshader_t	*dsh;
+	q3_dShader_t	*dsh;
 
 	int _shaderNum = LittleLong( shaderNum );
 	if ( _shaderNum < 0 || _shaderNum >= s_worldData.numShaders ) {
@@ -566,7 +566,7 @@ static void GenerateNormals( srfSurfaceFace_t *face )
 ParseFace
 ===============
 */
-static void ParseFace( const dsurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
+static void ParseFace( const q3_dSurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	int			i, j;
 	srfSurfaceFace_t	*cv;
 	int			numPoints, numIndexes;
@@ -670,7 +670,7 @@ static void ParseFace( const dsurface_t *ds, const drawVert_t *verts, msurface_t
 ParseMesh
 ===============
 */
-static void ParseMesh( const dsurface_t *ds, const drawVert_t *verts, msurface_t *surf ) {
+static void ParseMesh( const q3_dSurface_t *ds, const drawVert_t *verts, msurface_t *surf ) {
 	srfGridMesh_t	*grid;
 	int				i, j;
 	int				width, height, numPoints;
@@ -729,6 +729,61 @@ static void ParseMesh( const dsurface_t *ds, const drawVert_t *verts, msurface_t
 		}
 	}
 
+//wolfcamql
+// ad hack
+#if 0
+	if (num >= (s_worldData.numsurfaces - s_worldData.numAds)) {
+		int index;
+
+		index = (num - s_worldData.numsurfaces) + s_worldData.numAds;
+		ri.Printf(PRINT_ALL, "advert %d '%s' %d\n", index, surf->shader->name, LittleLong(ds->shaderNum));
+
+		Q_strncpyz(s_worldData.ads[index].model, surf->shader->name, sizeof(s_worldData.ads[index].model));
+		s_worldData.ads[index].cellId = RE_RegisterShader(surf->shader->name);  //LittleLong(ds->shaderNum);
+	}
+#endif
+
+//wolfcamql
+	// ad hack
+	if (!Q_stricmpn(surf->shader->name, "textures/ad_content/", strlen("textures/ad_content/")) || !Q_stricmpn(surf->shader->name, "textures/ad_trim/", strlen("textures/ad_trim/"))) {
+		qboolean	found = qfalse;
+		int			k;
+
+		for (i = 0; i < s_worldData.numAds; i++) {
+			found = qfalse;
+
+			for (j = 0; j < 3; j++) {
+				found = qfalse;
+				for (k = 0; k < numPoints; k++) {
+					if (*s_worldData.adShaders[i]) {
+						continue;
+					}
+					if (s_worldData.ads[i].rect[j][0] == verts[k].xyz[0] &&
+						s_worldData.ads[i].rect[j][1] == verts[k].xyz[1] &&
+						s_worldData.ads[i].rect[j][2] == verts[k].xyz[2]) {
+						found = qtrue;
+						break;
+					}
+				}
+
+				if (!found) {
+					break;
+				}
+			}
+
+			if (found) {
+				//FIXME fuck wait, what about transparent ads :(
+				//ri.Printf(PRINT_ALL, "found ad %d  lightmap:%d\n", i + 1, lightmapNum);
+				//s_worldData.ads[i].cellId = RE_RegisterShader(surf->shader->name);
+				//FIXME always 0 :[
+				s_worldData.adsLightmap[i] = lightmapNum;  //1;  //lightmapNum;
+				Q_strncpyz(s_worldData.adShaders[i], surf->shader->name, MAX_QPATH);
+				break;
+			}
+		}
+	}
+//-wolfcamql
+
 	// pre-tesseleate
 	grid = R_SubdividePatchToGrid( width, height, points );
 	surf->data = (surfaceType_t *)grid;
@@ -752,7 +807,7 @@ static void ParseMesh( const dsurface_t *ds, const drawVert_t *verts, msurface_t
 ParseTriSurf
 ===============
 */
-static void ParseTriSurf( const dsurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
+static void ParseTriSurf( const q3_dSurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfTriangles_t	*tri;
 	int				i, j;
 	int				numVerts, numIndexes;
@@ -829,7 +884,7 @@ static void ParseTriSurf( const dsurface_t *ds, const drawVert_t *verts, msurfac
 ParseFlare
 ===============
 */
-static void ParseFlare( const dsurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
+static void ParseFlare( const q3_dSurface_t *ds, const drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfFlare_t		*flare;
 	int				i;
 
@@ -1559,11 +1614,11 @@ static void R_MovePatchSurfacesToHunk( void ) {
 
 /*
 ===============
-R_LoadSurfaces
+R_Q3_LoadSurfaces
 ===============
 */
-static void R_LoadSurfaces( const lump_t *surfs, const lump_t *verts, const lump_t *indexLump ) {
-	const dsurface_t *in;
+static void R_Q3_LoadSurfaces( const lump_t *surfs, const lump_t *verts, const lump_t *indexLump ) {
+	const q3_dSurface_t *in;
 	msurface_t	*out;
 	const drawVert_t *dv;
 	int			*indexes;
@@ -1634,11 +1689,11 @@ static void R_LoadSurfaces( const lump_t *surfs, const lump_t *verts, const lump
 
 /*
 =================
-R_LoadSubmodels
+R_Q3_LoadSubmodels
 =================
 */
-static void R_LoadSubmodels( const lump_t *l ) {
-	const dmodel_t *in;
+static void R_Q3_LoadSubmodels( const lump_t *l ) {
+	const q3_dModel_t *in;
 	bmodel_t	*out;
 	int			i, j, count;
 
@@ -1655,7 +1710,7 @@ static void R_LoadSubmodels( const lump_t *l ) {
 		model = R_AllocModel();
 
 		if ( model == NULL ) {
-			ri.Error( ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed" );
+			ri.Error( ERR_DROP, "R_Q3_LoadSubmodels: R_AllocModel() failed" );
 		}
 
 		model->type = MOD_BRUSH;
@@ -1681,10 +1736,10 @@ static void R_LoadSubmodels( const lump_t *l ) {
 R_SetParent
 =================
 */
-static void R_SetParent( mnode_t *node, mnode_t *parent )
+static void R_SetParent( mNode_t *node, mNode_t *parent )
 {
 	node->parent = parent;
-	if ( node->contents != CONTENTS_NODE )
+	if ( node->contents != CONTENTS_NODE )	//fnq3: this is -1 in Q2
 		return;
 	R_SetParent( node->children[0], node );
 	R_SetParent( node->children[1], node );
@@ -1693,23 +1748,23 @@ static void R_SetParent( mnode_t *node, mnode_t *parent )
 
 /*
 =================
-R_LoadNodesAndLeafs
+R_Q3_LoadNodesAndLeafs
 =================
 */
-static void R_LoadNodesAndLeafs( const lump_t *nodeLump, const lump_t *leafLump ) {
+static void R_Q3_LoadNodesAndLeafs( const lump_t *nodeLump, const lump_t *leafLump ) {
 	int			i, j, p;
-	dnode_t		*in;
-	dleaf_t		*inLeaf;
-	mnode_t 	*out;
+	q3_dNode_t		*in;
+	q3_dLeaf_t		*inLeaf;
+	mNode_t 	*out;
 	int			numNodes, numLeafs;
 
 	in = (void *)(fileBase + nodeLump->fileofs);
-	if (nodeLump->filelen % sizeof(dnode_t) ||
-		leafLump->filelen % sizeof(dleaf_t) ) {
+	if (nodeLump->filelen % sizeof(q3_dNode_t) ||
+		leafLump->filelen % sizeof(q3_dLeaf_t) ) {
 		ri.Error( ERR_DROP, "%s(): funny lump size in %s", __func__, s_worldData.name );
 	}
-	numNodes = nodeLump->filelen / sizeof(dnode_t);
-	numLeafs = leafLump->filelen / sizeof(dleaf_t);
+	numNodes = nodeLump->filelen / sizeof(q3_dNode_t);
+	numLeafs = leafLump->filelen / sizeof(q3_dLeaf_t);
 
 	out = ri.Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);	
 
@@ -1777,7 +1832,7 @@ R_ReplaceShaders
 replaces some buggy map shaders
 =================
 */
-static void R_ReplaceMapShaders( dshader_t *out, int count ) 
+static void R_ReplaceMapShaders( q3_dShader_t *out, int count ) 
 {
 	if ( Q_stricmp( s_worldData.baseName, "mapel4b" ) == 0 && count == 86 ) {
 		if ( crc32_buffer( (const byte*)out, count*sizeof(*out) ) == 0x1593623C ) {
@@ -1791,12 +1846,12 @@ static void R_ReplaceMapShaders( dshader_t *out, int count )
 
 /*
 =================
-R_LoadShaders
+R_Q3_LoadShaders
 =================
 */
-static void R_LoadShaders( const lump_t *l ) {
+static void R_Q3_LoadShaders( const lump_t *l ) {
 	int		i, count;
-	dshader_t	*in, *out;
+	q3_dShader_t	*in, *out;
 	
 	in = (void *)(fileBase + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -1820,10 +1875,10 @@ static void R_LoadShaders( const lump_t *l ) {
 
 /*
 =================
-R_LoadMarksurfaces
+R_Q3_LoadMarkSurfaces
 =================
 */
-static void R_LoadMarksurfaces( const lump_t *l )
+static void R_Q3_LoadMarkSurfaces( const lump_t *l )
 {	
 	int		i, j, count;
 	int		*in;
@@ -1848,13 +1903,13 @@ static void R_LoadMarksurfaces( const lump_t *l )
 
 /*
 =================
-R_LoadPlanes
+R_Q3_LoadPlanes
 =================
 */
-static	void R_LoadPlanes( lump_t *l ) {
+static	void R_Q3_LoadPlanes( lump_t *l ) {
 	int			i, j;
-	cplane_t	*out;
-	dplane_t 	*in;
+	cPlane_t	*out;
+	q3_dPlane_t 	*in;
 	int			count;
 	int			bits;
 
@@ -1885,15 +1940,15 @@ static	void R_LoadPlanes( lump_t *l ) {
 
 /*
 =================
-R_LoadFogs
+R_Q3_LoadFogs
 =================
 */
-static void R_LoadFogs( const lump_t *l, const lump_t *brushesLump, const lump_t *sidesLump ) {
+static void R_Q3_LoadFogs( const lump_t *l, const lump_t *brushesLump, const lump_t *sidesLump ) {
 	int			i, n;
 	fog_t		*out;
-	dfog_t		*fogs;
-	dbrush_t 	*brushes, *brush;
-	dbrushside_t	*sides;
+	q3_dFog_t		*fogs;
+	q3_dBrush_t 	*brushes, *brush;
+	q3_dBrushSide_t	*sides;
 	int			count, brushesCount, sidesCount;
 	int			sideNum;
 	int			planeNum;
@@ -2018,10 +2073,10 @@ static void R_LoadFogs( const lump_t *l, const lump_t *brushesLump, const lump_t
 
 /*
 ================
-R_LoadLightGrid
+R_Q3_LoadLightGrid
 ================
 */
-static void R_LoadLightGrid( const lump_t *l ) {
+static void R_Q3_LoadLightGrid( const lump_t *l ) {
 	int		i;
 	vec3_t	maxs;
 	int		numGridPoints;
@@ -2062,12 +2117,71 @@ static void R_LoadLightGrid( const lump_t *l ) {
 }
 
 
+//qlbsp
+/*
+====================
+R_Q3_LoadAdvertisements
+From WolfCam by Brugal
+====================
+*/
+void R_Q3_LoadAdvertisements(lump_t *l)
+{
+	q3_dAdvertisement_t *ads;
+	int i, count;
+
+	ads = (void *)(fileBase + l->fileofs);
+	if (l->filelen % sizeof(*ads)) {
+		ri.Error(ERR_DROP, "R_Q3_LoadAdvertisements: funny lump size in %s", s_worldData.name);
+	}
+	count = l->filelen / sizeof(*ads);
+
+	s_worldData.numAds = 0;
+
+	if (count > Q3_MAX_MAP_ADVERTS) {
+		Com_Printf("R_Q3_LoadAdvertisements: count > Q3_MAX_MAP_ADVERTISEMENTS\n");
+		return;
+	}
+
+	if (!count) return;
+
+	s_worldData.numAds = count;
+
+	for (i = 0; i < count; i++, ads++) {
+
+		s_worldData.ads[i].cellId = LittleLong(ads->cellId);
+
+		s_worldData.ads[i].normal[0] = LittleFloat(ads->normal[0]);
+		s_worldData.ads[i].normal[1] = LittleFloat(ads->normal[1]);
+		s_worldData.ads[i].normal[2] = LittleFloat(ads->normal[2]);
+
+		s_worldData.ads[i].rect[0][0] = LittleFloat(ads->rect[0][0]);
+		s_worldData.ads[i].rect[0][1] = LittleFloat(ads->rect[0][1]);
+		s_worldData.ads[i].rect[0][2] = LittleFloat(ads->rect[0][2]);
+
+		s_worldData.ads[i].rect[1][0] = LittleFloat(ads->rect[1][0]);
+		s_worldData.ads[i].rect[1][1] = LittleFloat(ads->rect[1][1]);
+		s_worldData.ads[i].rect[1][2] = LittleFloat(ads->rect[1][2]);
+
+		s_worldData.ads[i].rect[2][0] = LittleFloat(ads->rect[2][0]);
+		s_worldData.ads[i].rect[2][1] = LittleFloat(ads->rect[2][1]);
+		s_worldData.ads[i].rect[2][2] = LittleFloat(ads->rect[2][2]);
+
+		s_worldData.ads[i].rect[3][0] = LittleFloat(ads->rect[3][0]);
+		s_worldData.ads[i].rect[3][1] = LittleFloat(ads->rect[3][1]);
+		s_worldData.ads[i].rect[3][2] = LittleFloat(ads->rect[3][2]);
+
+		Q_strncpyz(s_worldData.ads[i].model, ads->model, sizeof(s_worldData.ads[i].model));
+	}
+}
+//-qlbsp
+
+
 /*
 ================
-R_LoadEntities
+R_Q3_LoadEntities
 ================
 */
-static void R_LoadEntities( const lump_t *l ) {
+static void R_Q3_LoadEntities( const lump_t *l ) {
 	const char *p, *token;
 	char *s;
 	char keyname[MAX_TOKEN_CHARS];
@@ -2175,8 +2289,8 @@ Called directly from cgame
 =================
 */
 void RE_LoadWorldMap( const char *name ) {
-	int			i;
-	dheader_t	*header;
+	int			i, version;
+	q3_dHeader_t	*header;
 	union {
 		byte *b;
 		void *v;
@@ -2218,32 +2332,39 @@ void RE_LoadWorldMap( const char *name ) {
 	startMarker = ri.Hunk_Alloc(0, h_low);
 	c_gridVerts = 0;
 
-	header = (dheader_t *)buffer.b;
+	header = (q3_dHeader_t *)buffer.b;
 	fileBase = (byte *)header;
 
-	i = LittleLong (header->version);
-	if ( i != IBSP_Q3A ) {
-		ri.Error (ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", 
-			name, i, IBSP_Q3A);
-	}
-
 	// swap all the lumps
-	for (i=0 ; i<sizeof(dheader_t)/4 ; i++) {
+	for (i=0 ; i<sizeof(q3_dHeader_t)/4 ; i++) {
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 	}
 
-	// load into heap
-	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
-	R_LoadLightmaps( &header->lumps[LUMP_LIGHTMAPS] );
-	R_LoadPlanes( &header->lumps[LUMP_PLANES] );
-	R_LoadFogs( &header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES] );
-	R_LoadSurfaces( &header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES] );
-	R_LoadMarksurfaces( &header->lumps[LUMP_LEAFSURFACES] );
-	R_LoadNodesAndLeafs( &header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS] );
-	R_LoadSubmodels( &header->lumps[LUMP_MODELS] );
-	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
-	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
-	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
+	version = LittleLong(header->version);
+	switch (version) {
+	case IBSP_QL:
+		R_Q3_LoadAdvertisements(&header->lumps[Q3_LUMP_ADVERTS]);
+	case IBSP_Q3A:
+		// load into heap
+		R_Q3_LoadShaders(&header->lumps[Q3_LUMP_SHADERS]);
+		R_Q3_LoadLightmaps(&header->lumps[Q3_LUMP_LIGHTMAPS]);
+		R_Q3_LoadPlanes(&header->lumps[Q3_LUMP_PLANES]);
+		R_Q3_LoadFogs(&header->lumps[Q3_LUMP_FOGS], &header->lumps[Q3_LUMP_BRUSHES], &header->lumps[Q3_LUMP_BRUSHSIDES]);
+		R_Q3_LoadSurfaces(&header->lumps[Q3_LUMP_SURFACES], &header->lumps[Q3_LUMP_DRAWVERTS], &header->lumps[Q3_LUMP_DRAWINDEXES]);
+		R_Q3_LoadMarkSurfaces(&header->lumps[Q3_LUMP_LEAFSURFACES]);
+		R_Q3_LoadNodesAndLeafs(&header->lumps[Q3_LUMP_NODES], &header->lumps[Q3_LUMP_LEAFS]);
+		R_Q3_LoadSubmodels(&header->lumps[Q3_LUMP_MODELS]);
+		R_Q3_LoadVisibility(&header->lumps[Q3_LUMP_VISIBILITY]);
+		R_Q3_LoadEntities(&header->lumps[Q3_LUMP_ENTITIES]);
+		R_Q3_LoadLightGrid(&header->lumps[Q3_LUMP_LIGHTGRID]);
+		break;
+	case IBSP_Q2:
+		ri.Error(ERR_DROP, "RE_LoadWorldMap: Q2 maps not yet supported");
+		break;
+	default:
+		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has unsupported version number (%i)", name, version);
+		break;
+	}
 
 	R_BuildWorldVBO( s_worldData.surfaces, s_worldData.numsurfaces );
 

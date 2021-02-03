@@ -414,7 +414,7 @@ const char *Sys_DefaultHomePath( void )
 	{
 		Q_strncpyz( homePath, p, sizeof( homePath ) );
 #ifdef MACOS_X
-		Q_strcat( homePath, sizeof(homePath), "/Library/Application Support/Quake3" );
+		Q_strcat( homePath, sizeof(homePath), "/Library/Application Support/" PRODUCT_NAME);
 #else
 		Q_strcat( homePath, sizeof( homePath ), "/.q3a" );
 #endif
@@ -435,8 +435,7 @@ const char *Sys_DefaultHomePath( void )
 Sys_SteamPath
 ================
 */
-const char *Sys_SteamPath( void )
-{
+const char *Sys_SteamPath(const char *appID, const char *gameDir) {
 	static char steamPath[ MAX_OSPATH ];
 	// Disabled since Steam doesn't let you install Quake 3 on Mac/Linux
 #if 0
@@ -445,14 +444,40 @@ const char *Sys_SteamPath( void )
 	if( ( p = getenv( "HOME" ) ) != NULL )
 	{
 #ifdef MACOS_X
-		char *steamPathEnd = "/Library/Application Support/Steam/SteamApps/common/" STEAMPATH_NAME;
+		char *steamPathEnd = "/Library/Application Support/Steam/SteamApps/common/" STEAMPATH_Q3_GAMEDIR;
 #else
-		char *steamPathEnd = "/.steam/steam/SteamApps/common/" STEAMPATH_NAME;
+		char *steamPathEnd = "/.steam/steam/SteamApps/common/" STEAMPATH_Q3_GAMEDIR;
 #endif
 		Com_sprintf(steamPath, sizeof(steamPath), "%s%s", p, steamPathEnd);
 	}
 #endif
 	return steamPath;
+}
+
+
+/*
+================
+Sys_Q3_GOGPath
+================
+*/
+char *Sys_Q3_GOGPath(void)
+{
+	static char gogPath[MAX_OSPATH];
+
+	return gogPath;
+}
+
+
+/*
+================
+Sys_QL_SteamPath
+================
+*/
+char *Sys_QL_SteamPath(void)
+{
+	static char steamPathQL[MAX_OSPATH];
+
+	return steamPathQL;
 }
 
 

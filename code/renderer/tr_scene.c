@@ -376,20 +376,6 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 		ri.Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
-//fnq
-	// do aspect correction for 3D HUD elements
-	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && r_arc_uiMode->integer) {
-		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
-		//Com_Printf( "RE_RenderScene() arcMode 1: x:%i y:%i w:%i h:%i\n", tr.refdef.x, tr.refdef.y, tr.refdef.width, tr.refdef.height );
-		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);
-
-		tr.refdef.x = (int)x;
-		tr.refdef.y = (int)y;
-		tr.refdef.width = (int)w;
-		tr.refdef.height = (int)h;
-	}
-//-fnq
-
 	Com_Memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
 
 	tr.refdef.x = fd->x;
@@ -416,7 +402,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 
 		// compare the area bits
 		areaDiff = 0;
-		for (i = 0 ; i < MAX_MAP_AREA_BYTES/4 ; i++) {
+		for (i = 0 ; i < Q3_MAX_MAP_AREA_BYTES/4 ; i++) {
 			areaDiff |= ((int *)tr.refdef.areamask)[i] ^ ((int *)fd->areamask)[i];
 			((int *)tr.refdef.areamask)[i] = ((int *)fd->areamask)[i];
 		}
@@ -427,6 +413,23 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 		}
 	}
 
+//fnq
+	// do aspect correction for 3D HUD elements
+	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && r_arc_uiMode->integer) {
+		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
+
+		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);
+
+		//ri.Printf(PRINT_ALL, "RE_RenderScene() arcMode 1: x:%i->%f y:%i->%f w:%i->%f h:%i->%f\n", tr.refdef.x, x, tr.refdef.y, y, tr.refdef.width, w, tr.refdef.height, h);
+
+		tr.refdef.x = (int)x;
+		tr.refdef.y = (int)y;
+		tr.refdef.width = (int)w;
+		tr.refdef.height = (int)h;
+
+		//ri.Printf(PRINT_ALL, "RE_RenderScene() arcMode 1: x:%i y:%i w:%i h:%i\n", tr.refdef.x, tr.refdef.y, tr.refdef.width, tr.refdef.height);
+	}
+//-fnq
 
 	// derived info
 

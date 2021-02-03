@@ -9305,7 +9305,7 @@ GLAPI void APIENTRY glDrawTextureNV (GLuint texture, GLuint sampler, GLfloat x0,
 #define GL_EVAL_VERTEX_ATTRIB13_NV        0x86D3
 #define GL_EVAL_VERTEX_ATTRIB14_NV        0x86D4
 #define GL_EVAL_VERTEX_ATTRIB15_NV        0x86D5
-#define GL_MAX_MAP_TESSELLATION_NV        0x86D6
+#define GL_Q3_MAX_MAP_TESSELLATION_NV        0x86D6
 #define GL_MAX_RATIONAL_EVAL_ORDER_NV     0x86D7
 typedef void (APIENTRYP PFNGLMAPCONTROLPOINTSNVPROC) (GLenum target, GLuint index, GLenum type, GLsizei ustride, GLsizei vstride, GLint uorder, GLint vorder, GLboolean packed, const void *points);
 typedef void (APIENTRYP PFNGLMAPPARAMETERIVNVPROC) (GLenum target, GLenum pname, const GLint *params);

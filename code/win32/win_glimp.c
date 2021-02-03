@@ -632,7 +632,7 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
 		wc.hbrBackground = (HBRUSH)(LRESULT)COLOR_GRAYTEXT;
 		wc.lpszMenuName  = 0;
-		wc.lpszClassName = T(CLIENT_WINDOW_TITLE);
+		wc.lpszClassName = T(PRODUCT_NAME);
 
 		if ( !RegisterClass( &wc ) )
 		{
@@ -720,7 +720,7 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		oldFullscreen = glw_state.cdsFullscreen;
 		glw_state.cdsFullscreen = cdsFullscreen;
 
-		g_wv.hWnd = CreateWindowEx( exstyle, TEXT(CLIENT_WINDOW_TITLE), AtoW(cl_title),
+		g_wv.hWnd = CreateWindowEx( exstyle, TEXT(PRODUCT_NAME), AtoW(cl_title),
 			 stylebits, x, y, w, h, NULL, NULL, g_wv.hInstance,  NULL );
 
 		if ( !g_wv.hWnd )

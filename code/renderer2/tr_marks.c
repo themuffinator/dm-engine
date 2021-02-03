@@ -133,7 +133,7 @@ R_BoxSurfaces_r
 
 =================
 */
-void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **list, int listsize, int *listlength, vec3_t dir) {
+void R_BoxSurfaces_r(mNode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **list, int listsize, int *listlength, vec3_t dir) {
 
 	int			s, c;
 	msurface_t	*surf;
@@ -163,7 +163,7 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 		surfViewCount = &tr.world->surfacesViewCount[*mark];
 		surf = tr.world->surfaces + *mark;
 		// check if the surface has NOIMPACT or NOMARKS set
-		if ( ( surf->shader->surfaceFlags & ( SURF_NOIMPACT | SURF_NOMARKS ) )
+		if ( ( surf->shader->surfaceFlags & ( SURF_Q3_NOIMPACT | SURF_Q3_NOMARKS ) )
 			|| ( surf->shader->contentFlags & CONTENTS_FOG ) ) {
 			*surfViewCount = tr.viewCount;
 		}

@@ -1014,7 +1014,6 @@ static char *SV_EntityFile_Path( const char *in, const char *mapname ) {
 	char fname[MAX_QPATH];
 
 	Com_sprintf(fname, sizeof(fname), "maps/%s%s%s.ent", in, in[0] ? "/" : "", mapname);
-	Com_Printf(S_COLOR_MAGENTA "Entity File Name: %s\n", fname);
 	return va( "%s", fname );
 }
 
@@ -1054,7 +1053,7 @@ static qboolean SV_EntityFile_Read(void) {
 			//Com_Printf( "Attempting to override entity string from file (%s)...\n", fname );
 			CMod_OverrideEntityString(text, len);
 			sv.entityParsePoint = CM_EntityString();
-			//Com_Printf( "Overrode entity string from file (%s).\n", fname );
+			Com_Printf( "Entities loaded from %s.\n", fname );
 
 			entor = qtrue;
 		}

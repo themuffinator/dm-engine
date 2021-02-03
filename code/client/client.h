@@ -52,7 +52,7 @@ typedef struct {
 	int				deltaNum;		// messageNum the delta is from
 	int				ping;			// time from when cmdNum-1 was sent to time packet was reeceived
 	int				areabytes;
-	byte			areamask[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
+	byte			areamask[Q3_MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 
 	int				cmdNum;			// the next cmdNum the server is expecting
 	playerState_t	ps;						// complete information about the current player at this time
@@ -430,6 +430,8 @@ extern	cvar_t	*r_colorbits;
 extern	cvar_t	*cl_stencilbits;
 extern	cvar_t	*cl_depthbits;
 extern	cvar_t	*cl_drawBuffer;
+
+extern	cvar_t *cl_cinematics_arc;
 
 //=================================================
 

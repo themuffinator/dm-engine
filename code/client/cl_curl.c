@@ -322,7 +322,7 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_TRANSFERTEXT, 0);
 	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_REFERER, va("ioQ3://%s",
 		NET_AdrToString(&clc.serverAddress)));
-	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_USERAGENT, Q3_VERSION);
+	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_USERAGENT, PRODUCT_VERSION);
 	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_WRITEFUNCTION,
 		CL_cURL_CallbackWrite);
 	qcurl_easy_setopt(clc.downloadCURL, CURLOPT_WRITEDATA, &clc.download);
@@ -920,7 +920,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	dl->func.easy_setopt( dl->cURL, CURLOPT_TRANSFERTEXT, 0 );
 	//dl->func.easy_setopt( dl->cURL, CURLOPT_REFERER, "q3a://127.0.0.1" );
 	dl->func.easy_setopt( dl->cURL, CURLOPT_REFERER, dl->URL );
-	dl->func.easy_setopt( dl->cURL, CURLOPT_USERAGENT, Q3_VERSION );
+	dl->func.easy_setopt( dl->cURL, CURLOPT_USERAGENT, PRODUCT_VERSION );
 	dl->func.easy_setopt( dl->cURL, CURLOPT_WRITEFUNCTION, Com_DL_CallbackWrite );
 	dl->func.easy_setopt( dl->cURL, CURLOPT_WRITEDATA, dl );
 	if ( headerCheck ) 

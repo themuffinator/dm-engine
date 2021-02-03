@@ -688,7 +688,7 @@ float AngleDelta ( float angle1, float angle2 ) {
 SetPlaneSignbits
 =================
 */
-void SetPlaneSignbits (cplane_t *out) {
+void SetPlaneSignbits (cPlane_t *out) {
 	int	bits, j;
 
 	// for fast box on planeside test

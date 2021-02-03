@@ -203,7 +203,7 @@ int R_CullLocalBox(vec3_t localBounds[2]) {
 	vec3_t	transformed[8];
 	float	dists[8];
 	vec3_t	v;
-	cplane_t	*frust;
+	cPlane_t	*frust;
 	int			anyBack;
 	int			front, back;
 
@@ -290,7 +290,7 @@ Returns CULL_IN, CULL_CLIP, or CULL_OUT
 */
 int R_CullBox(vec3_t worldBounds[2]) {
 	int             i;
-	cplane_t       *frust;
+	cPlane_t       *frust;
 	qboolean        anyClip;
 	int             r, numPlanes;
 
@@ -340,11 +340,11 @@ int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 /*
 ** R_CullPointAndRadius
 */
-int R_CullPointAndRadiusEx( const vec3_t pt, float radius, const cplane_t* frustum, int numPlanes )
+int R_CullPointAndRadiusEx( const vec3_t pt, float radius, const cPlane_t* frustum, int numPlanes )
 {
 	int		i;
 	float	dist;
-	const cplane_t	*frust;
+	const cPlane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
 	if ( r_nocull->integer ) {
@@ -969,7 +969,7 @@ void R_MirrorVector (vec3_t in, orientation_t *surface, orientation_t *camera, v
 R_PlaneForSurface
 =============
 */
-void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
+void R_PlaneForSurface (surfaceType_t *surfType, cPlane_t *plane) {
 	srfBspSurface_t	*tri;
 	srfPoly_t		*poly;
 	srfVert_t		*v1, *v2, *v3;
@@ -1020,7 +1020,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 							 orientation_t *surface, orientation_t *camera,
 							 vec3_t pvsOrigin, qboolean *mirror ) {
 	int			i;
-	cplane_t	originalPlane, plane;
+	cPlane_t	originalPlane, plane;
 	trRefEntity_t	*e;
 	float		d;
 	vec3_t		transformed;
@@ -1138,7 +1138,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
 {
 	int			i;
-	cplane_t	originalPlane, plane;
+	cPlane_t	originalPlane, plane;
 	trRefEntity_t	*e;
 	float		d;
 

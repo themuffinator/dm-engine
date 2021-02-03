@@ -1,0 +1,37 @@
+﻿  sv_bot.c
+  sv_ccmds.c
+C:\fnq3-engine\code\server\sv_ccmds.c(1159,3): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_ccmds.c(1167,3): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_ccmds.c(1257,2): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_ccmds.c(1269,2): error C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_ccmds.c(1301,2): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_ccmds.c(1313,2): error C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  sv_client.c
+C:\fnq3-engine\code\server\sv_client.c(328,3): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_client.c(393,7): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_client.c(395,7): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_client.c(721,2): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  sv_filter.c
+C:\fnq3-engine\code\server\sv_filter.c(134,5): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(224,9): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(237,9): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(247,11): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(249,11): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(253,10): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(503,3): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(683,6): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(721,2): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_filter.c(1076,3): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  sv_game.c
+C:\fnq3-engine\code\server\sv_game.c(913,3): error C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_game.c(947,10): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_game.c(950,10): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\fnq3-engine\code\server\sv_game.c(1017,26): warning C4090: 'return': different 'const' qualifiers
+  sv_init.c
+  sv_main.c
+  sv_net_chan.c
+  sv_rankings.c
+C:\fnq3-engine\code\server\sv_rankings.c(25,10): fatal error C1083: Cannot open include file: '..\rankings\1.0\gr\grapi.h': No such file or directory
+  sv_snapshot.c
+  sv_world.c
+  Generating Code...

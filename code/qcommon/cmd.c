@@ -291,7 +291,7 @@ static void Cmd_Exec_f( void ) {
 	FS_ReadFile( filename, &f.v );
 	FS_RestorePure();
 	if ( f.v == NULL ) {
-		Com_Printf( "couldn't exec %s\n", filename );
+		Com_Printf( "Couldn't exec %s\n", filename );
 		return;
 	}
 	if (!quiet)
@@ -300,7 +300,7 @@ static void Cmd_Exec_f( void ) {
 	Cbuf_InsertText( f.c );
 
 #ifdef DELAY_WRITECONFIG
-	if ( !Q_stricmp( filename, Q3CONFIG_CFG ) ) {
+	if ( !Q_stricmp( filename, CONFIG_FILE ) ) {
 		Com_WriteConfiguration(); // to avoid loading outdated values
 	}
 #endif

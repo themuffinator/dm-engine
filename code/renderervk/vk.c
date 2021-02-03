@@ -5789,7 +5789,7 @@ void vk_begin_main_render_pass( void )
 
 	//vk.renderScaleX = (float)vk.renderWidth / (float)glConfig.vidWidth;
 	//vk.renderScaleY = (float)vk.renderHeight / (float)glConfig.vidHeight;
-	vk.renderScaleX = vk.renderScaleY = 1.0f;
+	vk.renderScaleX = vk.renderScaleY = r_pixelsize->integer;	// 1.0f;
 
 	vk_begin_render_pass( vk.render_pass.main, frameBuffer, qtrue, vk.renderWidth, vk.renderHeight );
 }

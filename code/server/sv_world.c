@@ -144,17 +144,17 @@ SV_ClearWorld
 
 ===============
 */
-void SV_ClearWorld( void ) {
+void SV_ClearWorld( const int version ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
-	Com_Memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
+	Com_Memset(sv_worldSectors, 0, sizeof(sv_worldSectors));
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	h = CM_InlineModel( 0 );
-	CM_ModelBounds( h, mins, maxs );
-	SV_CreateworldSector( 0, mins, maxs );
+	h = CM_InlineModel(0);
+	CM_ModelBounds(h, mins, maxs);
+	SV_CreateworldSector(0, mins, maxs);
 }
 
 

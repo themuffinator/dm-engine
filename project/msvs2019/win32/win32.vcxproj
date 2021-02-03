@@ -156,6 +156,17 @@
     <ClCompile Include="..\..\..\code\win32\win_syscon.c" />
     <ClCompile Include="..\..\..\code\win32\win_wndproc.c" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\code\win32\background.bmp" />
+    <Image Include="..\..\..\code\win32\clear.bmp" />
+    <Image Include="..\..\..\code\win32\qe3.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="..\..\..\code\win32\q3.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\code\win32\win_resource.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

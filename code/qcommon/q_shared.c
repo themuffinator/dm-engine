@@ -2167,3 +2167,147 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep )
 	else
 		return s;
 }
+
+
+//aftershock
+int Com_ParseHex(const char *hex) {
+	const char *str;
+	int    num;
+
+	num = 0;
+	str = hex;
+
+	while (*str) {
+		num <<= 4;
+		if (*str >= '0' && *str <= '9')
+			num += *str - '0';
+		else if (*str >= 'a' && *str <= 'f')
+			num += 10 + *str - 'a';
+		else if (*str >= 'A' && *str <= 'F')
+			num += 10 + *str - 'A';
+		str++;
+	}
+
+	return num;
+}
+
+int hexToRed(char *hexin) {
+	char	color[4];
+	int		out;
+
+	Com_sprintf(color, sizeof(color), "%c%c", hexin[2], hexin[3]);
+	out = Com_ParseHex(color);
+
+	if (out < 0)
+		out = 0;
+	else if (out > 255)
+		out = 255;
+
+	return out;
+}
+
+int hexToGreen(char *hexin) {
+	char	color[4];
+	int		out;
+
+	Com_sprintf(color, sizeof(color), "%c%c", hexin[4], hexin[5]);
+	out = Com_ParseHex(color);
+
+	if (out < 0)
+		out = 0;
+	else if (out > 255)
+		out = 255;
+
+	return out;
+}
+
+int hexToBlue(char *hexin) {
+	char	color[4];
+	int		out;
+
+	Com_sprintf(color, sizeof(color), "%c%c", hexin[6], hexin[7]);
+	out = Com_ParseHex(color);
+
+	if (out < 0)
+		out = 0;
+	else if (out > 255)
+		out = 255;
+
+	return out;
+}
+
+int hexToAlpha(char *hexin) {
+	char	color[4];
+	int		out;
+
+	if (!hexin[8])
+		return 255;
+
+	Com_sprintf(color, sizeof(color), "%c%c", hexin[8], hexin[9]);
+	out = Com_ParseHex(color);
+	if (out < 0)
+		out = 0;
+	else if (out > 255)
+		out = 255;
+
+	return out;
+}
+
+void hexToRGBA(byte out[4], char *instring, const qboolean noAlpha) {
+	const byte colors[11][4] = {
+		{ 255, 0, 0, 255 },		// red
+		{ 0, 255, 0, 255 },		// green
+		{ 255, 255, 0, 255 },	// yellow
+		{ 0, 0, 255, 255 },		// blue
+		{ 0, 255, 255, 255 },	// cyan
+		{ 255, 0, 255, 255 },	// magenta
+		{ 255, 255, 255, 255 },	// white
+
+		{ 192, 192, 192, 255 },	// lt. grey
+		{ 128, 128, 128, 255 },	// md. grey
+		{ 64, 64, 64, 255 },	// dk. grey
+		{ 0, 0, 0, 255 }		// black
+	};
+
+	if (!Q_stricmp(instring, "red")) {
+		Byte4Copy(colors[0], out);
+	}
+	else if (!Q_stricmp(instring, "green")) {
+		Byte4Copy(colors[1], out);
+	}
+	else if (!Q_stricmp(instring, "yellow")) {
+		Byte4Copy(colors[2], out);
+	}
+	else if (!Q_stricmp(instring, "blue")) {
+		Byte4Copy(colors[3], out);
+	}
+	else if (!Q_stricmp(instring, "cyan")) {
+		Byte4Copy(colors[4], out);
+	}
+	else if (!Q_stricmp(instring, "magenta")) {
+		Byte4Copy(colors[5], out);
+	}
+	else if (!Q_stricmp(instring, "white")) {
+		Byte4Copy(colors[6], out);
+	}
+	else if (!Q_stricmp(instring, "ltgrey")) {
+		Byte4Copy(colors[7], out);
+	}
+	else if (!Q_stricmp(instring, "mdgrey")) {
+		Byte4Copy(colors[8], out);
+	}
+	else if (!Q_stricmp(instring, "dkgrey")) {
+		Byte4Copy(colors[9], out);
+	}
+	else if (!Q_stricmp(instring, "black")) {
+		Byte4Copy(colors[10], out);
+	}
+	else {
+		out[0] = hexToRed(instring);
+		out[1] = hexToGreen(instring);
+		out[2] = hexToBlue(instring);
+		out[3] = noAlpha ? 255 : hexToAlpha(instring);
+	}
+}
+//-aftershock
+

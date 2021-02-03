@@ -96,7 +96,7 @@ typedef struct {
 
 typedef struct {
 	int				areabytes;
-	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
+	byte			areabits[Q3_MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
 	int				num_entities;
 #if 0
@@ -436,7 +436,7 @@ void SV_BotInitBotLib(void);
 // high level object sorting to reduce interaction tests
 //
 
-void SV_ClearWorld (void);
+void SV_ClearWorld(const int version);
 // called after the world model has been loaded, before linking any entities
 
 void SV_UnlinkEntity( sharedEntity_t *ent );

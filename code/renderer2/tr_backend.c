@@ -295,10 +295,12 @@ static void RB_Hyperspace( void ) {
 		// do initialization shit
 	}
 
-	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	qglClearColor( c, c, c, 1 );
-	qglClear( GL_COLOR_BUFFER_BIT );
-	qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	if (r_teleporterFlash->integer) {
+		c = (backEnd.refdef.time & 255) / 255.0f;
+		qglClearColor(c, c, c, 1);
+		qglClear(GL_COLOR_BUFFER_BIT);
+		qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -1201,9 +1203,17 @@ const void	*RB_DrawBuffer( const void *data ) {
 	qglDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
-	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
-		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	if (r_clear->integer) {
+		byte bcol[4];
+		char *scol = r_clearColor->string;
+
+		if (!scol) scol = "0x202020";
+
+		hexToRGBA(bcol, scol, qtrue);
+
+		//qglClearColor( 1, 0, 0.5, 1 );
+		qglClearColor((float)bcol[0] / 255.0, (float)bcol[1] / 255.0, (float)bcol[2] / 255.0, 1.0);
+		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	return (const void *)(cmd + 1);
