@@ -20,7 +20,7 @@
 
 /* engine variables */
 
-extern cvar_t *s_khz;
+extern cvar_t *s_kHz;
 extern cvar_t *s_device;
 
 /* pthreads  private variables */
@@ -435,7 +435,7 @@ static qboolean setup_ALSA( smode_t mode )
 		goto __fail;
 	}
 
-	switch ( s_khz->integer )
+	switch ( s_kHz->integer )
 	{
 		case 48: speed = 48000; break;
 		case 44: speed = 44100; break;
@@ -1138,10 +1138,10 @@ qboolean SNDDMA_Init( void )
 	if (snd_inited)
 		return qtrue;
 
-	sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE_ND | CVAR_LATCH);
-	sndspeed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE_ND | CVAR_LATCH);
-	sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE_ND |  CVAR_LATCH);
-	snddevice = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE_ND | CVAR_LATCH);
+	sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	sndspeed = Cvar_Get("sndspeed", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE_ND |  CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	snddevice = Cvar_Get("snddevice", "/dev/dsp", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
 
 	map_size = 0;
 

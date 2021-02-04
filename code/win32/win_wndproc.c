@@ -457,8 +457,8 @@ static int GetTimerMsec( void ) {
 	if ( gw_minimized || CL_VideoRecording() )
 		return 0;
 
-	if ( com_maxfps->integer > 0 ) {
-		msec = 1000 / com_maxfps->integer;
+	if ( com_maxFPS->integer > 0 ) {
+		msec = 1000 / com_maxFPS->integer;
 		if ( msec < 1 )
 			msec = 1;
 	} else {
@@ -605,7 +605,7 @@ LRESULT WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM  wParam, LPARAM lParam 
 		g_wv.winRectValid = qtrue;
 		gw_minimized = qfalse;
 
-		in_forceCharset = Cvar_Get( "in_forceCharset", "1", CVAR_ARCHIVE_ND );
+		in_forceCharset = Cvar_Get( "in_forceCharset", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 
 		IN_Init();
 

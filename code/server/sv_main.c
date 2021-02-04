@@ -28,24 +28,24 @@ vm_t			*gvm = NULL;		// game virtual machine
 
 cvar_t	*sv_fps;				// time rate for running non-clients
 cvar_t	*sv_timeout;			// seconds without any message
-cvar_t	*sv_zombietime;			// seconds to sink messages after disconnect
+cvar_t	*sv_zombieTime;			// seconds to sink messages after disconnect
 cvar_t	*sv_rconPassword;		// password for remote server commands
 cvar_t	*sv_privatePassword;	// password for the privateClient slots
 cvar_t	*sv_allowDownload;
-cvar_t	*sv_maxclients;
+cvar_t	*sv_maxClients;
 cvar_t	*sv_maxclientsPerIP;
 cvar_t	*sv_clientTLD;
 
 cvar_t	*sv_privateClients;		// number of clients reserved for password
 cvar_t	*sv_hostname;
 cvar_t	*sv_master[MAX_MASTER_SERVERS];		// master server ip address
-cvar_t	*sv_reconnectlimit;		// minimum seconds between connect messages
+cvar_t	*sv_reconnectLimit;		// minimum seconds between connect messages
 cvar_t	*sv_padPackets;			// add nop bytes to messages
-cvar_t	*sv_killserver;			// menu system can set to 1 to shut server down
+cvar_t	*sv_killServer;			// menu system can set to 1 to shut server down
 cvar_t	*sv_mapname;
 cvar_t	*sv_mapChecksum;
 cvar_t	*sv_referencedPakNames;
-cvar_t	*sv_serverid;
+cvar_t	*sv_serverID;
 cvar_t	*sv_minRate;
 cvar_t	*sv_maxRate;
 cvar_t	*sv_dlRate;
@@ -212,7 +212,7 @@ void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 	}
 
 	// send the data to all relevant clients
-	for ( j = 0, client = svs.clients; j < sv_maxclients->integer ; j++, client++ ) {
+	for ( j = 0, client = svs.clients; j < sv_maxClients->integer ; j++, client++ ) {
 		if ( len <= 1022 || client->longstr ) {
 			SV_AddServerCommand( client, message );
 		}
@@ -701,7 +701,7 @@ static void SVC_Status( const netadr_t *from ) {
 	status[0] = '\0';
 	statusLength = strlen( infostring ) + 16; // strlen( "statusResponse\n\n" )
 
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	for ( i = 0 ; i < sv_maxClients->integer ; i++ ) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
 
@@ -768,7 +768,7 @@ static void SVC_Info( const netadr_t *from ) {
 
 	// don't count privateclients
 	count = humans = 0;
-	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
+	for ( i = sv_privateClients->integer ; i < sv_maxClients->integer ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			count++;
 			if (svs.clients[i].netchan.remoteAddress.type != NA_BOT) {
@@ -788,8 +788,8 @@ static void SVC_Info( const netadr_t *from ) {
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
 	Info_SetValueForKey(infostring, "g_humanplayers", va("%i", humans));
-	Info_SetValueForKey( infostring, "sv_maxclients", 
-		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
+	Info_SetValueForKey( infostring, "sv_maxClients", 
+		va("%i", sv_maxClients->integer - sv_privateClients->integer ) );
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
 	Info_SetValueForKey(infostring, "g_needpass", va("%d", Cvar_VariableIntegerValue("g_needpass")));
@@ -1000,7 +1000,7 @@ void SV_PacketEvent( const netadr_t *from, msg_t *msg ) {
 	qport = MSG_ReadShort( msg ) & 0xffff;
 
 	// find which client the message is from
-	for (i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
+	for (i=0, cl=svs.clients ; i < sv_maxClients->integer ; i++,cl++) {
 		if (cl->state == CS_FREE) {
 			continue;
 		}
@@ -1049,7 +1049,7 @@ static void SV_CalcPings( void ) {
 	int			delta;
 	playerState_t	*ps;
 
-	for (i=0 ; i < sv_maxclients->integer ; i++) {
+	for (i=0 ; i < sv_maxClients->integer ; i++) {
 		cl = &svs.clients[i];
 		if ( cl->state != CS_ACTIVE ) {
 			cl->ping = 999;
@@ -1109,9 +1109,9 @@ static void SV_CheckTimeouts( void ) {
 	int			zombiepoint;
 
 	droppoint = svs.time - 1000 * sv_timeout->integer;
-	zombiepoint = svs.time - 1000 * sv_zombietime->integer;
+	zombiepoint = svs.time - 1000 * sv_zombieTime->integer;
 
-	for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ ) {
+	for ( i = 0, cl = svs.clients ; i < sv_maxClients->integer ; i++, cl++ ) {
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
@@ -1168,7 +1168,7 @@ static qboolean SV_CheckPaused( void ) {
 
 	// only pause if there is just a single client connected
 	count = 0;
-	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
+	for (i=0,cl=svs.clients ; i < sv_maxClients->integer ; i++,cl++) {
 		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
 			count++;
 		}
@@ -1238,7 +1238,7 @@ void SV_TrackCvarChanges( void )
 	if ( sv.state == SS_DEAD || !svs.clients )
 		return;
 
-	for ( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
+	for ( i = 0, cl = svs.clients; i < sv_maxClients->integer; i++, cl++ ) {
 		if ( cl->state >= CS_CONNECTED ) {
 			SV_UserinfoChanged( cl, qfalse, qfalse ); // do not update userinfo, do not run filter
 		}
@@ -1258,7 +1258,7 @@ static void SV_Restart( const char *reason ) {
 
 	if ( svs.clients ) {
 		// check if we can reset map time without full server shutdown
-		for ( i = 0; i < sv_maxclients->integer; i++ ) {
+		for ( i = 0; i < sv_maxClients->integer; i++ ) {
 			if ( svs.clients[i].state >= CS_CONNECTED ) {
 				sv_shutdown = qtrue;
 				break;
@@ -1296,9 +1296,9 @@ void SV_Frame( int msec ) {
 		SV_TrackCvarChanges(); // update rate settings, etc.
 
 	// the menu kills the server with this cvar
-	if ( sv_killserver->integer ) {
+	if ( sv_killServer->integer ) {
 		SV_Shutdown( "Server was killed" );
-		Cvar_Set( "sv_killserver", "0" );
+		Cvar_Set( "sv_killServer", "0" );
 		return;
 	}
 
@@ -1320,12 +1320,12 @@ void SV_Frame( int msec ) {
 
 	// if it isn't time for the next frame, do nothing
 
-	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+	frameMsec = 1000 / sv_fps->integer * com_timeScale->value;
 	// don't let it scale below 1ms
 	if(frameMsec < 1)
 	{
-		Cvar_Set( "timescale", va( "%f", sv_fps->value / 1000.0f ) );
-		Com_DPrintf( "timescale adjusted to %f\n", com_timescale->value );
+		Cvar_Set( "timeScale", va( "%f", sv_fps->value / 1000.0f ) );
+		Com_DPrintf( "timeScale adjusted to %f\n", com_timeScale->value );
 		frameMsec = 1;
 	}
 
@@ -1347,7 +1347,7 @@ void SV_Frame( int msec ) {
 	if ( sv.time > (12*3600*1000) && ( sv_levelTimeReset->integer == 0 || sv.time > 0x40000000 ) ) {
 		n = 0;
 		if ( svs.clients ) {
-			for ( i = 0; i < sv_maxclients->integer; i++ ) {
+			for ( i = 0; i < sv_maxClients->integer; i++ ) {
 				// FIXME: deal with bots (reconnect?)
 				if ( svs.clients[i].state != CS_FREE && svs.clients[i].netchan.remoteAddress.type != NA_BOT ) {
 					n = 1;
@@ -1445,7 +1445,7 @@ int SV_RateMsec( const client_t *client )
 #endif
 		messageSize += UDPIP_HEADER_SIZE;
 		
-	rateMsec = messageSize * 1000 / ((int) (client->rate * com_timescale->value));
+	rateMsec = messageSize * 1000 / ((int) (client->rate * com_timeScale->value));
 	rate = Sys_Milliseconds() - client->netchan.lastSentTime;
 	
 	if ( rate > rateMsec )

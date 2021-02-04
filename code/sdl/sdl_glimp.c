@@ -54,7 +54,7 @@ static PFN_vkGetInstanceProcAddr qvkGetInstanceProcAddr;
 #endif
 
 cvar_t *r_stereoEnabled;
-cvar_t *in_nograb;
+cvar_t *in_noGrab;
 
 /*
 ===============
@@ -283,23 +283,23 @@ static int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qbool
 		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
 #endif
 	}
-	else if ( r_noborder->integer )
+	else if ( r_noBorder->integer )
 	{
 		flags |= SDL_WINDOW_BORDERLESS;
 	}
 
 	config->isFullscreen = fullscreen;
-	colorBits = r_colorbits->value;
+	colorBits = r_colorBits->value;
 
 	if ( colorBits == 0 || colorBits >= 32 )
 		colorBits = 24;
 
-	if ( cl_depthbits->integer == 0 )
+	if ( cl_depthBits->integer == 0 )
 		depthBits = 24;
 	else
-		depthBits = cl_depthbits->integer;
+		depthBits = cl_depthBits->integer;
 
-	stencilBits = cl_stencilbits->integer;
+	stencilBits = cl_stencilBits->integer;
 	samples = 0; // r_ext_multisample->integer;
 
 	for ( i = 0; i < 16; i++ )
@@ -497,7 +497,7 @@ static int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qbool
 		return RSERR_INVALID_MODE;
 	}
 
-	if ( !config->isFullscreen && r_noborder->integer )
+	if ( !config->isFullscreen && r_noBorder->integer )
 		SDL_SetWindowHitTest( SDL_window, SDL_HitTestFunc, NULL );
 
 #ifdef USE_VULKAN_API
@@ -526,9 +526,9 @@ static rserr_t GLimp_StartDriverAndSetMode( int mode, const char *modeFS, qboole
 {
 	rserr_t err;
 
-	if ( fullscreen && in_nograb->integer )
+	if ( fullscreen && in_noGrab->integer )
 	{
-		Com_Printf( "Fullscreen not allowed with \\in_nograb 1\n");
+		Com_Printf( "Fullscreen not allowed with \\in_noGrab 1\n");
 		Cvar_Set( "r_fullscreen", "0" );
 		r_fullscreen->modified = qfalse;
 		fullscreen = qfalse;
@@ -587,12 +587,12 @@ void GLimp_Init( glconfig_t *config )
 
 	glw_state.config = config; // feedback renderer configuration
 
-	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE );
+	in_noGrab = Cvar_Get( "in_noGrab", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
-	r_allowSoftwareGL = Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
+	r_allowSoftwareGL = Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
 
-	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 
 	// Create the window and set up the context
 	err = GLimp_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_fullscreen->integer, qfalse );
@@ -676,10 +676,10 @@ void VKimp_Init( glconfig_t *config )
 
 	Com_DPrintf( "VKimp_Init()\n" );
 
-	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE );
+	in_noGrab = Cvar_Get( "in_noGrab", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
-	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 
 	// feedback to renderer configuration
 	glw_state.config = config;

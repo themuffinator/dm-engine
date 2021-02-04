@@ -83,10 +83,10 @@ int			s_numSfx = 0;
 #define		LOOP_HASH		128
 static sfx_t *sfxHash[LOOP_HASH];
 
-cvar_t		*s_testsound;
-cvar_t		*s_khz;
-cvar_t		*s_show;
-static cvar_t *s_mixahead;
+cvar_t		*s_testSound;
+cvar_t		*s_kHz;
+cvar_t		*s_debug;
+static cvar_t *s_mixAhead;
 static cvar_t *s_mixOffset;
 #if defined(__linux__) && !defined(USE_SDL)
 cvar_t		*s_device;
@@ -484,7 +484,7 @@ static void S_Base_StartSound( const vec3_t origin, int entityNum, int entchanne
 		S_memoryLoad(sfx);
 	}
 
-	if ( s_show->integer == 1 ) {
+	if ( s_debug->integer == 1 ) {
 		Com_Printf( "%i : %s\n", s_paintedtime, sfx->soundName );
 	}
 
@@ -492,7 +492,7 @@ static void S_Base_StartSound( const vec3_t origin, int entityNum, int entchanne
 
 	// borrowed from cnq3
 	// a UNIQUE entity starting the same sound twice in a frame is either a bug,
-	// a timedemo, or a shitmap (eg q3ctf4) giving multiple items on spawn.
+	// a timeDemo, or a shitmap (eg q3ctf4) giving multiple items on spawn.
 	// even if you can create a case where it IS "valid", it's still pointless
 	// because you implicitly can't DISTINGUISH between the sounds:
 	// all that happens is the sound plays at double volume, which is just annoying
@@ -1120,7 +1120,7 @@ static void S_Base_Update( int msec ) {
 	//
 	// debugging output
 	//
-	if ( s_show->integer == 2 ) {
+	if ( s_debug->integer == 2 ) {
 		total = 0;
 		ch = s_channels;
 		for (i=0 ; i<MAX_CHANNELS; i++, ch++) {
@@ -1215,7 +1215,7 @@ static void S_Update_( int msec ) {
 		sane = msec;
 	}
 
-	mixAhead[0] = s_mixahead->value * (float)dma.speed;
+	mixAhead[0] = s_mixAhead->value * (float)dma.speed;
 	mixAhead[1] = sane * 0.0015f * (float)dma.speed;
 
 	if ( mixAhead[0] < mixAhead[1] ) {
@@ -1475,10 +1475,9 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 		return qfalse;
 	}
 
-	s_khz = Cvar_Get( "s_khz", "22", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	Cvar_CheckRange( s_khz, "0", "48", CV_INTEGER );
+	s_kHz = Cvar_Get( "s_kHz", "22", CVAR_ARCHIVE_ND | CVAR_LATCH, "11", "48", CV_INTEGER );
 
-	switch( s_khz->integer ) {
+	switch( s_kHz->integer ) {
 		case 48:
 		case 44:
 		case 22:
@@ -1487,21 +1486,19 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 			break;
 		default:
 			// anything else is illegal
-			Com_Printf( "WARNING: cvar 's_khz' must be one of (11, 22, 44, 48), setting to '%s'\n", s_khz->resetString );
-			Cvar_ForceReset( "s_khz" );
+			Com_Printf( "WARNING: cvar 's_kHz' must be one of (11, 22, 44, 48), setting to '%s'\n", s_kHz->resetString );
+			Cvar_ForceReset( "s_kHz" );
 			break;
 	}
 
-	s_mixahead = Cvar_Get( "s_mixAhead", "0.2", CVAR_ARCHIVE_ND );
-	Cvar_CheckRange( s_mixahead, "0.001", "0.5", CV_FLOAT );
+	s_mixAhead = Cvar_Get( "s_mixAhead", "0.2", CVAR_ARCHIVE_ND, "0.001", "0.5", CV_FLOAT );
 
-	s_mixOffset = Cvar_Get( "s_mixOffset", "0", CVAR_ARCHIVE_ND | CVAR_DEVELOPER );
-	Cvar_CheckRange( s_mixOffset, "0", "0.5", CV_FLOAT );
+	s_mixOffset = Cvar_Get( "s_mixOffset", "0", CVAR_ARCHIVE_ND | CVAR_DEVELOPER, "0", "0.5", CV_FLOAT );
 
-	s_show = Cvar_Get( "s_show", "0", CVAR_CHEAT );
-	s_testsound = Cvar_Get( "s_testsound", "0", CVAR_CHEAT );
+	s_debug = Cvar_Get( "s_debug", "0", CVAR_CHEAT, "0", "2", CV_INTEGER );
+	s_testSound = Cvar_Get( "s_testSound", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 #if defined(__linux__) && !defined(USE_SDL)
-	s_device = Cvar_Get( "s_device", "default", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	s_device = Cvar_Get( "s_device", "default", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
 	Cvar_SetDescription( s_device, "Set ALSA output device\n"
 		" Use \"default\", \"sysdefault\", \"front\", etc.\n"
 		" Enter " S_COLOR_CYAN "aplay -L "S_COLOR_WHITE"in your shell to see all options.\n"

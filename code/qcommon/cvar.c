@@ -345,7 +345,7 @@ If the variable already exists, the value will not be set unless CVAR_ROM
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
+cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags, const char *mins, const char *maxs, cvarValidator_t type ) {
 	cvar_t	*var;
 	long	hash;
 	int	index;
@@ -506,6 +506,10 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	 // sort on write
 	cvar_sort = qtrue;
 
+	if ( mins || maxs || type ) {
+		Cvar_CheckRange(var, mins, maxs, type);
+	}
+
 	return var;
 }
 
@@ -583,12 +587,24 @@ Prints the value, default, and latched string of the given variable
 */
 static void Cvar_Print( const cvar_t *v ) {
 
-	Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\"",
-		v->name, v->string );
+	Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\"", v->name, v->string );
 
 	if ( !( v->flags & CVAR_ROM ) ) {
-		Com_Printf (" default:\"%s" S_COLOR_WHITE "\"",
-			v->resetString );
+		if (!Q_stricmp(v->string, v->resetString)) {
+			Com_Printf( " (default)" S_COLOR_WHITE );
+		} else {
+			Com_Printf(" default:\"%s" S_COLOR_WHITE "\"", v->resetString);
+		}
+
+		if (v->mins && v->maxs) {
+			Com_Printf( " range:%s-%s" S_COLOR_WHITE, v->mins, v->maxs );
+		}
+		else if (v->mins) {
+			Com_Printf(" min:%s" S_COLOR_WHITE, v->mins);
+		}
+		else if (v->maxs) {
+			Com_Printf(" max:%s" S_COLOR_WHITE, v->maxs);
+		}
 	}
 
 	Com_Printf ("\n");
@@ -632,9 +648,9 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		}
 		// create it
 		if ( !force ) {
-			return Cvar_Get( var_name, value, CVAR_USER_CREATED );
+			return Cvar_Get( var_name, value, CVAR_USER_CREATED, NULL, NULL, CV_NONE );
 		} else {
-			return Cvar_Get (var_name, value, 0);
+			return Cvar_Get (var_name, value, 0, NULL, NULL, CV_NONE );
 		}
 	}
 
@@ -1967,7 +1983,7 @@ void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultVal
 		if ( cv->flags & CVAR_PRIVATE )
 			return;
 	} else {
-		cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED);
+		cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED, NULL, NULL, CV_NONE );
 	}
 
 	if (!vmCvar)
@@ -2051,8 +2067,8 @@ void Cvar_Init (void)
 	Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
 	Com_Memset(hashTable, '\0', sizeof(hashTable));
 
-	cvar_cheats = Cvar_Get( "sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO );
-	cvar_developer = Cvar_Get( "developer", "0", CVAR_TEMP );
+	cvar_cheats = Cvar_Get( "sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO, NULL, NULL, CV_NONE );
+	cvar_developer = Cvar_Get( "developer", "0", CVAR_TEMP, NULL, NULL, CV_NONE );
 
 	Cmd_AddCommand ("print", Cvar_Print_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
@@ -2072,7 +2088,7 @@ void Cvar_Init (void)
 
 	Cmd_AddCommand( "varfunc", Cvar_Func_f );
 
-	Cmd_AddCommand ("cvarlist", Cvar_List_f);
+	Cmd_AddCommand ("listCvars", Cvar_List_f);
 	Cmd_AddCommand ("cvar_modified", Cvar_ListModified_f);
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
 	Cmd_AddCommand ("cvar_trim", Cvar_Trim_f);

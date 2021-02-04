@@ -59,7 +59,7 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 	int			anyBack;
 	int			front, back;
 
-	if ( r_nocull->integer ) {
+	if ( r_noCull->integer ) {
 		return CULL_CLIP;
 	}
 
@@ -130,7 +130,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 	cPlane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
-	if ( r_nocull->integer ) {
+	if ( r_noCull->integer ) {
 		return CULL_CLIP;
 	}
 
@@ -169,7 +169,7 @@ int R_CullDlight( const dlight_t* dl )
 	cPlane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
-	if ( r_nocull->integer )
+	if ( r_noCull->integer )
 		return CULL_CLIP;
 
 	if ( dl->linear ) {
@@ -548,7 +548,7 @@ static void R_SetupFrustum( viewParms_t *dest, float xmin, float xmax, float yma
 	// near clipping plane
 	VectorCopy( dest->or.axis[0], dest->frustum[4].normal );
 	dest->frustum[4].type = PLANE_NON_AXIAL;
-	dest->frustum[4].dist = DotProduct( ofsorigin, dest->frustum[4].normal ) + r_znear->value;
+	dest->frustum[4].dist = DotProduct( ofsorigin, dest->frustum[4].normal ) + r_zNear->value;
 	SetPlaneSignbits( &dest->frustum[4] );
 }
 
@@ -617,7 +617,7 @@ Sets the z-component transformation part in the projection matrix
 */
 static void R_SetupProjectionZ( viewParms_t *dest )
 {
-	const float zNear = r_znear->value;
+	const float zNear = r_zNear->value;
 	const float zFar = dest->zFar;
 	const float depth = zFar - zNear;
 
@@ -1122,7 +1122,7 @@ static qboolean R_MirrorViewBySurface( const drawSurf_t *drawSurf, int entityNum
 		return qfalse;
 	}
 
-	if ( r_noportals->integer > 1 /*|| r_fastsky->integer == 1 */ ) {
+	if ( r_noPortals->integer > 1 /*|| r_fastSky->integer == 1 */ ) {
 		return qfalse;
 	}
 
@@ -1131,7 +1131,7 @@ static qboolean R_MirrorViewBySurface( const drawSurf_t *drawSurf, int entityNum
 		return qfalse;
 	}
 
-	if ( !isMirror && r_noportals->integer ) {
+	if ( !isMirror && r_noPortals->integer ) {
 		return qfalse;
 	}
 
@@ -1158,7 +1158,7 @@ static qboolean R_MirrorViewBySurface( const drawSurf_t *drawSurf, int entityNum
 	}
 #endif
 
-	if ( tess.numVertexes > 2 && r_fastsky->integer ) {
+	if ( tess.numVertexes > 2 && r_fastSky->integer ) {
 		int mins[2], maxs[2];
 		R_GetModelViewBounds( mins, maxs );
 		newParms.scissorX = newParms.viewportX + mins[0];
@@ -1509,7 +1509,7 @@ static void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			if ( r_portalOnly->integer ) {
 				return;
 			}
-			if ( r_fastsky->integer == 0 ) {
+			if ( r_fastSky->integer == 0 ) {
 				break;	// only one mirror view at a time
 			}
 		}
@@ -1545,7 +1545,7 @@ void R_AddEntitySurfaces( void ) {
 	trRefEntity_t	*ent;
 	shader_t		*shader;
 
-	if ( !r_drawentities->integer ) {
+	if ( !r_drawEntities->integer ) {
 		return;
 	}
 
@@ -1681,7 +1681,7 @@ void R_RenderView( const viewParms_t *parms ) {
 	// set viewParms.world
 	R_RotateForViewer();
 
-	R_SetupProjection( &tr.viewParms, r_zproj->value, qtrue );
+	R_SetupProjection( &tr.viewParms, r_zProj->value, qtrue );
 
 	R_GenerateDrawSurfs();
 

@@ -1094,7 +1094,7 @@ static VkFormat get_depth_format( VkPhysicalDevice physical_device ) {
 	VkFormat formats[2];
 	int i;
 
-	if (r_stencilbits->integer > 0) {
+	if (r_stencilBits->integer > 0) {
 		formats[0] = glConfig.depthBits == 16 ? VK_FORMAT_D16_UNORM_S8_UINT : VK_FORMAT_D24_UNORM_S8_UINT;
 		formats[1] = VK_FORMAT_D32_SFLOAT_S8_UINT;
 		glConfig.stencilBits = 8;
@@ -2966,7 +2966,7 @@ static void create_depth_attachment( uint32_t width, uint32_t height, VkSampleCo
 	create_desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 	image_aspect_flags = VK_IMAGE_ASPECT_DEPTH_BIT;
-	if ( r_stencilbits->integer )
+	if ( r_stencilBits->integer )
 		image_aspect_flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
 	VK_CHECK( qvkCreateImage( vk.device, &create_desc, NULL, image ) );
@@ -4287,7 +4287,7 @@ void vk_create_post_process_pipeline( int program_index )
 
 	frag_spec_data[0] = 1.0 / (r_gamma->value);
 	frag_spec_data[1] = (float)(1 << tr.overbrightBits);
-	frag_spec_data[2] = r_greyscale->value;
+	frag_spec_data[2] = r_greyScale->value;
 	frag_spec_data[3] = r_bloom_threshold->value;
 	frag_spec_data[4] = r_bloom_intensity->value;
 

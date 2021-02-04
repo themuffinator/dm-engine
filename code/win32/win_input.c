@@ -88,7 +88,7 @@ cvar_t	*in_mididevice;
 #endif
 
 cvar_t	*in_minimize;
-cvar_t	*in_nograb;
+cvar_t	*in_noGrab;
 cvar_t	*in_lagged;
 
 cvar_t	*in_mouse;
@@ -127,7 +127,7 @@ IN_MouseActive
 */
 qboolean IN_MouseActive( void )
 {
-	return ( in_nograb && in_nograb->integer == 0 && s_wmv.mouseActive );
+	return ( in_noGrab && in_noGrab->integer == 0 && s_wmv.mouseActive );
 }
 
 
@@ -1120,7 +1120,7 @@ void IN_Shutdown( void ) {
 	IN_ShutdownDIMouse();
 #ifdef USE_MIDI
 	IN_ShutdownMIDI();
-	Cmd_RemoveCommand( "midiinfo" );
+	Cmd_RemoveCommand( "midiInfo" );
 #endif
 	Cmd_RemoveCommand( "minimize" );
 	Cmd_RemoveCommand( "in_restart" );
@@ -1138,40 +1138,39 @@ void IN_Init( void ) {
 
 #ifdef USE_MIDI
 	// MIDI input controler variables
-	in_midi = Cvar_Get( "in_midi", "0", CVAR_ARCHIVE );
-	in_midiport = Cvar_Get( "in_midiport", "1", CVAR_ARCHIVE );
-	in_midichannel = Cvar_Get( "in_midichannel", "1", CVAR_ARCHIVE );
-	in_mididevice = Cvar_Get( "in_mididevice", "0", CVAR_ARCHIVE );
-	Cmd_AddCommand( "midiinfo", MidiInfo_f );
+	in_midi = Cvar_Get( "in_midi", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	in_midiport = Cvar_Get( "in_midiport", "1", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
+	in_midichannel = Cvar_Get( "in_midichannel", "1", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
+	in_mididevice = Cvar_Get( "in_mididevice", "0", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
+	Cmd_AddCommand( "midiInfo", MidiInfo_f );
 #endif
 
 #ifdef USE_JOYSTICK
 	// joystick variables
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	in_joyBallScale = Cvar_Get( "in_joyBallScale", "0.02", CVAR_ARCHIVE );
-	in_debugJoystick = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP );
-	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
+	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	in_joyBallScale = Cvar_Get( "in_joyBallScale", "0.02", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
+	in_debugJoystick = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP, NULL, NULL, CV_INTEGER );
+	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
 #endif
 
 	// mouse variables
-	in_mouse = Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE |CVAR_LATCH );
-	Cvar_CheckRange( in_mouse, "-1", "1", CV_INTEGER );
+	in_mouse = Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE |CVAR_LATCH, "-1", "1", CV_INTEGER );
 	Cvar_SetDescription( in_mouse,
 		"Mouse data input source:\n" \
 		"  0 - disable mouse input\n" \
 		"  1 - di/raw mouse\n" \
 		" -1 - win32 mouse" );
 		
-	in_nograb = Cvar_Get( "in_nograb", "0", 0 );
-	in_lagged = Cvar_Get( "in_lagged", "0", 0 );
+	in_noGrab = Cvar_Get( "in_noGrab", "0", 0, "0", "1", CV_INTEGER );
+	in_lagged = Cvar_Get( "in_lagged", "0", 0, "0", "1", CV_INTEGER );
 	Cvar_SetDescription( in_lagged, 
 		"Mouse movement processing order:\n" \
 		" 0 - before rendering\n" \
 		" 1 - before framerate limiter" );
 
-	in_logitechbug = Cvar_Get( "in_logitechbug", "0", CVAR_ARCHIVE_ND );
+	in_logitechbug = Cvar_Get( "in_logitechbug", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
-	in_minimize	= Cvar_Get( "in_minimize", "", CVAR_ARCHIVE | CVAR_LATCH );
+	in_minimize	= Cvar_Get( "in_minimize", "", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 
 	Cmd_AddCommand( "minimize", IN_Minimize );
 	Cmd_AddCommand( "in_restart", IN_Restart_f );
@@ -1240,7 +1239,7 @@ void IN_Frame( void ) {
 		}
 	}
 
-	if ( !gw_active || in_nograb->integer ) {
+	if ( !gw_active || in_noGrab->integer ) {
 		IN_DeactivateMouse();
 		return;
 	}

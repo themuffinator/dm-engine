@@ -383,6 +383,9 @@ Handles history and console scrollback
 ====================
 */
 static void Console_Key( int key ) {
+//dm
+	char	temp[MAX_EDIT_LINE-1];
+//-dm
 	// ctrl-L clears screen
 	if ( key == 'l' && keys[K_CTRL].down ) {
 		Cbuf_AddText( "clear\n" );
@@ -396,7 +399,9 @@ static void Console_Key( int key ) {
 			&& g_consoleField.buffer[0] != '\0'
 			&& g_consoleField.buffer[0] != '\\'
 			&& g_consoleField.buffer[0] != '/' ) {
-			char	temp[MAX_EDIT_LINE-1];
+//dm
+			//char	temp[MAX_EDIT_LINE-1];
+//-dm
 
 			Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
 			Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
@@ -414,9 +419,19 @@ static void Console_Key( int key ) {
 			if ( !g_consoleField.buffer[0] ) {
 				return;	// empty lines just scroll the console without adding to history
 			} else {
-				Cbuf_AddText( "cmd say " );
-				Cbuf_AddText( g_consoleField.buffer );
-				Cbuf_AddText( "\n" );
+//dm
+				if ( !cl_allowConsoleChat->integer ) {
+					Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
+					Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
+					g_consoleField.cursor++;
+					Cbuf_AddText( g_consoleField.buffer+1 );	// valid command
+					Cbuf_AddText ("\n");
+				} else {
+					Cbuf_AddText ("cmd say ");
+					Cbuf_AddText( g_consoleField.buffer );
+					Cbuf_AddText ("\n");
+				}
+//-dm
 			}
 		}
 

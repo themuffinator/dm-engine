@@ -382,15 +382,15 @@ extern	refexport_t		re;		// interface to refresh .dll
 //
 // cvars
 //
-extern	cvar_t	*cl_noprint;
+extern	cvar_t	*con_noPrint;
 extern	cvar_t	*cl_debugMove;
-extern	cvar_t	*cl_timegraph;
-extern	cvar_t	*cl_shownet;
+extern	cvar_t	*cl_timeGraph;
+extern	cvar_t	*cl_showNet;
 extern	cvar_t	*cl_autoNudge;
 extern	cvar_t	*cl_timeNudge;
 extern	cvar_t	*cl_showTimeDelta;
 
-extern	cvar_t	*com_timedemo;
+extern	cvar_t	*com_timeDemo;
 extern	cvar_t	*cl_aviFrameRate;
 extern	cvar_t	*cl_aviMotionJpeg;
 extern	cvar_t	*cl_aviPipeFormat;
@@ -402,18 +402,16 @@ extern	cvar_t	*cl_allowDownload;
 extern	cvar_t	*cl_mapAutoDownload;
 extern	cvar_t	*cl_dlDirectory;
 #endif
-extern	cvar_t	*cl_conXOffset;
-extern	cvar_t	*cl_conColor;
 extern	cvar_t	*cl_inGameVideo;
 
 extern	cvar_t	*cl_lanForcePackets;
 extern	cvar_t	*cl_autoRecordDemo;
 
-extern	cvar_t	*com_maxfps;
+extern	cvar_t	*com_maxFPS;
 
 extern	cvar_t	*vid_xpos;
 extern	cvar_t	*vid_ypos;
-extern	cvar_t	*r_noborder;
+extern	cvar_t	*r_noBorder;
 
 extern	cvar_t	*r_allowSoftwareGL;
 extern	cvar_t	*r_swapInterval;
@@ -423,16 +421,17 @@ extern	cvar_t	*r_displayRefresh;
 extern	cvar_t	*r_fullscreen;
 extern	cvar_t	*r_mode;
 extern	cvar_t	*r_modeFullscreen;
-extern	cvar_t	*r_customwidth;
-extern	cvar_t	*r_customheight;
+extern	cvar_t	*r_customWidth;
+extern	cvar_t	*r_customHeight;
 extern	cvar_t	*r_customPixelAspect;
-extern	cvar_t	*r_colorbits;
-extern	cvar_t	*cl_stencilbits;
-extern	cvar_t	*cl_depthbits;
+extern	cvar_t	*r_colorBits;
+extern	cvar_t	*cl_stencilBits;
+extern	cvar_t	*cl_depthBits;
 extern	cvar_t	*cl_drawBuffer;
-
+//dm
 extern	cvar_t *cl_cinematics_arc;
-
+extern	cvar_t *cl_allowConsoleChat;
+//-dm
 //=================================================
 
 //

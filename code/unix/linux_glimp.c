@@ -125,11 +125,11 @@ static int mouseResetTime = 0;
 #define MOUSE_RESET_DELAY 50
 
 static cvar_t *in_mouse;
-static cvar_t *in_dgamouse; // user pref for dga mouse
+static cvar_t *in_dgaMouse; // user pref for dga mouse
 static cvar_t *in_shiftedKeys; // obey modifiers for certain keys in non-console (comma, numbers, etc)
 
 static cvar_t *in_subframe;
-static cvar_t *in_nograb; // this is strictly for developers
+static cvar_t *in_noGrab; // this is strictly for developers
 
 cvar_t *in_forceCharset;
 
@@ -349,7 +349,7 @@ static char *XLateKey( XKeyEvent *ev, int *key )
     //Com_Printf( "unknown keysym: %08X\n", keysym );
     if (XLookupRet == 0)
     {
-      if (com_developer->value)
+      if (com_developer->integer)
       {
         Com_Printf( "Warning: XLookupString failed on KeySym %d\n", (int)keysym );
       }
@@ -436,11 +436,11 @@ static void install_mouse_grab( void )
 	mouseResetTime = Sys_Milliseconds();
 
 #ifdef HAVE_XF86DGA
-	if ( in_dgamouse->integer )
+	if ( in_dgaMouse->integer )
 	{
 		if ( !glw_state.dga_ext )
 		{
-			Cvar_Set( "in_dgamouse", "0" );
+			Cvar_Set( "in_dgaMouse", "0" );
 		}
 		else
 		{
@@ -477,7 +477,7 @@ static void install_kb_grab( void )
 static void uninstall_mouse_grab( void )
 {
 #ifdef HAVE_XF86DGA
-	if ( in_dgamouse->integer )
+	if ( in_dgaMouse->integer )
 	{
 		if ( com_developer->integer )
 		{
@@ -799,7 +799,7 @@ void HandleEvents( void )
 			{
 				t = Sys_XTimeToSysTime( event.xkey.time );
 #ifdef HAVE_XF86DGA
-				if ( in_dgamouse->integer )
+				if ( in_dgaMouse->integer )
 				{
 					mx += event.xmotion.x_root;
 					my += event.xmotion.y_root;
@@ -832,7 +832,7 @@ void HandleEvents( void )
 					mwx = event.xmotion.x;
 					mwy = event.xmotion.y;
 					dowarp = qtrue;
-				} // if ( !in_dgamouse->value )
+				} // if ( !in_dgaMouse->value )
 			} // if ( mouse_active )
 			break;
 
@@ -962,9 +962,9 @@ void IN_ActivateMouse( void )
 
 	if ( !mouse_active )
 	{
-		if ( in_dgamouse->integer && in_nograb->integer ) // force dga mouse to 0 if using nograb
+		if ( in_dgaMouse->integer && in_noGrab->integer ) // force dga mouse to 0 if using nograb
 		{
-			Cvar_Set( "in_dgamouse", "0" );
+			Cvar_Set( "in_dgaMouse", "0" );
 		}
 		install_mouse_grab();
 		install_kb_grab();
@@ -989,9 +989,9 @@ void IN_DeactivateMouse( void )
 	{
 		uninstall_mouse_grab();
 		uninstall_kb_grab();
-		if ( in_dgamouse->integer && in_nograb->integer ) // force dga mouse to 0 if using nograb
+		if ( in_dgaMouse->integer && in_noGrab->integer ) // force dga mouse to 0 if using nograb
 		{
-			Cvar_Set( "in_dgamouse", "0" );
+			Cvar_Set( "in_dgaMouse", "0" );
 		}
 		mouse_active = qfalse;
 	}
@@ -1005,7 +1005,7 @@ IN_MouseActive
 */
 qboolean IN_MouseActive( void )
 {
-	return ( in_nograb->integer == 0 && mouse_active );
+	return ( in_noGrab->integer == 0 && mouse_active );
 }
 
 
@@ -1252,9 +1252,9 @@ static rserr_t GLW_StartDriverAndSetMode( int mode, const char *modeFS, qboolean
 {
 	rserr_t err;
 	
-	if ( fullscreen && in_nograb->integer )
+	if ( fullscreen && in_noGrab->integer )
 	{
-		Com_Printf( "Fullscreen not allowed with in_nograb 1\n");
+		Com_Printf( "Fullscreen not allowed with in_noGrab 1\n");
 		Cvar_Set( "r_fullscreen", "0" );
 		r_fullscreen->modified = qfalse;
 		fullscreen = qfalse;
@@ -1508,11 +1508,11 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 	XSync( dpy, False );
 
 #ifdef HAVE_XF86DGA
-	if ( in_dgamouse && in_dgamouse->integer )
+	if ( in_dgaMouse && in_dgaMouse->integer )
 	{
 		if ( !DGA_Init( dpy ) )
 		{
-			Cvar_Set( "in_dgamouse", "0" );
+			Cvar_Set( "in_dgaMouse", "0" );
 		}
 	}
 #endif
@@ -1552,17 +1552,17 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 			Com_Printf( "XFree86-VidModeExtension: Ignored on non-fullscreen\n" );
 	}
 
-	if ( r_colorbits->integer == 0 )
+	if ( r_colorBits->integer == 0 )
 		colorbits = 24;
 	else
-		colorbits = MIN( r_colorbits->integer, 24);
+		colorbits = MIN( r_colorBits->integer, 24);
 
-	if ( cl_depthbits->integer == 0 )
+	if ( cl_depthBits->integer == 0 )
 		depthbits = 24;
 	else
-		depthbits = MIN( cl_depthbits->integer, 32);
+		depthbits = MIN( cl_depthBits->integer, 32);
 
-	stencilbits = cl_stencilbits->integer;
+	stencilbits = cl_stencilBits->integer;
 
 #ifdef USE_VULKAN_API
 	if ( vulkan )
@@ -1616,7 +1616,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 		motifHints_t decohint;
 		decohint.flags = (1L << 1);
 		decohint.functions = 0;
-		decohint.decorations = r_noborder->integer ? 0 : 1;
+		decohint.decorations = r_noBorder->integer ? 0 : 1;
 		decohint.input_mode = decohint.status = 0;
 
 		XChangeProperty( dpy, win, motifWMHints, motifWMHints, 32,
@@ -1823,15 +1823,15 @@ int qXErrorHandler( Display *dpy, XErrorEvent *ev )
 static void InitCvars( void )
 {
 	// referenced in GLW_StartDriverAndSetMode() so must be inited there
-	in_nograb = Cvar_Get( "in_nograb", "0", 0 );
+	in_noGrab = Cvar_Get( "in_noGrab", "0", 0, "0", "1", CV_INTEGER );
 
 	// turn on-off sub-frame timing of X events, referenced in Sys_XTimeToSysTime
-	in_subframe = Cvar_Get( "in_subframe", "1", CVAR_ARCHIVE_ND );
+	in_subframe = Cvar_Get( "in_subframe", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
-	in_dgamouse = Cvar_Get( "in_dgamouse", "1", CVAR_ARCHIVE_ND );
-	in_shiftedKeys = Cvar_Get( "in_shiftedKeys", "0", CVAR_ARCHIVE_ND );
+	in_dgaMouse = Cvar_Get( "in_dgaMouse", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	in_shiftedKeys = Cvar_Get( "in_shiftedKeys", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
-	in_forceCharset = Cvar_Get( "in_forceCharset", "1", CVAR_ARCHIVE_ND );
+	in_forceCharset = Cvar_Get( "in_forceCharset", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 }
 
 
@@ -2010,14 +2010,14 @@ void IN_Init( void )
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
 	// mouse variables
-	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
+	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE, "-1", "1", CV_INTEGER );
 
 #ifdef USE_JOYSTICK
 	// bk001130 - from cvs.17 (mkv), joystick variables
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 	// bk001130 - changed this to match win32
-	in_joystickDebug = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP );
-	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE_ND ); // FIXME: in_joythreshold
+	in_joystickDebug = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP, "0", "1", CV_INTEGER );
+	joy_threshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE_ND, "0.01", "1", CV_FLOAT ); // FIXME: in_joythreshold
 #endif
 
 	if ( in_mouse->integer )
@@ -2081,7 +2081,7 @@ void IN_Frame( void )
 		}
 	}
 
-	if ( !window_focused || gw_minimized || in_nograb->integer ) {
+	if ( !window_focused || gw_minimized || in_noGrab->integer ) {
 		IN_DeactivateMouse();
 		return;
 	}

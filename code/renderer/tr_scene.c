@@ -366,7 +366,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 		return;
 	}
 
-	if ( r_norefresh->integer ) {
+	if ( r_noRefresh->integer ) {
 		return;
 	}
 
@@ -454,7 +454,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 
 	// turn off dynamic lighting globally by clearing all the
 	// dlights if it needs to be disabled
-	if ( r_dynamiclight->integer == 0 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+	if ( r_dynamicLight->integer == 0 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		tr.refdef.num_dlights = 0;
 	}
 

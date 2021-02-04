@@ -49,7 +49,7 @@ typedef struct logfile_s
 	int numwrites;
 } logfile_t;
 
-static logfile_t logfile;
+static logfile_t logFile;
 
 //===========================================================================
 //
@@ -70,22 +70,22 @@ void Log_Open( const char *filename )
 		return;
 	} //end if
 
-	if ( logfile.fp )
+	if ( logFile.fp )
 	{
-		botimport.Print(PRT_ERROR, "log file %s is already opened\n", logfile.filename);
+		botimport.Print(PRT_ERROR, "log file %s is already opened\n", logFile.filename);
 		return;
 	} //end if
 
-	ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homepath" ), "", filename );
-	logfile.fp = Sys_FOpen( ospath, "wb" );
-	if ( !logfile.fp )
+	ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homePath" ), "", filename );
+	logFile.fp = Sys_FOpen( ospath, "wb" );
+	if ( !logFile.fp )
 	{
 		botimport.Print( PRT_ERROR, "can't open the log file %s\n", filename );
 		return;
 	} //end if
 
-	Q_strncpyz( logfile.filename, filename, sizeof( logfile.filename ) );
-	botimport.Print( PRT_MESSAGE, "Opened log %s\n", logfile.filename );
+	Q_strncpyz( logFile.filename, filename, sizeof( logFile.filename ) );
+	botimport.Print( PRT_MESSAGE, "Opened log %s\n", logFile.filename );
 } //end of the function Log_Create
 //===========================================================================
 //
@@ -95,14 +95,14 @@ void Log_Open( const char *filename )
 //===========================================================================
 void Log_Close(void)
 {
-	if (!logfile.fp) return;
-	if (fclose(logfile.fp))
+	if (!logFile.fp) return;
+	if (fclose(logFile.fp))
 	{
-		botimport.Print(PRT_ERROR, "can't close log file %s\n", logfile.filename);
+		botimport.Print(PRT_ERROR, "can't close log file %s\n", logFile.filename);
 		return;
 	} //end if
-	logfile.fp = NULL;
-	botimport.Print(PRT_MESSAGE, "Closed log %s\n", logfile.filename);
+	logFile.fp = NULL;
+	botimport.Print(PRT_MESSAGE, "Closed log %s\n", logFile.filename);
 } //end of the function Log_Close
 //===========================================================================
 //
@@ -112,7 +112,7 @@ void Log_Close(void)
 //===========================================================================
 void Log_Shutdown(void)
 {
-	if (logfile.fp) Log_Close();
+	if (logFile.fp) Log_Close();
 } //end of the function Log_Shutdown
 //===========================================================================
 //
@@ -124,12 +124,12 @@ void QDECL Log_Write(char *fmt, ...)
 {
 	va_list ap;
 
-	if (!logfile.fp) return;
+	if (!logFile.fp) return;
 	va_start(ap, fmt);
-	vfprintf(logfile.fp, fmt, ap);
+	vfprintf(logFile.fp, fmt, ap);
 	va_end(ap);
-	//fprintf(logfile.fp, "\r\n");
-	fflush(logfile.fp);
+	//fprintf(logFile.fp, "\r\n");
+	fflush(logFile.fp);
 } //end of the function Log_Write
 //===========================================================================
 //
@@ -141,20 +141,20 @@ void QDECL Log_WriteTimeStamped(char *fmt, ...)
 {
 	va_list ap;
 
-	if (!logfile.fp) return;
-	fprintf(logfile.fp, "%d   %02d:%02d:%02d:%02d   ",
-					logfile.numwrites,
+	if (!logFile.fp) return;
+	fprintf(logFile.fp, "%d   %02d:%02d:%02d:%02d   ",
+					logFile.numwrites,
 					(int) (botlibglobals.time / 60 / 60),
 					(int) (botlibglobals.time / 60),
 					(int) (botlibglobals.time),
 					(int) ((int) (botlibglobals.time * 100)) -
 							((int) botlibglobals.time) * 100);
 	va_start(ap, fmt);
-	vfprintf(logfile.fp, fmt, ap);
+	vfprintf(logFile.fp, fmt, ap);
 	va_end(ap);
-	fprintf(logfile.fp, "\r\n");
-	logfile.numwrites++;
-	fflush(logfile.fp);
+	fprintf(logFile.fp, "\r\n");
+	logFile.numwrites++;
+	fflush(logFile.fp);
 } //end of the function Log_Write
 //===========================================================================
 //
@@ -164,7 +164,7 @@ void QDECL Log_WriteTimeStamped(char *fmt, ...)
 //===========================================================================
 FILE *Log_FilePointer(void)
 {
-	return logfile.fp;
+	return logFile.fp;
 } //end of the function Log_FilePointer
 //===========================================================================
 //
@@ -174,6 +174,6 @@ FILE *Log_FilePointer(void)
 //===========================================================================
 void Log_Flush(void)
 {
-	if (logfile.fp) fflush(logfile.fp);
+	if (logFile.fp) fflush(logFile.fp);
 } //end of the function Log_Flush
 

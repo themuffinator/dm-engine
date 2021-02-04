@@ -371,7 +371,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe )
         return qfalse;
     }
 
-    ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homepath" ), "", fileName );
+    ospath = FS_BuildOSPath( Cvar_VariableString( "fs_homePath" ), "", fileName );
     Com_sprintf( cmd, sizeof( cmd ), cmd_fmt, cl_aviPipeFormat->string, ospath, ospath );
     if( ( afd.f = FS_PipeOpenWrite( cmd, fileName ) ) == FS_INVALID_HANDLE )
       return qfalse;
@@ -418,7 +418,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe )
 
   afd.audioFrameSize = ceil( (float)(afd.a.rate * afd.a.sampleSize) / (float)afd.frameRate );
 
-  if ( !Cvar_VariableIntegerValue( "s_initsound" ) )
+  if ( !Cvar_VariableIntegerValue( "s_init" ) )
   {
     afd.audio = qfalse;
   }

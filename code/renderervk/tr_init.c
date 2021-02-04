@@ -48,22 +48,22 @@ cvar_t	*r_railSegmentLength;
 
 cvar_t	*r_detailTextures;
 
-cvar_t	*r_znear;
-cvar_t	*r_zproj;
+cvar_t	*r_zNear;
+cvar_t	*r_zProj;
 cvar_t	*r_stereoSeparation;
 
 cvar_t	*r_skipBackEnd;
 
 //cvar_t	*r_anaglyphMode;
 
-cvar_t	*r_greyscale;
+cvar_t	*r_greyScale;
 
-cvar_t	*r_ignorehwgamma;
+cvar_t	*r_ignoreHWGamma;
 
-cvar_t	*r_fastsky;
-cvar_t	*r_neatsky;
+cvar_t	*r_fastSky;
+cvar_t	*r_neatSky;
 cvar_t	*r_drawSun;
-cvar_t	*r_dynamiclight;
+cvar_t	*r_dynamicLight;
 cvar_t  *r_mergeLightmaps;
 #ifdef USE_PMLIGHT
 cvar_t	*r_dlightMode;
@@ -88,19 +88,19 @@ cvar_t	*r_ext_supersample;
 
 cvar_t	*r_dlightBacks;
 
-cvar_t	*r_lodbias;
-cvar_t	*r_lodscale;
+cvar_t	*r_lodBias;
+cvar_t	*r_lodScale;
 
-cvar_t	*r_norefresh;
-cvar_t	*r_drawentities;
-cvar_t	*r_drawworld;
+cvar_t	*r_noRefresh;
+cvar_t	*r_drawEntities;
+cvar_t	*r_drawWorld;
 cvar_t	*r_speeds;
 cvar_t	*r_fullbright;
-cvar_t	*r_novis;
-cvar_t	*r_nocull;
+cvar_t	*r_noVis;
+cvar_t	*r_noCull;
 cvar_t	*r_facePlaneCull;
-cvar_t	*r_showcluster;
-cvar_t	*r_nocurves;
+cvar_t	*r_showCluster;
+cvar_t	*r_noCurves;
 
 cvar_t	*r_allowExtensions;
 
@@ -113,8 +113,8 @@ cvar_t	*r_ext_max_anisotropy;
 
 cvar_t	*r_ignoreGLErrors;
 
-cvar_t	*r_stencilbits;
-cvar_t	*r_texturebits;
+cvar_t	*r_stencilBits;
+cvar_t	*r_textureBits;
 cvar_t	*r_ext_multisample;
 cvar_t	*r_ext_alpha_to_coverage;
 
@@ -123,15 +123,15 @@ cvar_t	*r_lightmap;
 cvar_t	*r_vertexLight;
 cvar_t	*r_shadows;
 cvar_t	*r_flares;
-cvar_t	*r_nobind;
+cvar_t	*r_noBind;
 cvar_t	*r_singleShader;
 cvar_t	*r_roundImagesDown;
 cvar_t	*r_colorMipLevels;
 cvar_t	*r_picmip;
 cvar_t	*r_nomip;
-cvar_t	*r_showtris;
-cvar_t	*r_showsky;
-cvar_t	*r_shownormals;
+cvar_t	*r_showTris;
+cvar_t	*r_showSky;
+cvar_t	*r_showNormals;
 cvar_t	*r_finish;
 cvar_t	*r_clear;
 cvar_t	*r_textureMode;
@@ -139,8 +139,8 @@ cvar_t	*r_offsetFactor;
 cvar_t	*r_offsetUnits;
 cvar_t	*r_gamma;
 cvar_t	*r_intensity;
-cvar_t	*r_lockpvs;
-cvar_t	*r_noportals;
+cvar_t	*r_lockPVS;
+cvar_t	*r_noPortals;
 cvar_t	*r_portalOnly;
 
 cvar_t	*r_subdivisions;
@@ -188,9 +188,9 @@ cvar_t *r_pixelsize;
 cvar_t	*r_aviMotionJpegQuality;
 cvar_t	*r_screenshotJpegQuality;
 
-cvar_t	*r_maxpolys;
+cvar_t	*r_maxPolys;
 int		max_polys;
-cvar_t	*r_maxpolyverts;
+cvar_t	*r_maxPolyVerts;
 int		max_polyverts;
 
 int		captureWidth;
@@ -504,7 +504,7 @@ static void InitOpenGL( void )
 	//		- r_fullscreen
 	//		- r_mode
 	//		- r_(color|depth|stencil)bits
-	//		- r_ignorehwgamma
+	//		- r_ignoreHWGamma
 	//		- r_gamma
 	//
 	
@@ -577,7 +577,7 @@ static void InitOpenGL( void )
 			glConfig.deviceSupportsGamma = qtrue;
 #endif
 
-		if ( r_ignorehwgamma->integer )
+		if ( r_ignoreHWGamma->integer )
 			glConfig.deviceSupportsGamma = qfalse;
 
 		// print info
@@ -651,7 +651,7 @@ void GL_CheckErrors( void ) {
 
 NOTE TTimo
 some thoughts about the screenshots system:
-screenshots get written in fs_homepath + fs_gamedir
+screenshots get written in fs_homePath + fs_gamedir
 vanilla q3 .. baseq3/screenshots/ *.tga
 team arena .. missionpack/screenshots/ *.tga
 
@@ -1393,7 +1393,7 @@ static void VarInfo( void )
 
 
 	ri.Printf( PRINT_ALL, "texturemode: %s\n", r_textureMode->string );
-	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer ? r_texturebits->integer : 32 );
+	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_textureBits->integer ? r_textureBits->integer : 32 );
 	ri.Printf( PRINT_ALL, "picmip: %d%s\n", r_picmip->integer, r_nomip->integer ? ", worldspawn only" : "" );
 
 #ifdef USE_VULKAN
@@ -1466,179 +1466,191 @@ R_Register
 static void R_Register( void )
 {
 	// make sure all the commands added here are also removed in R_Shutdown
-	ri.Cmd_AddCommand( "imagelist", R_ImageList_f );
-	ri.Cmd_AddCommand( "shaderlist", R_ShaderList_f );
-	ri.Cmd_AddCommand( "skinlist", R_SkinList_f );
-	ri.Cmd_AddCommand( "modellist", R_Modellist_f );
+	ri.Cmd_AddCommand( "listImages", R_ImageList_f );
+	ri.Cmd_AddCommand( "listShaders", R_ShaderList_f );
+	ri.Cmd_AddCommand( "listSkins", R_SkinList_f );
+	ri.Cmd_AddCommand( "listModels", R_Modellist_f );
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotBMP", R_ScreenShot_f );
-	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
+	ri.Cmd_AddCommand( "gfxInfo", GfxInfo_f );
 #ifdef USE_VULKAN
-	ri.Cmd_AddCommand( "vkinfo", VkInfo_f );
+	ri.Cmd_AddCommand( "vkInfo", VkInfo_f );
 #endif
 
 	//
 	// temporary latched variables that can only change over a restart
 	//
-	r_fullbright = ri.Cvar_Get( "r_fullbright", "0", CVAR_LATCH );
-	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_mapOverBrightBits = ri.Cvar_Get( "r_mapOverBrightBits", "2", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_intensity = ri.Cvar_Get( "r_intensity", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_intensity, "1", "255", CV_FLOAT );
-	r_singleShader = ri.Cvar_Get( "r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH );
-	r_defaultImage = ri.Cvar_Get( "r_defaultImage", "", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	r_fullbright = ri.Cvar_Get( "r_fullbright", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
+	r_mapOverBrightBits = ri.Cvar_Get( "r_mapOverBrightBits", "2", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
+	r_intensity = ri.Cvar_Get( "r_intensity", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "1", "255", CV_FLOAT );
+	r_singleShader = ri.Cvar_Get( "r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_defaultImage = ri.Cvar_Get( "r_defaultImage", "", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
+	ri.Cvar_SetDescription( r_defaultImage, "Replace default (missing) image texture by either exact file or solid #rgb|#rrggbb background color." );
 
-	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 
-	r_picmip = ri.Cvar_Get( "r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_picmip, "0", "16", CV_INTEGER );
+	r_picmip = ri.Cvar_Get( "r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "16", CV_INTEGER );
 	ri.Cvar_SetDescription( r_picmip, "Set texture quality, lower is better" );
 
-	r_nomip = ri.Cvar_Get( "r_nomip", "1", CVAR_ARCHIVE | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_nomip, "0", "1", CV_INTEGER );
+	r_nomip = ri.Cvar_Get( "r_nomip", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 	ri.Cvar_SetDescription( r_nomip, "Apply picmip only on worldspawn textures" );
 
-	r_neatsky = ri.Cvar_Get( "r_neatsky", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
-	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	r_neatSky = ri.Cvar_Get( "r_neatSky", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_textureBits = ri.Cvar_Get( "r_textureBits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "32", CV_INTEGER );
 
-	r_mergeLightmaps = ri.Cvar_Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	r_mergeLightmaps = ri.Cvar_Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 #if defined (USE_VULKAN) && defined (USE_VBO)
-	r_vbo = ri.Cvar_Get( "r_vbo", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_vbo = ri.Cvar_Get( "r_vbo", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 #endif
 
-	r_mapGreyScale = ri.Cvar_Get( "r_mapGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_mapGreyScale, "-1", "1", CV_FLOAT );
+	r_mapGreyScale = ri.Cvar_Get( "r_mapGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "-1", "1", CV_FLOAT );
 
-	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
 
-	r_maxpolys = ri.Cvar_Get( "r_maxpolys", XSTRING( MAX_POLYS ), CVAR_LATCH );
-	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", XSTRING( MAX_POLYVERTS ), CVAR_LATCH );
+	r_maxPolys = ri.Cvar_Get( "r_maxPolys", XSTRING( MAX_POLYS ), CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	r_maxPolyVerts = ri.Cvar_Get( "r_maxPolyVerts", XSTRING( MAX_POLYVERTS ), CVAR_LATCH, NULL, NULL, CV_INTEGER );
 
 	//
 	// archived variables that can change at any time
 	//
-	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE_ND | CVAR_CHEAT );
-	r_lodbias = ri.Cvar_Get( "r_lodbias", "0", CVAR_ARCHIVE_ND );
-	r_flares = ri.Cvar_Get ("r_flares", "0", CVAR_ARCHIVE_ND );
-	r_znear = ri.Cvar_Get( "r_znear", "4", CVAR_CHEAT );
-	ri.Cvar_CheckRange( r_znear, "0.001", "200", CV_FLOAT );
-	r_zproj = ri.Cvar_Get( "r_zproj", "64", CVAR_ARCHIVE_ND );
-	r_stereoSeparation = ri.Cvar_Get( "r_stereoSeparation", "64", CVAR_ARCHIVE_ND );
-	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE_ND );
-	r_fastsky = ri.Cvar_Get( "r_fastsky", "0", CVAR_ARCHIVE_ND );
-	r_drawSun = ri.Cvar_Get( "r_drawSun", "0", CVAR_ARCHIVE_ND );
-	r_dynamiclight = ri.Cvar_Get( "r_dynamiclight", "1", CVAR_ARCHIVE );
+	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE_ND | CVAR_CHEAT, NULL, NULL, CV_INTEGER );
+	r_lodBias = ri.Cvar_Get( "r_lodBias", "0", CVAR_ARCHIVE_ND, "0", "3", CV_INTEGER );
+	r_flares = ri.Cvar_Get ("r_flares", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	r_zNear = ri.Cvar_Get( "r_zNear", "4", CVAR_CHEAT, "0.001", "200", CV_FLOAT );
+	r_zProj = ri.Cvar_Get( "r_zProj", "64", CVAR_ARCHIVE_ND, "8", "128", CV_FLOAT );
+	r_stereoSeparation = ri.Cvar_Get( "r_stereoSeparation", "64", CVAR_ARCHIVE_ND, NULL, NULL, CV_FLOAT );
+	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	r_fastSky = ri.Cvar_Get( "r_fastSky", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	r_drawSun = ri.Cvar_Get( "r_drawSun", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	r_dynamicLight = ri.Cvar_Get( "r_dynamicLight", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 #ifdef USE_PMLIGHT
 #if arm32 || arm64 // RPi4 Vulkan driver have very poor GLSL shaders performance...
-	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "0", CVAR_ARCHIVE );
+	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
 #else
-	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "1", CVAR_ARCHIVE );
+	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
 #endif
-	ri.Cvar_CheckRange( r_dlightMode, "0", "2", CV_INTEGER );
-	r_dlightScale = ri.Cvar_Get( "r_dlightScale", "0.5", CVAR_ARCHIVE_ND );
-	ri.Cvar_CheckRange( r_dlightScale, "0.1", "1", CV_FLOAT );
-	r_dlightIntensity = ri.Cvar_Get( "r_dlightIntensity", "1.0", CVAR_ARCHIVE_ND );
-	ri.Cvar_CheckRange( r_dlightIntensity, "0.1", "1", CV_FLOAT );
+	r_dlightScale = ri.Cvar_Get( "r_dlightScale", "0.5", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT );
+	r_dlightIntensity = ri.Cvar_Get( "r_dlightIntensity", "1.0", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT );
 #endif // USE_PMLIGHT
 
-	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE_ND );
-	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE_ND );
-	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
-	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE_ND );
-	ri.Cvar_CheckRange( r_gamma, "0.5", "3", CV_FLOAT );
-	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE_ND );
+	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	ri.Cvar_SetGroup( r_textureMode, CVG_RENDERER );
+	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE_ND, "0.5", "3", CV_FLOAT );
+	ri.Cvar_SetGroup( r_gamma, CVG_RENDERER );
+	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
-	r_railWidth = ri.Cvar_Get( "r_railWidth", "16", CVAR_ARCHIVE_ND );
-	r_railCoreWidth = ri.Cvar_Get( "r_railCoreWidth", "6", CVAR_ARCHIVE_ND );
-	r_railSegmentLength = ri.Cvar_Get( "r_railSegmentLength", "32", CVAR_ARCHIVE_ND );
+	r_railWidth = ri.Cvar_Get( "r_railWidth", "16", CVAR_ARCHIVE_ND, "1", "128", CV_INTEGER );
+	r_railCoreWidth = ri.Cvar_Get( "r_railCoreWidth", "6", CVAR_ARCHIVE_ND, "1", "64", CV_INTEGER );
+	r_railSegmentLength = ri.Cvar_Get( "r_railSegmentLength", "32", CVAR_ARCHIVE_ND, "1", "256", CV_INTEGER );
 
-	r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.6", CVAR_CHEAT );
-	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT );
+	r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.6", CVAR_CHEAT, "0", "1", CV_FLOAT );
+	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT, "0", "1", CV_FLOAT );
 
-	//r_anaglyphMode = ri.Cvar_Get( "r_anaglyphMode", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
+	//r_anaglyphMode = ri.Cvar_Get( "r_anaglyphMode", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
 
-	r_greyscale = ri.Cvar_Get( "r_greyscale", "0", CVAR_ARCHIVE_ND );
-	ri.Cvar_CheckRange( r_greyscale, "-1", "1", CV_FLOAT );
+	r_greyScale = ri.Cvar_Get( "r_greyScale", "0", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	ri.Cvar_SetGroup( r_greyScale, CVG_RENDERER );
 
 	//
 	// temporary variables that can change at any time
 	//
-	r_showImages = ri.Cvar_Get( "r_showImages", "0", CVAR_TEMP );
+	r_showImages = ri.Cvar_Get( "r_showImages", "0", CVAR_TEMP, "0", "2", CV_INTEGER );
 
-	r_debugLight = ri.Cvar_Get( "r_debuglight", "0", CVAR_TEMP );
-	r_debugSort = ri.Cvar_Get( "r_debugSort", "0", CVAR_CHEAT );
-	r_printShaders = ri.Cvar_Get( "r_printShaders", "0", 0 );
-	r_saveFontData = ri.Cvar_Get( "r_saveFontData", "0", 0 );
+	r_debugLight = ri.Cvar_Get( "r_debuglight", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_debugSort = ri.Cvar_Get( "r_debugSort", "0", CVAR_CHEAT, "0", "100", CV_INTEGER );
+	r_printShaders = ri.Cvar_Get( "r_printShaders", "0", 0, "0", "1", CV_INTEGER );
+	r_saveFontData = ri.Cvar_Get( "r_saveFontData", "0", 0, "0", "1", CV_INTEGER );
 
-	r_nocurves = ri.Cvar_Get ("r_nocurves", "0", CVAR_CHEAT );
-	r_drawworld = ri.Cvar_Get ("r_drawworld", "1", CVAR_CHEAT );
-	r_lightmap = ri.Cvar_Get ("r_lightmap", "0", 0 );
-	r_portalOnly = ri.Cvar_Get ("r_portalOnly", "0", CVAR_CHEAT );
+	r_noCurves = ri.Cvar_Get ("r_noCurves", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_drawWorld = ri.Cvar_Get ("r_drawWorld", "1", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_lightmap = ri.Cvar_Get ("r_lightmap", "0", CVAR_CHEAT, "0", "2", CV_INTEGER );
+	r_portalOnly = ri.Cvar_Get ("r_portalOnly", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 
-	r_flareSize = ri.Cvar_Get( "r_flareSize", "40", CVAR_CHEAT );
-	r_flareFade = ri.Cvar_Get( "r_flareFade", "10", CVAR_CHEAT );
-	r_flareCoeff = ri.Cvar_Get( "r_flareCoeff", "150", CVAR_CHEAT );
-	ri.Cvar_CheckRange( r_flareCoeff, "0.1", NULL, CV_FLOAT );
+	r_flareSize = ri.Cvar_Get( "r_flareSize", "40", CVAR_CHEAT, "0", "640", CV_FLOAT );
+	r_flareFade = ri.Cvar_Get( "r_flareFade", "10", CVAR_CHEAT, "0", "1000", CV_FLOAT );
+	r_flareCoeff = ri.Cvar_Get( "r_flareCoeff", "150", CVAR_CHEAT, "0.1", "1500", CV_FLOAT );
 
-	r_skipBackEnd = ri.Cvar_Get ("r_skipBackEnd", "0", CVAR_CHEAT);
+	r_skipBackEnd = ri.Cvar_Get( "r_skipBackEnd", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 
-	r_lodscale = ri.Cvar_Get( "r_lodscale", "5", CVAR_CHEAT );
-	r_norefresh = ri.Cvar_Get ("r_norefresh", "0", CVAR_CHEAT);
-	r_drawentities = ri.Cvar_Get ("r_drawentities", "1", CVAR_CHEAT );
-	r_nocull = ri.Cvar_Get ("r_nocull", "0", CVAR_CHEAT);
-	r_novis = ri.Cvar_Get ("r_novis", "0", CVAR_CHEAT);
-	r_showcluster = ri.Cvar_Get ("r_showcluster", "0", CVAR_CHEAT);
-	r_speeds = ri.Cvar_Get ("r_speeds", "0", CVAR_CHEAT);
-	r_debugSurface = ri.Cvar_Get ("r_debugSurface", "0", CVAR_CHEAT);
-	r_nobind = ri.Cvar_Get ("r_nobind", "0", CVAR_CHEAT);
-	r_showtris = ri.Cvar_Get ("r_showtris", "0", CVAR_CHEAT);
-	r_shownormals = ri.Cvar_Get( "r_shownormals", "0", CVAR_CHEAT );
-	r_clear = ri.Cvar_Get( "r_clear", "0", 0 );
-	r_offsetFactor = ri.Cvar_Get( "r_offsetfactor", "-2", CVAR_CHEAT | CVAR_LATCH );
-	r_offsetUnits = ri.Cvar_Get( "r_offsetunits", "-1", CVAR_CHEAT | CVAR_LATCH );
-	r_drawBuffer = ri.Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT );
-	r_lockpvs = ri.Cvar_Get ("r_lockpvs", "0", CVAR_CHEAT);
-	r_noportals = ri.Cvar_Get( "r_noportals", "0", 0 );
-	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0 );
+	r_lodScale = ri.Cvar_Get( "r_lodScale", "5", CVAR_CHEAT, "0", "20", CV_FLOAT );
+	r_noRefresh = ri.Cvar_Get( "r_noRefresh", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_drawEntities = ri.Cvar_Get( "r_drawEntities", "1", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_noCull = ri.Cvar_Get( "r_noCull", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_noVis = ri.Cvar_Get( "r_noVis", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_showCluster = ri.Cvar_Get( "r_showCluster", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_speeds = ri.Cvar_Get( "r_speeds", "0", CVAR_CHEAT, "0", "6", CV_INTEGER );
+	r_debugSurface = ri.Cvar_Get( "r_debugSurface", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_noBind = ri.Cvar_Get( "r_noBind", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_showTris = ri.Cvar_Get( "r_showTris", "0", CVAR_CHEAT, "0", "2", CV_INTEGER );
+	r_showSky = ri.Cvar_Get( "r_showSky", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_showNormals = ri.Cvar_Get ("r_showNormals", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_clear = ri.Cvar_Get( "r_clear", "0", 0, "0", "1", CV_INTEGER );
+	r_offsetFactor = ri.Cvar_Get( "r_offsetFactor", "-1", CVAR_CHEAT, NULL, NULL, CV_FLOAT );
+	r_offsetUnits = ri.Cvar_Get( "r_offsetUnits", "-2", CVAR_CHEAT, NULL, NULL, CV_FLOAT );
+	r_drawBuffer = ri.Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, NULL, NULL, CV_NONE );
+	r_lockPVS = ri.Cvar_Get( "r_lockPVS", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	r_noPortals = ri.Cvar_Get( "r_noPortals", "0", 0, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription(r_noPortals, "Disables in-game portals, valid values:"
+		" 0: Portals enabled\n"
+		" 1: Portals disabled\n"
+		" 2: Portals and mirrors disabled"
+	);
+	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0, "0", "3", CV_INTEGER );
 
-	r_marksOnTriangleMeshes = ri.Cvar_Get("r_marksOnTriangleMeshes", "0", CVAR_ARCHIVE_ND );
+	r_marksOnTriangleMeshes = ri.Cvar_Get("r_marksOnTriangleMeshes", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
 //fnq
-	r_arc_fov = ri.Cvar_Get("r_arc_fov", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_arc_fov, "0", "1", qtrue);
-	r_arc_uiMode = ri.Cvar_Get("r_arc_uiMode", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_arc_uiMode, "0", "2", qtrue);
-	r_arc_crosshairs = ri.Cvar_Get("r_arc_crosshairs", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_arc_crosshairs, "0", "1", qtrue);
-	r_arc_threewave_menu_fix = ri.Cvar_Get("r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_arc_threewave_menu_fix, "0", "1", qtrue);
+	r_arc_fov = ri.Cvar_Get( "r_arc_fov", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	if (r_arc_fov->integer) {
+		if (ri.Cvar_VariableIntegerValue("cg_fovAdjust")) {
+			ri.Cvar_Set("cg_fovAdjust", "0");
+		}
+	}
+	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for wide screen aspect ratios:\n"
+		" 0 - disabled\n"
+		" 1 - enabled\n");
 
-	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_teleporterFlash, "0", "1", qtrue);
+	r_arc_uiMode = ri.Cvar_Get( "r_arc_uiMode", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of UI elements in wide screen aspect ratios:\n"
+		" 0 - disabled\n"
+		" 1 - adjust aspect and coordinates\n"
+		" 1 - adjust aspect, preserve coordinates\n");
+	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of crosshairs in wide screen aspect ratios:\n"
+		" 0 - disabled\n"
+		" 1 - enabled\n");
+	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
-	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE);
+	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_teleporterFlash, "Draw the screen flash effect when teleporting.\n"
+		" 0 - disabled\n"
+		" 1 - enabled\n");
 
-	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	ri.Cvar_CheckRange(r_defaultImageStyle, "0", "1", qtrue);
-	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH);
-	ri.Cvar_CheckRange(r_defaultImageSize, "16", "128", qtrue);
+	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	ri.Cvar_SetDescription(r_clearColor, "Set color of buffer clearing when r_clear 1 in hex RGB format.\n");
 
-	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE);
-	ri.Cvar_CheckRange(r_drawSkyFloor, "0", "1", qtrue);
+	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH, "16", "128", CV_INTEGER );
 
-	r_picmip_filter = ri.Cvar_Get("r_picmip_filter", "63", CVAR_ARCHIVE | CVAR_LATCH);
-	ri.Cvar_CheckRange(r_picmip_filter, "0", "63", qtrue);
-	r_pixelsize = ri.Cvar_Get("r_pixelsize", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	ri.Cvar_CheckRange(r_pixelsize, "1", "16", qtrue);
+	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_drawSkyFloor, "Draw the bottom plane of scrolling sky boxes.\n"
+		" 0 - disabled\n"
+		" 1 - enabled\n");
+
+	r_picmip_filter = ri.Cvar_Get("r_picmip_filter", "63", CVAR_ARCHIVE | CVAR_LATCH, "0", "63", CV_INTEGER );
+	r_pixelsize = ri.Cvar_Get("r_pixelsize", "1", CVAR_ARCHIVE | CVAR_LATCH, "1", "16", CV_INTEGER );
 //-fnq
 
-	r_aviMotionJpegQuality = ri.Cvar_Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE_ND );
-	r_screenshotJpegQuality = ri.Cvar_Get( "r_screenshotJpegQuality", "90", CVAR_ARCHIVE_ND );
+	r_aviMotionJpegQuality = ri.Cvar_Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE_ND, "0", "100", CV_INTEGER );
+	r_screenshotJpegQuality = ri.Cvar_Get( "r_screenshotJpegQuality", "90", CVAR_ARCHIVE_ND, "0", "100", CV_INTEGER );
 
 	if ( glConfig.vidWidth )
 		return;
@@ -1646,62 +1658,48 @@ static void R_Register( void )
 	//
 	// latched and archived variables that can only change over a vid_restart
 	//
-	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER );
-	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER );
-	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER );
-	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER );
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER );
+	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
 
-	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",	"0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ext_texture_filter_anisotropic, "0", "1", CV_INTEGER );
+	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",	"0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 
-	r_ext_max_anisotropy = ri.Cvar_Get( "r_ext_max_anisotropy", "2", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ext_max_anisotropy, "1", NULL, CV_INTEGER );
+	r_ext_max_anisotropy = ri.Cvar_Get( "r_ext_max_anisotropy", "2", CVAR_ARCHIVE_ND | CVAR_LATCH, "1", NULL, CV_INTEGER );
 
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_stencilbits, "0", "8", CV_INTEGER );
-
-	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ignorehwgamma, "0", "1", CV_INTEGER );
-
-	r_showsky = ri.Cvar_Get( "r_showsky", "0", CVAR_LATCH );
+	r_stencilBits = ri.Cvar_Get( "r_stencilBits", "8", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "8", CV_INTEGER );
+	r_ignoreHWGamma = ri.Cvar_Get( "r_ignoreHWGamma", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 
 #ifdef USE_VULKAN
-	r_device = ri.Cvar_Get( "r_device", "-1", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_device, "-2", NULL, CV_INTEGER );
+	r_device = ri.Cvar_Get( "r_device", "-1", CVAR_ARCHIVE_ND | CVAR_LATCH, "-2", NULL, CV_INTEGER );
 	ri.Cvar_SetDescription( r_device, "Select physical device to render:\n" \
 		" 0+ - use explicit device index\n" \
 		" -1 - first discrete GPU\n" \
 		" -2 - first integrated GPU" );
 	r_device->modified = qfalse;
 
-	r_fbo = ri.Cvar_Get( "r_fbo", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_hdr = ri.Cvar_Get( "r_hdr", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_bloom, "0", "1", CV_INTEGER );
+	r_fbo = ri.Cvar_Get( "r_fbo", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
+	r_hdr = ri.Cvar_Get( "r_hdr", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "-1", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_hdr, "Enables high dynamic range frame buffer texture format. Requires \\r_fbo 1.\n"
+		" -1: 4-bit, for testing purposes, heavy color banding, might not work on all systems\n"
+		" 0: 8 bit, default, moderate color banding with multi - stage shaders\n"
+		" 1: 16 bit, enhanced blending precision, no color banding, might decrease performance on AMD / Intel GPUs\n"
+	);
+	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_bloom, "Enables bloom post-processing effect. Requires \\r_fbo 1." );
 
-	r_bloom_threshold = ri.Cvar_Get( "r_bloom_threshold", "0.6", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_bloom_threshold, "0.01", "1", CV_FLOAT );
+	r_bloom_threshold = ri.Cvar_Get( "r_bloom_threshold", "0.6", CVAR_ARCHIVE_ND | CVAR_LATCH, "0.01", "1", CV_FLOAT );
+	r_bloom_intensity = ri.Cvar_Get( "r_bloom_intensity", "0.5", CVAR_ARCHIVE_ND | CVAR_LATCH, "0.01", "2", CV_FLOAT );
 
-	r_bloom_intensity = ri.Cvar_Get( "r_bloom_intensity", "0.5", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_bloom_intensity, "0.01", "2", CV_FLOAT );
+	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "64", CV_INTEGER );
+	r_ext_supersample = ri.Cvar_Get( "r_ext_supersample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_ext_alpha_to_coverage = ri.Cvar_Get( "r_ext_alpha_to_coverage", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 
-	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ext_multisample, "0", "64", CV_INTEGER );
+	r_renderWidth = ri.Cvar_Get( "r_renderWidth", "800", CVAR_ARCHIVE_ND | CVAR_LATCH, "96", NULL, CV_INTEGER );
+	r_renderHeight = ri.Cvar_Get( "r_renderHeight", "600", CVAR_ARCHIVE_ND | CVAR_LATCH, "72", NULL, CV_INTEGER );
 
-	r_ext_supersample = ri.Cvar_Get( "r_ext_supersample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ext_supersample, "0", "1", CV_INTEGER );
-
-	r_ext_alpha_to_coverage = ri.Cvar_Get( "r_ext_alpha_to_coverage", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_ext_alpha_to_coverage, "0", "1", CV_INTEGER );
-
-	r_renderWidth = ri.Cvar_Get( "r_renderWidth", "800", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_renderHeight = ri.Cvar_Get( "r_renderHeight", "600", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_renderWidth, "96", NULL, CV_INTEGER );
-	ri.Cvar_CheckRange( r_renderHeight, "72", NULL, CV_INTEGER );
-
-	r_renderScale = ri.Cvar_Get( "r_renderScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	ri.Cvar_CheckRange( r_renderScale, "0", "4", CV_INTEGER );
+	r_renderScale = ri.Cvar_Get( "r_renderScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "4", CV_INTEGER );
 	ri.Cvar_SetDescription( r_renderScale, "Scaling mode to be used with custom render resolution:\n"
 		" 0 - disabled\n"
 		" 1 - nearest filtering, stretch to full size\n"
@@ -1773,8 +1771,8 @@ void R_Init( void ) {
 
 	R_Register();
 
-	max_polys = r_maxpolys->integer;
-	max_polyverts = r_maxpolyverts->integer;
+	max_polys = r_maxPolys->integer;
+	max_polyverts = r_maxPolyVerts->integer;
 
 	ptr = ri.Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
 	backEndData = (backEndData_t *) ptr;
@@ -1814,17 +1812,17 @@ static void RE_Shutdown( refShutdownCode_t code ) {
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", code );
 
-	ri.Cmd_RemoveCommand( "modellist" );
+	ri.Cmd_RemoveCommand( "listModels" );
 	ri.Cmd_RemoveCommand( "screenshotBMP" );
 	ri.Cmd_RemoveCommand( "screenshotJPEG" );
 	ri.Cmd_RemoveCommand( "screenshot" );
-	ri.Cmd_RemoveCommand( "imagelist" );
-	ri.Cmd_RemoveCommand( "shaderlist" );
-	ri.Cmd_RemoveCommand( "skinlist" );
-	ri.Cmd_RemoveCommand( "gfxinfo" );
+	ri.Cmd_RemoveCommand( "listImages" );
+	ri.Cmd_RemoveCommand( "listShaders" );
+	ri.Cmd_RemoveCommand( "listSkins" );
+	ri.Cmd_RemoveCommand( "gfxInfo" );
 	ri.Cmd_RemoveCommand( "shaderstate" );
 #ifdef USE_VULKAN
-	ri.Cmd_RemoveCommand( "vkinfo" );
+	ri.Cmd_RemoveCommand( "vkInfo" );
 #endif
 
 	if ( tr.registered ) {

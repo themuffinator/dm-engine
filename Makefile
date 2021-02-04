@@ -33,8 +33,8 @@ USE_VULKAN_API		= 0
 
 USE_RENDERER_DLOPEN = 1
 
-CNAME            = fnq3
-DNAME            = fnq3.ded
+CNAME            = DarkMatter
+DNAME            = DarkMatter.ded
 
 RENDERER_PREFIX  = $(CNAME)
 

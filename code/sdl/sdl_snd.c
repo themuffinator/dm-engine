@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean snd_inited = qfalse;
 
-extern cvar_t *s_khz;
+extern cvar_t *s_kHz;
 cvar_t *s_sdlBits;
 cvar_t *s_sdlChannels;
 cvar_t *s_sdlDevSamps;
@@ -205,14 +205,12 @@ qboolean SNDDMA_Init( void )
 
 	//if ( !s_sdlBits )
 	{
-		s_sdlBits = Cvar_Get( "s_sdlBits", "16", CVAR_ARCHIVE_ND | CVAR_LATCH );
-		Cvar_CheckRange( s_sdlBits, "8", "16", CV_INTEGER );
+		s_sdlBits = Cvar_Get( "s_sdlBits", "16", CVAR_ARCHIVE_ND | CVAR_LATCH, "8", "16", CV_INTEGER );
 
-		s_sdlChannels = Cvar_Get( "s_sdlChannels", "2", CVAR_ARCHIVE_ND | CVAR_LATCH );
-		Cvar_CheckRange( s_sdlChannels, "1", "2", CV_INTEGER );
+		s_sdlChannels = Cvar_Get( "s_sdlChannels", "2", CVAR_ARCHIVE_ND | CVAR_LATCH, "1", "2", CV_INTEGER );
 
-		s_sdlDevSamps = Cvar_Get( "s_sdlDevSamps", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-		s_sdlMixSamps = Cvar_Get( "s_sdlMixSamps", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
+		s_sdlDevSamps = Cvar_Get( "s_sdlDevSamps", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2048", CV_INTEGER );
+		s_sdlMixSamps = Cvar_Get( "s_sdlMixSamps", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
 	}
 
 	Com_Printf( "SDL_Init( SDL_INIT_AUDIO )... " );
@@ -230,7 +228,7 @@ qboolean SNDDMA_Init( void )
 	memset( &desired, '\0', sizeof (desired) );
 	memset( &obtained, '\0', sizeof (obtained) );
 
-	desired.freq = SNDDMA_KHzToHz( s_khz->integer );
+	desired.freq = SNDDMA_KHzToHz( s_kHz->integer );
 	if ( desired.freq == 0 )
 		desired.freq = 22050;
 
@@ -299,7 +297,7 @@ qboolean SNDDMA_Init( void )
 
 #ifdef USE_SDL_AUDIO_CAPTURE
 	// !!! FIXME: some of these SDL_OpenAudioDevice() values should be cvars.
-	s_sdlCapture = Cvar_Get( "s_sdlCapture", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	s_sdlCapture = Cvar_Get( "s_sdlCapture", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 	// !!! FIXME: pulseaudio capture records audio the entire time the program is running. https://bugzilla.libsdl.org/show_bug.cgi?id=4087
 	if (Q_stricmp(SDL_GetCurrentAudioDriver(), "pulseaudio") == 0)
 	{

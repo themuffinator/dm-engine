@@ -39,7 +39,7 @@ static const char *svc_strings[256] = {
 };
 
 void SHOWNET( msg_t *msg, const char *s ) {
-	if ( cl_shownet->integer >= 2) {
+	if ( cl_showNet->integer >= 2) {
 		Com_Printf ("%3i:%s\n", msg->readcount-1, s);
 	}
 }
@@ -125,7 +125,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 
 		while ( oldnum < newnum ) {
 			// one or more entities from the old packet are unchanged
-			if ( cl_shownet->integer == 3 ) {
+			if ( cl_showNet->integer == 3 ) {
 				Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 			}
 			CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
@@ -142,7 +142,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 		}
 		if (oldnum == newnum) {
 			// delta from previous state
-			if ( cl_shownet->integer == 3 ) {
+			if ( cl_showNet->integer == 3 ) {
 				Com_Printf ("%3i:  delta: %i\n", msg->readcount, newnum);
 			}
 			CL_DeltaEntity( msg, newframe, newnum, oldstate, qfalse );
@@ -161,7 +161,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 
 		if ( oldnum > newnum ) {
 			// delta from baseline
-			if ( cl_shownet->integer == 3 ) {
+			if ( cl_showNet->integer == 3 ) {
 				Com_Printf ("%3i:  baseline: %i\n", msg->readcount, newnum);
 			}
 			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], qfalse );
@@ -173,7 +173,7 @@ static void CL_ParsePacketEntities( msg_t *msg, const clSnapshot_t *oldframe, cl
 	// any remaining entities in the old frame are copied over
 	while ( oldnum != MAX_GENTITIES+1 ) {
 		// one or more entities from the old packet are unchanged
-		if ( cl_shownet->integer == 3 ) {
+		if ( cl_showNet->integer == 3 ) {
 			Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 		}
 		CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
@@ -315,7 +315,7 @@ static void CL_ParseSnapshot( msg_t *msg ) {
 	// save the frame off in the backup array for later delta comparisons
 	cl.snapshots[cl.snap.messageNum & PACKET_MASK] = cl.snap;
 
-	if (cl_shownet->integer == 3) {
+	if (cl_showNet->integer == 3) {
 		Com_Printf( "   snapshot:%i  delta:%i  ping:%i\n", cl.snap.messageNum,
 		cl.snap.deltaNum, cl.snap.ping );
 	}
@@ -351,7 +351,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 	// when the serverId changes, any further messages we send to the server will use this new serverId
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=475
 	// in some cases, outdated cp commands might get sent with this news serverId
-	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
+	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverID" ) );
 
 	// don't set any vars when playing a demo
 	if ( clc.demoplaying ) {
@@ -419,7 +419,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 		}
 
 		// we don't really need any of these server cvars to be set on client-side
-		if ( !Q_stricmp( key, "sv_pure" ) || !Q_stricmp( key, "sv_serverid" ) || !Q_stricmp( key, "sv_fps" ) ) {
+		if ( !Q_stricmp( key, "sv_pure" ) || !Q_stricmp( key, "sv_serverID" ) || !Q_stricmp( key, "sv_fps" ) ) {
 			continue;
 		}
 		if ( !Q_stricmp( key, "sv_paks" ) || !Q_stricmp( key, "sv_pakNames" ) ) {
@@ -434,7 +434,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 		}
 
 		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)
-			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM);
+			Cvar_Get(key, value, CVAR_SERVER_CREATED | CVAR_ROM, NULL, NULL, CV_NONE);
 		else
 		{
 			// If this cvar may not be modified by a server discard the value.
@@ -776,7 +776,7 @@ static void CL_ParseCommandString( msg_t *msg ) {
 	seq = MSG_ReadLong( msg );
 	s = MSG_ReadString( msg );
 
-	if ( cl_shownet->integer >= 3 )
+	if ( cl_showNet->integer >= 3 )
 		Com_Printf( " %3i(%3i) %s\n", seq, clc.serverCommandSequence, s );
 
 	// see if we have already executed stored it off
@@ -820,9 +820,9 @@ CL_ParseServerMessage
 void CL_ParseServerMessage( msg_t *msg ) {
 	int			cmd;
 
-	if ( cl_shownet->integer == 1 ) {
+	if ( cl_showNet->integer == 1 ) {
 		Com_Printf ("%i ",msg->cursize);
-	} else if ( cl_shownet->integer >= 2 ) {
+	} else if ( cl_showNet->integer >= 2 ) {
 		Com_Printf ("------------------\n");
 	}
 
@@ -852,7 +852,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		}
 
-		if ( cl_shownet->integer >= 2 ) {
+		if ( cl_showNet->integer >= 2 ) {
 			if ( (cmd < 0) || (!svc_strings[cmd]) ) {
 				Com_Printf( "%3i:BAD CMD %i\n", msg->readcount-1, cmd );
 			} else {

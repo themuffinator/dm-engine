@@ -54,7 +54,7 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	int 	boxCull;
 	int 	sphereCull;
 
-	if ( r_nocurves->integer ) {
+	if ( r_noCurves->integer ) {
 		return qtrue;
 	}
 
@@ -114,7 +114,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
 
-	if ( r_nocull->integer ) {
+	if ( r_noCull->integer ) {
 		return qfalse;
 	}
 
@@ -602,7 +602,7 @@ static void R_RecursiveWorldNode( mNode_t *node, unsigned int planeBits, unsigne
 		// if the bounding volume is outside the frustum, nothing
 		// inside can be visible OPTIMIZE: don't do this all the way to leafs?
 
-		if ( !r_nocull->integer ) {
+		if ( !r_noCull->integer ) {
 			int		r;
 
 			if ( planeBits & 1 ) {
@@ -814,7 +814,7 @@ static void R_MarkLeaves (void) {
 
 	// lockpvs lets designers walk around to determine the
 	// extent of the current pvs
-	if ( r_lockpvs->integer ) {
+	if ( r_lockPVS->integer ) {
 		return;
 	}
 
@@ -825,15 +825,15 @@ static void R_MarkLeaves (void) {
 	// if the cluster is the same and the area visibility matrix
 	// hasn't changed, we don't need to mark everything again
 
-	// if r_showcluster was just turned on, remark everything 
+	// if r_showCluster was just turned on, remark everything 
 	if ( tr.viewCluster == cluster && !tr.refdef.areamaskModified 
-		&& !r_showcluster->modified ) {
+		&& !r_showCluster->modified ) {
 		return;
 	}
 
-	if ( r_showcluster->modified || r_showcluster->integer ) {
-		r_showcluster->modified = qfalse;
-		if ( r_showcluster->integer ) {
+	if ( r_showCluster->modified || r_showCluster->integer ) {
+		r_showCluster->modified = qfalse;
+		if ( r_showCluster->integer ) {
 			ri.Printf( PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
 		}
 	}
@@ -841,7 +841,7 @@ static void R_MarkLeaves (void) {
 	tr.visCount++;
 	tr.viewCluster = cluster;
 
-	if ( r_novis->integer || tr.viewCluster == -1 ) {
+	if ( r_noVis->integer || tr.viewCluster == -1 ) {
 		for (i=0 ; i<tr.world->numnodes ; i++) {
 			if (tr.world->nodes[i].contents != CONTENTS_SOLID) {
 				tr.world->nodes[i].visframe = tr.visCount;
@@ -890,7 +890,7 @@ void R_AddWorldSurfaces( void ) {
 	int i;
 #endif
 
-	if ( !r_drawworld->integer ) {
+	if ( !r_drawWorld->integer ) {
 		return;
 	}
 

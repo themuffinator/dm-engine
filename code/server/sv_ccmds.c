@@ -65,7 +65,7 @@ client_t *SV_GetPlayerByHandle( void ) {
 		int plid = atoi(s);
 
 		// Check for numeric playerid match
-		if(plid >= 0 && plid < sv_maxclients->integer)
+		if(plid >= 0 && plid < sv_maxClients->integer)
 		{
 			cl = &svs.clients[plid];
 			
@@ -75,7 +75,7 @@ client_t *SV_GetPlayerByHandle( void ) {
 	}
 
 	// check for a name match
-	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	for ( i=0, cl=svs.clients ; i < sv_maxClients->integer ; i++,cl++ ) {
 		if ( cl->state < CS_CONNECTED ) {
 			continue;
 		}
@@ -128,7 +128,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 		}
 	}
 	idnum = atoi( s );
-	if ( idnum < 0 || idnum >= sv_maxclients->integer ) {
+	if ( idnum < 0 || idnum >= sv_maxClients->integer ) {
 		Com_Printf( "Bad client slot: %i\n", idnum );
 		return NULL;
 	}
@@ -177,14 +177,14 @@ static void SV_Map_f( void ) {
 	}
 
 	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
+	Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, NULL, NULL, CV_INTEGER );
 
 	cmd = Cmd_Argv(0);
 	if( Q_stricmpn( cmd, "sp", 2 ) == 0 ) {
 		Cvar_SetIntegerValue( "g_gametype", GT_SINGLE_PLAYER );
 		Cvar_Set( "g_doWarmup", "0" );
-		// may not set sv_maxclients directly, always set latched
-		Cvar_SetLatched( "sv_maxclients", "8" );
+		// may not set sv_maxClients directly, always set latched
+		Cvar_SetLatched( "sv_maxClients", "16" );
 		cmd += 2;
 		if (!Q_stricmp( cmd, "devmap" ) ) {
 			cheat = qtrue;
@@ -269,7 +269,7 @@ static void SV_MapRestart_f( void ) {
 
 	// check for changes in variables that can't just be restarted
 	// check for maxclients change
-	if ( sv_maxclients->modified || sv_gametype->modified || sv_pure->modified ) {
+	if ( sv_maxClients->modified || sv_gametype->modified || sv_pure->modified ) {
 		char	mapname[MAX_QPATH];
 
 		Com_Printf( "variable change -- restarting.\n" );
@@ -287,12 +287,12 @@ static void SV_MapRestart_f( void ) {
 	// generate a new serverid	
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
 	sv.serverId = com_frameTime;
-	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	Cvar_Set( "sv_serverID", va("%i", sv.serverId ) );
 
 	// if a map_restart occurs while a client is changing maps, we need
 	// to give them the correct time so that when they finish loading
 	// they don't violate the backwards time check in cl_cgame.c
-	for (i=0 ; i<sv_maxclients->integer ; i++) {
+	for (i=0 ; i<sv_maxClients->integer ; i++) {
 		if (svs.clients[i].state == CS_PRIMED) {
 			svs.clients[i].oldServerTime = sv.restartTime;
 		}
@@ -320,7 +320,7 @@ static void SV_MapRestart_f( void ) {
 	sv.restarting = qfalse;
 
 	// connect and begin all the clients
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	for ( i = 0 ; i < sv_maxClients->integer ; i++ ) {
 		client = &svs.clients[i];
 
 		// send the new gamestate to all connected clients
@@ -389,7 +389,7 @@ static void SV_Kick_f( void ) {
 	cl = SV_GetPlayerByHandle();
 	if ( !cl ) {
 		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+			for ( i=0, cl=svs.clients ; i < sv_maxClients->integer ; i++,cl++ ) {
 				if ( !cl->state ) {
 					continue;
 				}
@@ -401,7 +401,7 @@ static void SV_Kick_f( void ) {
 			}
 		}
 		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+			for ( i=0, cl=svs.clients ; i < sv_maxClients->integer ; i++,cl++ ) {
 				if ( !cl->state ) {
 					continue;
 				}
@@ -1150,7 +1150,7 @@ static void SV_Status_f( void ) {
 	Com_Memset( al, 0, sizeof( al ) );
 
 	// first pass: save and determine max.legths of name/address fields
-	for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ )
+	for ( i = 0, cl = svs.clients ; i < sv_maxClients->integer ; i++, cl++ )
 	{
 		if ( cl->state == CS_FREE )
 			continue;
@@ -1194,7 +1194,7 @@ static void SV_Status_f( void ) {
 	Com_Printf( " -----\n" );
 #endif
 
-	for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ )
+	for ( i = 0, cl = svs.clients ; i < sv_maxClients->integer ; i++, cl++ )
 	{
 		if ( cl->state == CS_FREE )
 			continue;
@@ -1413,7 +1413,7 @@ SV_KillServer
 =================
 */
 static void SV_KillServer_f( void ) {
-	SV_Shutdown( "killserver" );
+	SV_Shutdown( "killServer" );
 }
 
 
@@ -1480,11 +1480,11 @@ void SV_AddOperatorCommands( void ) {
 	}
 #endif
 #endif
-	Cmd_AddCommand ("clientkick", SV_KickNum_f);
+	Cmd_AddCommand ("clientKick", SV_KickNum_f);
 	Cmd_AddCommand ("status", SV_Status_f);
-	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
+	Cmd_AddCommand ("dumpUser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
-	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
+	Cmd_AddCommand ("listSectors", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
 #ifndef PRE_RELEASE_DEMO
@@ -1495,18 +1495,18 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("spdevmap", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
 #endif
-	Cmd_AddCommand ("killserver", SV_KillServer_f);
+	Cmd_AddCommand ("killServer", SV_KillServer_f);
 #ifdef USE_BANS	
-	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
-	Cmd_AddCommand("listbans", SV_ListBans_f);
-	Cmd_AddCommand("banaddr", SV_BanAddr_f);
-	Cmd_AddCommand("exceptaddr", SV_ExceptAddr_f);
-	Cmd_AddCommand("bandel", SV_BanDel_f);
-	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
-	Cmd_AddCommand("flushbans", SV_FlushBans_f);
+	Cmd_AddCommand("rehashBans", SV_RehashBans_f);
+	Cmd_AddCommand("listBans", SV_ListBans_f);
+	Cmd_AddCommand("banAddr", SV_BanAddr_f);
+	Cmd_AddCommand("exceptAddr", SV_ExceptAddr_f);
+	Cmd_AddCommand("banDel", SV_BanDel_f);
+	Cmd_AddCommand("exceptDel", SV_ExceptDel_f);
+	Cmd_AddCommand("flushBans", SV_FlushBans_f);
 #endif
 	Cmd_AddCommand( "filter", SV_AddFilter_f );
-	Cmd_AddCommand( "filtercmd", SV_AddFilterCmd_f );
+	Cmd_AddCommand( "filterCmd", SV_AddFilterCmd_f );
 }
 
 
@@ -1520,21 +1520,21 @@ void SV_RemoveOperatorCommands( void ) {
 	// removing these won't let the server start again
 	Cmd_RemoveCommand ("heartbeat");
 	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("clientkick");
+	Cmd_RemoveCommand ("clientKick");
 	Cmd_RemoveCommand ("banUser");
 	Cmd_RemoveCommand ("banClient");
 	Cmd_RemoveCommand ("status");
-	Cmd_RemoveCommand ("dumpuser");
+	Cmd_RemoveCommand ("dumpUser");
 	Cmd_RemoveCommand ("map_restart");
-	Cmd_RemoveCommand ("sectorlist");
+	Cmd_RemoveCommand ("listSectors");
 #endif
 }
 
 
 void SV_AddDedicatedCommands( void )
 {
-	Cmd_AddCommand( "serverinfo", SV_Serverinfo_f );
-	Cmd_AddCommand( "systeminfo", SV_Systeminfo_f );
+	Cmd_AddCommand( "serverInfo", SV_Serverinfo_f );
+	Cmd_AddCommand( "systemInfo", SV_Systeminfo_f );
 	Cmd_AddCommand( "tell", SV_ConTell_f );
 	Cmd_AddCommand( "say", SV_ConSay_f );
 	Cmd_AddCommand( "locations", SV_Locations_f );
@@ -1543,8 +1543,8 @@ void SV_AddDedicatedCommands( void )
 
 void SV_RemoveDedicatedCommands( void )
 {
-	Cmd_RemoveCommand( "serverinfo" );
-	Cmd_RemoveCommand( "systeminfo" );
+	Cmd_RemoveCommand( "serverInfo" );
+	Cmd_RemoveCommand( "systemInfo" );
 	Cmd_RemoveCommand( "tell" );
 	Cmd_RemoveCommand( "say" );
 	Cmd_RemoveCommand( "locations" );

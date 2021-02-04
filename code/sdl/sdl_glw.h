@@ -50,7 +50,7 @@ typedef struct
 extern SDL_Window *SDL_window;
 extern glwstate_t glw_state;
 
-extern cvar_t *in_nograb;
+extern cvar_t *in_noGrab;
 
 void IN_Init( void );
 void IN_Shutdown( void );

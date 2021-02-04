@@ -973,9 +973,9 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum, int *versi
 	}
 
 #ifndef BSPC
-	cm_noAreas = Cvar_Get("cm_noAreas", "0", CVAR_CHEAT);
-	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT);
-	cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", CVAR_ARCHIVE_ND | CVAR_CHEAT);
+	cm_noAreas = Cvar_Get("cm_noAreas", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	cm_noCurves = Cvar_Get("cm_noCurves", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	cm_playerCurveClip = Cvar_Get("cm_playerCurveClip", "1", CVAR_ARCHIVE_ND | CVAR_CHEAT, "0", "1", CV_INTEGER );
 #endif
 
 	Com_DPrintf("%s( '%s', %s )\n", __func__, name, clientload ? "true" : "false");
@@ -1009,7 +1009,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum, int *versi
 	}
 
 	*version = header.version;
-	Cvar_Set("com_bspversion", va("%i", header.version));
+	Cvar_Set("com_bspVersion", va("%i", header.version));
 	cmod_base = (byte *)buf;
 
 	switch (header.version) {
@@ -1349,7 +1349,7 @@ CM_ModelBounds
 */
 void CM_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs) {
 #ifdef QUAKE2
-	const int bspversion = Cvar_VariableIntegerValue("com_bspversion");
+	const int bspversion = Cvar_VariableIntegerValue("com_bspVersion");
 	if (bspversion == IBSP_Q2) {
 		q2_cModel_t *cmod;
 

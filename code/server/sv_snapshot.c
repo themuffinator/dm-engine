@@ -749,7 +749,7 @@ void SV_SendClientMessages( void )
 	svs.msgTime = Sys_Milliseconds();
 
 	// send a message to each connected client
-	for( i = 0; i < sv_maxclients->integer; i++ )
+	for( i = 0; i < sv_maxClients->integer; i++ )
 	{
 		c = &svs.clients[ i ];
 		
@@ -762,7 +762,7 @@ void SV_SendClientMessages( void )
 		// 1. Local clients get snapshots every server frame
 		// 2. Remote clients get snapshots depending from rate and requested number of updates
 
-		if ( svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value )
+		if ( svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timeScale->value )
 			continue;		// It's not time yet
 
 		if ( c->netchan.unsentFragments || c->netchan_start_queue )

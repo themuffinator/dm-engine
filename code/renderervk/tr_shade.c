@@ -113,7 +113,7 @@ static void DrawTris( shaderCommands_t *input ) {
 #ifdef USE_VULKAN
 	uint32_t pipeline;
 
-	if ( r_showtris->integer == 1 && backEnd.drawConsole )
+	if ( r_showTris->integer == 1 && backEnd.drawConsole )
 		return;
 
 	if ( tess.numIndexes == 0 )
@@ -141,7 +141,7 @@ static void DrawTris( shaderCommands_t *input ) {
 	vk_draw_geometry( pipeline, DEPTH_RANGE_ZERO, qtrue );
 
 #else
-	if ( r_showtris->integer == 1 && backEnd.drawConsole )
+	if ( r_showTris->integer == 1 && backEnd.drawConsole )
 		return;
 
 	GL_ClientState( 0, CLS_NONE );
@@ -270,9 +270,9 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 
 #ifdef USE_TESS_NEEDS_NORMAL
 #ifdef USE_PMLIGHT
-	tess.needsNormal = state->needsNormal || tess.dlightPass || r_shownormals->integer;
+	tess.needsNormal = state->needsNormal || tess.dlightPass || r_showNormals->integer;
 #else
-	tess.needsNormal = state->needsNormal || r_shownormals->integer;
+	tess.needsNormal = state->needsNormal || r_showNormals->integer;
 #endif
 #endif
 
@@ -1397,10 +1397,10 @@ void RB_EndSurface( void ) {
 	//
 	// draw debugging stuff
 	//
-	if ( r_showtris->integer ) {
+	if ( r_showTris->integer ) {
 		DrawTris( input );
 	}
-	if ( r_shownormals->integer ) {
+	if ( r_showNormals->integer ) {
 		DrawNormals( input );
 	}
 

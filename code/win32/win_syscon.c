@@ -143,11 +143,11 @@ static int GetTimerMsec( void )
 	}
 #ifndef DEDICATED
 	if ( com_cl_running && com_cl_running->integer ) {
-		if ( com_maxfps->integer ) {
-			msec = 1000 / com_maxfps->integer;
+		if ( com_maxFPS->integer ) {
+			msec = 1000 / com_maxFPS->integer;
 		}
-		if ( Cvar_VariableIntegerValue( "com_maxfpsUnfocused" ) ) {
-			msec = 1000 / Cvar_VariableIntegerValue( "com_maxfpsUnfocused" );
+		if ( Cvar_VariableIntegerValue( "com_maxFPSUnfocused" ) ) {
+			msec = 1000 / Cvar_VariableIntegerValue( "com_maxFPSUnfocused" );
 		}
 		if ( gw_minimized || CL_VideoRecording() ) {
 			return 0;
@@ -177,21 +177,21 @@ static LRESULT WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 	case WM_ACTIVATE:
 
-		if ( com_viewlog && ( com_dedicated && !com_dedicated->integer ) )
+		if ( com_viewLog && ( com_dedicated && !com_dedicated->integer ) )
 		{
-			// if the viewlog is open, check to see if it's being minimized
-			if ( com_viewlog->integer == 1 )
+			// if the viewLog is open, check to see if it's being minimized
+			if ( com_viewLog->integer == 1 )
 			{
 				if ( HIWORD( wParam ) )		// minimized flag
 				{
-					Cvar_Set( "viewlog", "2" );
+					Cvar_Set( "viewLog", "2" );
 				}
 			}
-			else if ( com_viewlog->integer == 2 )
+			else if ( com_viewLog->integer == 2 )
 			{
 				if ( !HIWORD( wParam ) )		// minimized flag
 				{
-					Cvar_Set( "viewlog", "1" );
+					Cvar_Set( "viewLog", "1" );
 				}
 			}
 		}
@@ -222,7 +222,7 @@ static LRESULT WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		else
 		{
 			Sys_ShowConsole( 0, qfalse );
-			Cvar_Set( "viewlog", "0" );
+			Cvar_Set( "viewLog", "0" );
 		}
 		return 0;
 

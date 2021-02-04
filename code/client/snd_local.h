@@ -194,7 +194,7 @@ extern cvar_t *s_doppler;
 extern cvar_t *s_muteWhenUnfocused;
 extern cvar_t *s_muteWhenMinimized;
 
-extern cvar_t *s_testsound;
+extern cvar_t *s_testSound;
 
 qboolean S_LoadSound( sfx_t *sfx );
 

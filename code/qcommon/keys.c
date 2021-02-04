@@ -522,7 +522,7 @@ Writes lines containing "bind key value"
 void Key_WriteBindings( fileHandle_t f ) {
 	int		i;
 
-	FS_Printf( f, "unbindall" Q_NEWLINE );
+	FS_Printf( f, "unbindAll" Q_NEWLINE );
 
 	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
 		if ( keys[i].binding && keys[i].binding[0] ) {
@@ -670,6 +670,6 @@ void Com_InitKeyCommands( void )
 	Cmd_SetCommandCompletionFunc( "bind", Key_CompleteBind );
 	Cmd_AddCommand( "unbind", Key_Unbind_f );
 	Cmd_SetCommandCompletionFunc( "unbind", Key_CompleteUnbind );
-	Cmd_AddCommand( "unbindall", Key_Unbindall_f );
-	Cmd_AddCommand( "bindlist", Key_Bindlist_f );
+	Cmd_AddCommand( "unbindAll", Key_Unbindall_f );
+	Cmd_AddCommand( "listBinds", Key_Bindlist_f );
 }

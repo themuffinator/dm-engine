@@ -83,7 +83,7 @@ static void SV_GameSendServerCommand( int clientNum, const char *text ) {
 	if ( clientNum == -1 ) {
 		SV_SendServerCommand( NULL, "%s", text );
 	} else {
-		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+		if ( clientNum < 0 || clientNum >= sv_maxClients->integer ) {
 			return;
 		}
 		SV_SendServerCommand( svs.clients + clientNum, "%s", text );	
@@ -99,7 +99,7 @@ Disconnects the client with a message
 ===============
 */
 static void SV_GameDropClient( int clientNum, const char *reason ) {
-	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+	if ( clientNum < 0 || clientNum >= sv_maxClients->integer ) {
 		return;
 	}
 	SV_DropClient( svs.clients + clientNum, reason );	
@@ -294,7 +294,7 @@ SV_GetUsercmd
 ===============
 */
 static void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
-	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+	if ( clientNum < 0 || clientNum >= sv_maxClients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
 	}
 	*cmd = svs.clients[clientNum].lastUsercmd;
@@ -558,7 +558,7 @@ static intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case BOTLIB_USER_COMMAND:
 		{
 			unsigned clientNum = args[1];
-			if ( clientNum < sv_maxclients->integer )
+			if ( clientNum < sv_maxClients->integer )
 			{
 				SV_ClientThink( &svs.clients[ clientNum ], VMA(2) );
 			}
@@ -1128,7 +1128,7 @@ static void SV_InitGameVM( qboolean restart ) {
 	// a previous level
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=522
 	// now done before GAME_INIT call
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	for ( i = 0 ; i < sv_maxClients->integer ; i++ ) {
 		svs.clients[i].gentity = NULL;
 	}
 	
@@ -1176,7 +1176,7 @@ void SV_InitGameProgs( void ) {
 	//FIXME these are temp while I make bots run in vm
 	extern int	bot_enable;
 
-	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
+	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH, "0", "1", CV_INTEGER );
 	if ( var ) {
 		bot_enable = var->integer;
 	}

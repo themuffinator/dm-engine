@@ -328,7 +328,7 @@ static void S_TransferPaintBuffer( int endtime, byte *buffer )
 
 	pbuf = (unsigned long *)buffer;
 
-	if ( s_testsound->integer ) {
+	if ( s_testSound->integer ) {
 		// write a fixed sine wave
 		count = (endtime - s_paintedtime);
 		for (i=0 ; i<count ; i++)

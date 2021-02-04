@@ -61,7 +61,7 @@ static cvar_t *j_up_axis;
 
 #define Com_QueueEvent Sys_QueEvent
 
-static cvar_t *cl_consoleKeys;
+static cvar_t *con_keys;
 
 static int in_eventTime = 0;
 
@@ -132,12 +132,12 @@ static qboolean IN_IsConsoleKey( keyNum_t key, int character )
 	int i;
 
 	// Only parse the variable when it changes
-	if ( cl_consoleKeys->modified )
+	if ( con_keys->modified )
 	{
 		const char *text_p, *token;
 
-		cl_consoleKeys->modified = qfalse;
-		text_p = cl_consoleKeys->string;
+		con_keys->modified = qfalse;
+		text_p = con_keys->string;
 		numConsoleKeys = 0;
 
 		while( numConsoleKeys < MAX_CONSOLE_KEYS )
@@ -372,12 +372,12 @@ static void IN_ActivateMouse( qboolean isFullscreen )
 		IN_GobbleMotionEvents();
 	}
 
-	// in_nograb makes no sense in fullscreen mode
+	// in_noGrab makes no sense in fullscreen mode
 	if ( !isFullscreen )
 	{
-		if ( in_nograb->modified || !mouseActive )
+		if ( in_noGrab->modified || !mouseActive )
 		{
-			if ( in_nograb->integer ) {
+			if ( in_noGrab->integer ) {
 				SDL_SetRelativeMouseMode( SDL_FALSE );
 				SDL_SetWindowGrab( SDL_window, SDL_FALSE );
 			} else {
@@ -385,7 +385,7 @@ static void IN_ActivateMouse( qboolean isFullscreen )
 				SDL_SetWindowGrab( SDL_window, SDL_TRUE );
 			}
 
-			in_nograb->modified = qfalse;
+			in_noGrab->modified = qfalse;
 		}
 	}
 
@@ -520,7 +520,7 @@ static void IN_InitJoystick( void )
 		Q_strcat(buf, sizeof(buf), "\n");
 	}
 
-	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM );
+	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM, NULL, NULL, CV_NONE );
 
 	if( !in_joystick->integer ) {
 		Com_DPrintf( "Joystick is not active.\n" );
@@ -532,7 +532,7 @@ static void IN_InitJoystick( void )
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
 		Cvar_Set( "in_joystickNo", "0" );
 
-	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE );
+	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
 	stick = SDL_JoystickOpen( in_joystickNo->integer );
 
@@ -612,22 +612,22 @@ static qboolean KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
 		*outAxis = j_forward_axis->integer;
 		*outSign = j_forward->value > 0.0f ? -1 : 1;
 	}
-	else if (Q_stricmp(bind, "+moveleft") == 0)
+	else if (Q_stricmp(bind, "+moveLeft") == 0)
 	{
 		*outAxis = j_side_axis->integer;
 		*outSign = j_side->value > 0.0f ? -1 : 1;
 	}
-	else if (Q_stricmp(bind, "+moveright") == 0)
+	else if (Q_stricmp(bind, "+moveRight") == 0)
 	{
 		*outAxis = j_side_axis->integer;
 		*outSign = j_side->value > 0.0f ? 1 : -1;
 	}
-	else if (Q_stricmp(bind, "+lookup") == 0)
+	else if (Q_stricmp(bind, "+lookUp") == 0)
 	{
 		*outAxis = j_pitch_axis->integer;
 		*outSign = j_pitch->value > 0.0f ? -1 : 1;
 	}
-	else if (Q_stricmp(bind, "+lookdown") == 0)
+	else if (Q_stricmp(bind, "+lookDown") == 0)
 	{
 		*outAxis = j_pitch_axis->integer;
 		*outSign = j_pitch->value > 0.0f ? 1 : -1;
@@ -642,12 +642,12 @@ static qboolean KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
 		*outAxis = j_yaw_axis->integer;
 		*outSign = j_yaw->value > 0.0f ? -1 : 1;
 	}
-	else if (Q_stricmp(bind, "+moveup") == 0)
+	else if (Q_stricmp(bind, "+moveUp") == 0)
 	{
 		*outAxis = j_up_axis->integer;
 		*outSign = j_up->value > 0.0f ? 1 : -1;
 	}
-	else if (Q_stricmp(bind, "+movedown") == 0)
+	else if (Q_stricmp(bind, "+moveDown") == 0)
 	{
 		*outAxis = j_up_axis->integer;
 		*outSign = j_up->value > 0.0f ? -1 : 1;
@@ -1264,37 +1264,30 @@ void IN_Init( void )
 
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
-	in_keyboardDebug = Cvar_Get( "in_keyboardDebug", "0", CVAR_ARCHIVE );
+	in_keyboardDebug = Cvar_Get( "in_keyboardDebug", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
 	// mouse variables
-	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
-	Cvar_CheckRange( in_mouse, "-1", "1", CV_INTEGER );
+	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE, "-1", "1", CV_INTEGER );
 
 #ifdef USE_JOYSTICK
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
-	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
+	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH, "0", "1", CV_INTEGER );
+	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE, "0.01", "1", CV_FLOAT );
 
-	j_pitch =        Cvar_Get( "j_pitch",        "0.022", CVAR_ARCHIVE_ND );
-	j_yaw =          Cvar_Get( "j_yaw",          "-0.022", CVAR_ARCHIVE_ND );
-	j_forward =      Cvar_Get( "j_forward",      "-0.25", CVAR_ARCHIVE_ND );
-	j_side =         Cvar_Get( "j_side",         "0.25", CVAR_ARCHIVE_ND );
-	j_up =           Cvar_Get( "j_up",           "0", CVAR_ARCHIVE_ND );
+	j_pitch =        Cvar_Get( "j_pitch",        "0.022", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	j_yaw =          Cvar_Get( "j_yaw",          "-0.022", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	j_forward =      Cvar_Get( "j_forward",      "-0.25", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	j_side =         Cvar_Get( "j_side",         "0.25", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	j_up =           Cvar_Get( "j_up",           "0", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
 
-	j_pitch_axis =   Cvar_Get( "j_pitch_axis",   "3", CVAR_ARCHIVE_ND );
-	j_yaw_axis =     Cvar_Get( "j_yaw_axis",     "2", CVAR_ARCHIVE_ND );
-	j_forward_axis = Cvar_Get( "j_forward_axis", "1", CVAR_ARCHIVE_ND );
-	j_side_axis =    Cvar_Get( "j_side_axis",    "0", CVAR_ARCHIVE_ND );
-	j_up_axis =      Cvar_Get( "j_up_axis",      "4", CVAR_ARCHIVE_ND );
-
-	Cvar_CheckRange( j_pitch_axis,   "0", va("%i",MAX_JOYSTICK_AXIS-1), CV_INTEGER );
-	Cvar_CheckRange( j_yaw_axis,     "0", va("%i",MAX_JOYSTICK_AXIS-1), CV_INTEGER );
-	Cvar_CheckRange( j_forward_axis, "0", va("%i",MAX_JOYSTICK_AXIS-1), CV_INTEGER );
-	Cvar_CheckRange( j_side_axis,    "0", va("%i",MAX_JOYSTICK_AXIS-1), CV_INTEGER );
-	Cvar_CheckRange( j_up_axis,      "0", va("%i",MAX_JOYSTICK_AXIS-1), CV_INTEGER );
+	j_pitch_axis =   Cvar_Get( "j_pitch_axis",   "3", CVAR_ARCHIVE_ND, "0", va("%i", MAX_JOYSTICK_AXIS - 1), CV_INTEGER );
+	j_yaw_axis =     Cvar_Get( "j_yaw_axis",     "2", CVAR_ARCHIVE_ND, "0", va("%i", MAX_JOYSTICK_AXIS - 1), CV_INTEGER );
+	j_forward_axis = Cvar_Get( "j_forward_axis", "1", CVAR_ARCHIVE_ND, "0", va("%i", MAX_JOYSTICK_AXIS - 1), CV_INTEGER );
+	j_side_axis =    Cvar_Get( "j_side_axis",    "0", CVAR_ARCHIVE_ND, "0", va("%i", MAX_JOYSTICK_AXIS - 1), CV_INTEGER );
+	j_up_axis =      Cvar_Get( "j_up_axis",      "4", CVAR_ARCHIVE_ND, "0", va("%i", MAX_JOYSTICK_AXIS - 1), CV_INTEGER );
 #endif
 
 	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE );
+	con_keys = Cvar_Get( "con_keys", "~ ` 0x7e 0x60", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
 
 	SDL_StartTextInput();
 

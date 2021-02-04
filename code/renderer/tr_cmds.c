@@ -381,7 +381,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 	}
 
-	if ( r_fastsky->integer ) {
+	if ( r_fastSky->integer ) {
 		if ( stereoFrame != STEREO_RIGHT ) {
 			if ( !clrcmd ) {
 				clrcmd = R_GetCommandBuffer( sizeof( *clrcmd ) );

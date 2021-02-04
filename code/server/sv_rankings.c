@@ -179,15 +179,15 @@ void SV_RankBegin( char *gamekey )
 	}
 
 	// logging
-	if( com_developer->value )
+	if( com_developer->integer )
 	{
 		GRankLogLevel( GRLOG_TRACE );
 	}
 	
 	// allocate rankings info for each player
-	s_ranked_players = Z_Malloc( sv_maxclients->value * 
+	s_ranked_players = Z_Malloc( sv_maxClients->value * 
 		sizeof(ranked_player_t) );
-	memset( (void*)s_ranked_players, 0 ,sv_maxclients->value 
+	memset( (void*)s_ranked_players, 0 ,sv_maxClients->value 
 		* sizeof(ranked_player_t));
 }
 
@@ -208,7 +208,7 @@ void SV_RankEnd( void )
 		// cleanup after error during game
 		if( s_ranked_players != NULL )
 		{
-			for( i = 0; i < sv_maxclients->value; i++ )
+			for( i = 0; i < sv_maxClients->value; i++ )
 			{
 				if( s_ranked_players[i].context != 0 )
 				{
@@ -224,7 +224,7 @@ void SV_RankEnd( void )
 		return;
 	}
 
-	for( i = 0; i < sv_maxclients->value; i++ )
+	for( i = 0; i < sv_maxClients->value; i++ )
 	{
 		if( s_ranked_players[i].grank_status == QGR_STATUS_ACTIVE )
 		{
@@ -299,7 +299,7 @@ grank_status_t SV_RankUserStatus( int index )
 
 	assert( s_ranked_players != NULL );
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 
 	return s_ranked_players[index].grank_status;
 }
@@ -318,7 +318,7 @@ int SV_RankUserGrank( int index )
 
 	assert( s_ranked_players != NULL );
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 
 	return s_ranked_players[index].grank;
 }
@@ -337,7 +337,7 @@ void SV_RankUserReset( int index )
 
 	assert( s_ranked_players != NULL );
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 
 	switch( s_ranked_players[index].grank_status )
 	{
@@ -369,7 +369,7 @@ void SV_RankUserSpectate( int index )
 
 	assert( s_ranked_players != NULL );
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 
 	// GRANK_FIXME - check current status?
 	s_ranked_players[index].grank_status = QGR_STATUS_SPECTATOR;
@@ -387,7 +387,7 @@ void SV_RankUserCreate( int index, char* username, char* password,
 	GR_STATUS	status;
 
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 	assert( username != NULL );
 	assert( password != NULL );
 	assert( email != NULL );
@@ -452,7 +452,7 @@ void SV_RankUserLogin( int index, char* username, char* password )
 	GR_STATUS	status;
 
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 	assert( username != NULL );
 	assert( password != NULL );
 	assert( s_ranked_players );
@@ -551,7 +551,7 @@ qboolean SV_RankUserValidate( int index, const char* player_id, const char* key,
 		
 		// save name and check for duplicates
 		Q_strncpyz( ranked_player->name, name, sizeof(ranked_player->name) );
-		for( i = 0; i < sv_maxclients->value; i++ )
+		for( i = 0; i < sv_maxClients->value; i++ )
 		{
 			if( (i != index) && (s_ranked_players[i].grank_status == QGR_STATUS_ACTIVE) && 
 				(strcmp( s_ranked_players[i].name, name ) == 0) )
@@ -621,7 +621,7 @@ void SV_RankUserLogout( int index )
 	}
 
 	assert( index >= 0 );
-	assert( index < sv_maxclients->value );
+	assert( index < sv_maxClients->value );
 	assert( s_ranked_players );
 
 	if( s_ranked_players[index].context == 0 ) {
@@ -694,9 +694,9 @@ void SV_RankReportInt( int index1, int index2, int key, int value,
 	}
 
 	assert( index1 >= -1 );
-	assert( index1 < sv_maxclients->value );
+	assert( index1 < sv_maxClients->value );
 	assert( index2 >= -1 );
-	assert( index2 < sv_maxclients->value );
+	assert( index2 < sv_maxClients->value );
 	assert( s_ranked_players );
 
 //	Com_DPrintf( "SV_RankReportInt( %d, %d, %d, %d, %d );\n", index1, index2, 
@@ -806,9 +806,9 @@ void SV_RankReportStr( int index1, int index2, int key, char* value )
 	}
 
 	assert( index1 >= -1 );
-	assert( index1 < sv_maxclients->value );
+	assert( index1 < sv_maxClients->value );
 	assert( index2 >= -1 );
-	assert( index2 < sv_maxclients->value );
+	assert( index2 < sv_maxClients->value );
 	assert( s_ranked_players );
 
 //	Com_DPrintf( "SV_RankReportStr( %d, %d, %d, \"%s\" );\n", index1, index2, 
@@ -909,7 +909,7 @@ void SV_RankQuit( void )
 		assert(s_ranked_players);
 		if( s_ranked_players != NULL )
 		{
-			for( i = 0; i < sv_maxclients->value; i++ )
+			for( i = 0; i < sv_maxClients->value; i++ )
 			{
 				// check for players that weren't yet active in SV_RankEnd
 				if( s_ranked_players[i].grank_status == QGR_STATUS_ACTIVE )
@@ -990,7 +990,7 @@ static void SV_RankNewGameCBF( GR_NEWGAME* gr_newgame, void* cbf_arg )
 		SV_SetConfigstring( CS_GRANK, info );
 
 		// initialize client status
-		for( i = 0; i < sv_maxclients->value; i++ )
+		for( i = 0; i < sv_maxClients->value; i++ )
 			s_ranked_players[i].grank_status = QGR_STATUS_NEW;
 
 		// start new match
@@ -1133,7 +1133,7 @@ static void SV_RankJoinGameCBF( GR_JOINGAME* gr_joingame, void* cbf_arg )
 		ranked_player->grank = gr_joingame->rank;
 
 		// find the index and call SV_RankUserValidate
-		for (i=0;i<sv_maxclients->value;i++)
+		for (i=0;i<sv_maxClients->value;i++)
 			if ( ranked_player == &s_ranked_players[i] )
 				SV_RankUserValidate(i,NULL,NULL,0, gr_joingame->rank,ranked_player->name);
 	}

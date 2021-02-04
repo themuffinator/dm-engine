@@ -443,7 +443,7 @@ static qboolean CL_GetValue( char* value, int valueSize, const char* key ) {
 static void CL_ForceFixedDlights( void ) {
 	cvar_t *cv;
 
-	cv = Cvar_Get( "r_dlightMode", "1", 0 );
+	cv = Cvar_Get( "r_dlightMode", "1", 0, "", "", 0 );
 	if ( cv ) {
 		Cvar_CheckRange( cv, "1", "2", CV_INTEGER );
 	}
@@ -970,8 +970,8 @@ static void CL_AdjustTimeDelta( void ) {
 
 		// if any of the frames between this and the previous snapshot
 		// had to be extrapolated, nudge our sense of time back a little
-		// the granularity of +1 / -2 is too high for timescale modified frametimes
-		if ( com_timescale->value == 0 || com_timescale->value == 1 ) {
+		// the granularity of +1 / -2 is too high for timeScale modified frametimes
+		if ( com_timeScale->value == 0 || com_timeScale->value == 1 ) {
 			if ( cl.extrapolatedSnapshot ) {
 				cl.extrapolatedSnapshot = qfalse;
 				cl.serverTimeDelta -= 2;
@@ -1011,7 +1011,7 @@ static void CL_FirstSnapshot( void ) {
 
 	// if this is the first frame of active play,
 	// execute the contents of activeAction now
-	// this is to allow scripting a timedemo to start right
+	// this is to allow scripting a timeDemo to start right
 	// after loading
 	if ( cl_activeAction->string[0] ) {
 		Cbuf_AddText( cl_activeAction->string );
@@ -1132,9 +1132,9 @@ void CL_SetCGameTime( void ) {
 	cl.oldFrameServerTime = cl.snap.serverTime;
 
 	// get our current view of time
-	demoFreezed = clc.demoplaying && com_timescale->value == 0.0f;
+	demoFreezed = clc.demoplaying && com_timeScale->value == 0.0f;
 	if ( demoFreezed ) {
-		// \timescale 0 is used to lock a demo in place for single frame advances
+		// \timeScale 0 is used to lock a demo in place for single frame advances
 		cl.serverTimeDelta -= cls.frametime;
 	} else {
 		// cl_timeNudge is a user adjustable cvar that allows more
@@ -1171,11 +1171,11 @@ void CL_SetCGameTime( void ) {
 	// messages from the demo file until the cgame definitely
 	// has valid snapshots to interpolate between
 
-	// a timedemo will always use a deterministic set of time samples
+	// a timeDemo will always use a deterministic set of time samples
 	// no matter what speed machine it is run on,
 	// while a normal demo may have different time samples
 	// each time it is played back
-	if ( com_timedemo->integer ) {
+	if ( com_timeDemo->integer ) {
 		if ( !clc.timeDemoStart ) {
 			clc.timeDemoStart = Sys_Milliseconds();
 		}

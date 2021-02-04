@@ -1441,9 +1441,9 @@ static void RB_IterateStagesVBO( const shaderCommands_t *input )
 
 	ARB_ProgramEnableExt( 0, 0 );
 
-	if ( r_showtris->integer ) {
+	if ( r_showTris->integer ) {
 
-		if ( r_showtris->integer == 1 && backEnd.drawConsole )
+		if ( r_showTris->integer == 1 && backEnd.drawConsole )
 			return;
 
 		ARB_ProgramEnableExt( 0, 0 );

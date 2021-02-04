@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/snd_local.h"
 #include "win_local.h"
 
-extern cvar_t *s_khz;
+extern cvar_t *s_kHz;
 
 static qboolean	dsound_init;
 
@@ -413,7 +413,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 	dma.channels = 2;
 	dma.samplebits = 16;
 
-	switch ( s_khz->integer ) {
+	switch ( s_kHz->integer ) {
 		case 48: dma.speed = 48000; break;
 		case 44: dma.speed = 44100; break;
 		case 11: dma.speed = 11025; break;
@@ -762,7 +762,7 @@ qboolean SNDDMA_Init( void ) {
 	else
 		defdrv = "dsound";
 
-	s_driver = Cvar_Get( "s_driver", defdrv, CVAR_LATCH | CVAR_ARCHIVE_ND );
+	s_driver = Cvar_Get( "s_driver", defdrv, CVAR_LATCH | CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );
 
 	Cvar_SetDescription( s_driver, "Specify sound subsystem in win32 environment:\n"
 		" dsound - DirectSound\n"
@@ -852,7 +852,7 @@ qboolean SNDDMA_InitDS( void )
 	dma.channels = 2;
 	dma.samplebits = 16;
 
-	switch ( s_khz->integer ) {
+	switch ( s_kHz->integer ) {
 		case 48: dma.speed = 48000; break;
 		case 44: dma.speed = 44100; break;
 		case 11: dma.speed = 11025; break;

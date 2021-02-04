@@ -1181,17 +1181,17 @@ extern cvar_t	*r_railWidth;
 extern cvar_t	*r_railCoreWidth;
 extern cvar_t	*r_railSegmentLength;
 
-extern cvar_t	*r_znear;				// near Z clip plane
-extern cvar_t	*r_zproj;				// z distance of projection plane
+extern cvar_t	*r_zNear;				// near Z clip plane
+extern cvar_t	*r_zProj;				// z distance of projection plane
 extern cvar_t	*r_stereoSeparation;			// separation of cameras for stereo rendering
 
-extern cvar_t	*r_lodbias;				// push/pull LOD transitions
-extern cvar_t	*r_lodscale;
+extern cvar_t	*r_lodBias;				// push/pull LOD transitions
+extern cvar_t	*r_lodScale;
 
-extern cvar_t	*r_fastsky;				// controls whether sky should be cleared or drawn
-extern cvar_t	*r_neatsky;				// nomip and nopicmip for skyboxes, cnq3 like look
+extern cvar_t	*r_fastSky;				// controls whether sky should be cleared or drawn
+extern cvar_t	*r_neatSky;				// nomip and nopicmip for skyboxes, cnq3 like look
 extern cvar_t	*r_drawSun;				// controls drawing of sun quad
-extern cvar_t	*r_dynamiclight;		// dynamic lights enabled/disabled
+extern cvar_t	*r_dynamicLight;		// dynamic lights enabled/disabled
 extern cvar_t	*r_mergeLightmaps;
 #ifdef USE_PMLIGHT
 extern cvar_t	*r_dlightMode;			// 0 - vq3, 1 - pmlight
@@ -1219,20 +1219,20 @@ extern cvar_t	*r_renderScale;
 
 extern cvar_t	*r_dlightBacks;			// dlight non-facing surfaces for continuity
 
-extern	cvar_t	*r_norefresh;			// bypasses the ref rendering
-extern	cvar_t	*r_drawentities;		// disable/enable entity rendering
-extern	cvar_t	*r_drawworld;			// disable/enable world rendering
+extern	cvar_t	*r_noRefresh;			// bypasses the ref rendering
+extern	cvar_t	*r_drawEntities;		// disable/enable entity rendering
+extern	cvar_t	*r_drawWorld;			// disable/enable world rendering
 extern	cvar_t	*r_speeds;				// various levels of information display
 extern  cvar_t	*r_detailTextures;		// enables/disables detail texturing stages
-extern	cvar_t	*r_novis;				// disable/enable usage of PVS
-extern	cvar_t	*r_nocull;
+extern	cvar_t	*r_noVis;				// disable/enable usage of PVS
+extern	cvar_t	*r_noCull;
 extern	cvar_t	*r_facePlaneCull;		// enables culling of planar surfaces with back side test
-extern	cvar_t	*r_nocurves;
-extern	cvar_t	*r_showcluster;
+extern	cvar_t	*r_noCurves;
+extern	cvar_t	*r_showCluster;
 
 extern cvar_t	*r_gamma;
 
-extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
+extern	cvar_t	*r_noBind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
 extern	cvar_t	*r_roundImagesDown;
 extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage
@@ -1247,9 +1247,9 @@ extern	cvar_t	*r_fullbright;					// avoid lightmap pass
 extern	cvar_t	*r_lightmap;					// render lightmaps only
 extern	cvar_t	*r_vertexLight;					// vertex lighting mode for better performance
 
-extern	cvar_t	*r_showtris;					// enables wireframe rendering of the world
-extern	cvar_t	*r_showsky;						// forces sky in front of all surfaces
-extern	cvar_t	*r_shownormals;					// draws wireframe normals
+extern	cvar_t	*r_showTris;					// enables wireframe rendering of the world
+extern	cvar_t	*r_showSky;						// forces sky in front of all surfaces
+extern	cvar_t	*r_showNormals;					// draws wireframe normals
 extern	cvar_t	*r_clear;						// force screen clear every frame
 
 extern	cvar_t	*r_shadows;						// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
@@ -1257,8 +1257,8 @@ extern	cvar_t	*r_flares;						// light flares
 
 extern	cvar_t	*r_intensity;
 
-extern	cvar_t	*r_lockpvs;
-extern	cvar_t	*r_noportals;
+extern	cvar_t	*r_lockPVS;
+extern	cvar_t	*r_noPortals;
 extern	cvar_t	*r_portalOnly;
 
 extern	cvar_t	*r_subdivisions;
@@ -1267,7 +1267,7 @@ extern	cvar_t	*r_skipBackEnd;
 
 extern	cvar_t	*r_anaglyphMode;
 
-extern	cvar_t	*r_greyscale;
+extern	cvar_t	*r_greyScale;
 
 extern	cvar_t	*r_ignoreGLErrors;
 

@@ -905,8 +905,8 @@ int main( int argc, const char* argv[] )
 
 	// Sys_ConsoleInputInit() might be called in signal handler
 	// so modify/init any cvars here
-	ttycon = Cvar_Get( "ttycon", "1", 0 );
-	ttycon_ansicolor = Cvar_Get( "ttycon_ansicolor", "0", CVAR_ARCHIVE );
+	ttycon = Cvar_Get( "ttycon", "1", 0, NULL, NULL, CV_INTEGER);
+	ttycon_ansicolor = Cvar_Get( "ttycon_ansicolor", "0", CVAR_ARCHIVE, NULL, NULL, CV_INTEGER );
 
 	err = Sys_ConsoleInputInit();
 	if ( err == TTY_ENABLED )

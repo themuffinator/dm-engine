@@ -527,11 +527,11 @@ static GLint RawImage_GetInternalFormat( const byte *scan, int numPixels, qboole
 
 	if ( RawImage_HasAlpha( scan, numPixels ) )
 	{
-		if ( r_texturebits->integer == 16 )
+		if ( r_textureBits->integer == 16 )
 		{
 			internalFormat = GL_RGBA4;
 		}
-		else if ( r_texturebits->integer == 32 )
+		else if ( r_textureBits->integer == 32 )
 		{
 			internalFormat = GL_RGBA8;
 		}
@@ -550,11 +550,11 @@ static GLint RawImage_GetInternalFormat( const byte *scan, int numPixels, qboole
 		{
 			internalFormat = GL_RGB4_S3TC;
 		}
-		else if ( r_texturebits->integer == 16 )
+		else if ( r_textureBits->integer == 16 )
 		{
 			internalFormat = GL_RGB5;
 		}
-		else if ( r_texturebits->integer == 32 )
+		else if ( r_textureBits->integer == 32 )
 		{
 			internalFormat = GL_RGB8;
 		}

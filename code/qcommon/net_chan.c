@@ -50,8 +50,8 @@ to the new value before sending out any replies.
 
 #define	FRAGMENT_BIT			(1U<<31)
 
-cvar_t		*showpackets;
-cvar_t		*showdrop;
+cvar_t		*net_showPackets;
+cvar_t		*net_showDrop;
 cvar_t		*qport;
 
 static const char *netsrcString[2] = {
@@ -67,9 +67,9 @@ Netchan_Init
 */
 void Netchan_Init( int port ) {
 	port &= 0xffff;
-	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	net_showPackets = Cvar_Get ("net_showPackets", "0", CVAR_TEMP, "0", "1", CV_INTEGER );
+	net_showDrop = Cvar_Get ("net_showDrop", "0", CVAR_TEMP, "0", "1", CV_INTEGER );
+	qport = Cvar_Get ("net_qPort", va("%i", port), CVAR_INIT, NULL, NULL, CV_INTEGER );
 }
 
 
@@ -139,7 +139,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	chan->lastSentTime = Sys_Milliseconds();
 	chan->lastSentSize = send.cursize;
 
-	if ( showpackets->integer ) {
+	if ( net_showPackets->integer ) {
 		Com_Printf ("%s send %4i : s=%i fragment=%i,%i\n"
 			, netsrcString[ chan->sock ]
 			, send.cursize
@@ -211,7 +211,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	chan->lastSentTime = Sys_Milliseconds();
 	chan->lastSentSize = send.cursize;
 
-	if ( showpackets->integer ) {
+	if ( net_showPackets->integer ) {
 		Com_Printf( "%s send %4i : s=%i ack=%i\n"
 			, netsrcString[ chan->sock ]
 			, send.cursize
@@ -275,7 +275,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		fragmentLength = 0;
 	}
 
-	if ( showpackets->integer ) {
+	if ( net_showPackets->integer ) {
 		if ( fragmented ) {
 			Com_Printf( "%s recv %4i : s=%i fragment=%i,%i\n"
 				, netsrcString[ chan->sock ]
@@ -294,7 +294,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	// discard out of order or duplicated packets
 	//
 	if ( sequence <= chan->incomingSequence ) {
-		if ( showdrop->integer || showpackets->integer ) {
+		if ( net_showDrop->integer || net_showPackets->integer ) {
 			Com_Printf( "%s:Out of order packet %i at %i\n"
 				, NET_AdrToString( &chan->remoteAddress )
 				,  sequence
@@ -308,7 +308,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	//
 	chan->dropped = sequence - (chan->incomingSequence+1);
 	if ( chan->dropped > 0 ) {
-		if ( showdrop->integer || showpackets->integer ) {
+		if ( net_showDrop->integer || net_showPackets->integer ) {
 			Com_Printf( "%s:Dropped %i packets at %i\n"
 			, NET_AdrToString( &chan->remoteAddress )
 			, chan->dropped
@@ -334,7 +334,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 		// if we missed a fragment, dump the message
 		if ( fragmentStart != chan->fragmentLength ) {
-			if ( showdrop->integer || showpackets->integer ) {
+			if ( net_showDrop->integer || net_showPackets->integer ) {
 				Com_Printf( "%s:Dropped a message fragment\n"
 				, NET_AdrToString( &chan->remoteAddress ));
 			}
@@ -346,7 +346,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		// copy the fragment to the fragment buffer
 		if ( fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
 			chan->fragmentLength + fragmentLength > sizeof( chan->fragmentBuffer ) ) {
-			if ( showdrop->integer || showpackets->integer ) {
+			if ( net_showDrop->integer || net_showPackets->integer ) {
 				Com_Printf ("%s:illegal fragment length\n"
 				, NET_AdrToString( &chan->remoteAddress ) );
 			}
@@ -488,7 +488,7 @@ static void NET_QueuePacket( int length, const void *data, const netadr_t *to, i
 	Com_Memcpy(new->data, data, length);
 	new->length = length;
 	new->to = *to;
-	new->release = Sys_Milliseconds() + (int)((float)offset / com_timescale->value);	
+	new->release = Sys_Milliseconds() + (int)((float)offset / com_timeScale->value);	
 	new->next = NULL;
 
 	if(!packetQueue) {
@@ -526,7 +526,7 @@ void NET_FlushPacketQueue( void )
 void NET_SendPacket( netsrc_t sock, int length, const void *data, const netadr_t *to ) {
 
 	// sequenced packets are shown in netchan, so just show oob
-	if ( showpackets->integer && *(int *)data == -1 )	{
+	if ( net_showPackets->integer && *(int *)data == -1 )	{
 		Com_Printf ("send packet %4i\n", length);
 	}
 
@@ -541,12 +541,12 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, const netadr_t
 		return;
 	}
 #ifndef DEDICATED
-	if ( sock == NS_CLIENT && cl_packetdelay->integer > 0 ) {
-		NET_QueuePacket( length, data, to, cl_packetdelay->integer );
+	if ( sock == NS_CLIENT && cl_packetDelay->integer > 0 ) {
+		NET_QueuePacket( length, data, to, cl_packetDelay->integer );
 	} else
 #endif
-	if ( sock == NS_SERVER && sv_packetdelay->integer > 0 ) {
-		NET_QueuePacket( length, data, to, sv_packetdelay->integer );
+	if ( sock == NS_SERVER && sv_packetDelay->integer > 0 ) {
+		NET_QueuePacket( length, data, to, sv_packetDelay->integer );
 	}
 	else {
 		Sys_SendPacket( length, data, to );

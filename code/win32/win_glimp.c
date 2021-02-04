@@ -470,20 +470,20 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 	//
 	// implicitly assume Z-buffer depth == desktop color depth
 	//
-	if ( cl_depthbits->integer == 0 ) {
+	if ( cl_depthBits->integer == 0 ) {
 		if ( colorbits > 16 ) {
 			depthbits = 24;
 		} else {
 			depthbits = 16;
 		}
 	} else {
-		depthbits = cl_depthbits->integer;
+		depthbits = cl_depthBits->integer;
 	}
 
 	//
 	// do not allow stencil if Z-buffer depth likely won't contain it
 	//
-	stencilbits = cl_stencilbits->integer;
+	stencilbits = cl_stencilBits->integer;
 	if ( depthbits < 24 )
 	{
 		stencilbits = 0;
@@ -494,7 +494,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 	//
 
 	//
-	// first attempt: r_colorbits, depthbits, and r_stencilbits
+	// first attempt: r_colorBits, depthbits, and r_stencilBits
 	//
 	if ( !glw_state.pixelFormatSet )
 	{
@@ -510,7 +510,7 @@ static qboolean GLW_InitOpenGLDriver( int colorbits )
 			//
 			// punt if we've already tried the desktop bit depth and no stencil bits
 			//
-			if ( ( r_colorbits->integer == glw_state.desktopBitsPixel ) &&
+			if ( ( r_colorBits->integer == glw_state.desktopBitsPixel ) &&
 				 ( stencilbits == 0 ) )
 			{
 				ReleaseDC( g_wv.hWnd, glw_state.hDC );
@@ -575,18 +575,18 @@ static qboolean GLW_InitVulkanDriver( int colorbits )
 	int stencilbits;
 
 	// implicitly assume Z-buffer depth == desktop color depth
-	if ( cl_depthbits->integer == 0 ) {
+	if ( cl_depthBits->integer == 0 ) {
 		if ( colorbits > 16 ) {
 			depthbits = 24;
 		} else {
 			depthbits = 16;
 		}
 	} else {
-		depthbits = cl_depthbits->integer;
+		depthbits = cl_depthBits->integer;
 	}
 
 	// do not allow stencil if Z-buffer depth likely won't contain it
-	stencilbits = cl_stencilbits->integer;
+	stencilbits = cl_stencilBits->integer;
 	if ( depthbits < 24 ) {
 		stencilbits = 0;
 	}
@@ -673,9 +673,9 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		else
 		{
 			exstyle = WINDOW_ESTYLE_NORMAL;
-			if ( r_noborder->integer ) {
+			if ( r_noBorder->integer ) {
 				stylebits = WINDOW_STYLE_NORMAL_NB;
-				g_wv.borderless = r_noborder->integer;
+				g_wv.borderless = r_noBorder->integer;
 			} else {
 				stylebits = WINDOW_STYLE_NORMAL;
 			}
@@ -1235,10 +1235,10 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 		cdsFullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, qfalse ) != RSERR_OK )
+		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorBits->integer, cdsFullscreen, qfalse ) != RSERR_OK )
 		{
 			// if we're on a 24/32-bit desktop try it again but with a 16-bit desktop
-			if ( r_colorbits->integer != 16 || cdsFullscreen != qtrue || r_mode->integer != 3 )
+			if ( r_colorBits->integer != 16 || cdsFullscreen != qtrue || r_mode->integer != 3 )
 			{
 				if ( GLW_StartDriverAndSetMode( 3, "", 16, qtrue, qfalse ) != RSERR_OK )
 				{
@@ -1332,9 +1332,9 @@ void GLimp_Init( glconfig_t *config )
 
 	// glimp-specific
 
-	r_maskMinidriver = Cvar_Get( "r_maskMinidriver", "0", CVAR_LATCH );
-	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE_ND | CVAR_LATCH );
-	r_verbose = Cvar_Get( "r_verbose", "0", 0 );
+	r_maskMinidriver = Cvar_Get( "r_maskMinidriver", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_stereoEnabled = Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	r_verbose = Cvar_Get( "r_verbose", "0", 0, "0", "1", CV_INTEGER );
 
 	// feedback to renderer configuration
 	glw_state.config = config;
@@ -1446,7 +1446,7 @@ static qboolean GLW_LoadVulkan( void )
 		qboolean cdsFullscreen = (r_fullscreen->integer != 0);
 
 		// create the window and set up the context
-		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorbits->integer, cdsFullscreen, qtrue ) == RSERR_OK )
+		if ( GLW_StartDriverAndSetMode( r_mode->integer, r_modeFullscreen->string, r_colorBits->integer, cdsFullscreen, qtrue ) == RSERR_OK )
 			return qtrue;
 	}
 

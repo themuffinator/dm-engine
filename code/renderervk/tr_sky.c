@@ -367,7 +367,7 @@ static qboolean CullSkySide( const int mins[2], const int maxs[2] )
 	int s, t;
 	vec4_t v[4];
 
-	if ( r_nocull->integer )
+	if ( r_noCull->integer )
 		return qfalse;
 
 	s = mins[0] + HALF_SKY_SUBDIVISIONS;
@@ -475,7 +475,7 @@ static void DrawSkySide( image_t *image, const int mins[2], const int maxs[2], i
 
 		vk_bind_index();
 		vk_bind_geometry( tess_flags );
-		vk_draw_geometry( vk.skybox_pipeline, r_showsky->integer ? DEPTH_RANGE_ZERO : DEPTH_RANGE_ONE, qtrue );
+		vk_draw_geometry( vk.skybox_pipeline, r_showSky->integer ? DEPTH_RANGE_ZERO : DEPTH_RANGE_ONE, qtrue );
 
 		tess.numVertexes = 0;
 		tess.numIndexes = 0;
@@ -863,9 +863,9 @@ Other things could be stuck in here, like birds in the sky, etc
 void RB_StageIteratorSky( void ) {
 
 #ifdef USE_VULKAN
-	if ( r_fastsky->integer && vk.fastSky ) {
+	if ( r_fastSky->integer && vk.fastSky ) {
 #else
-	if ( r_fastsky->integer ) {
+	if ( r_fastSky->integer ) {
 #endif
 		return;
 	}
@@ -879,18 +879,18 @@ void RB_StageIteratorSky( void ) {
 	// to be drawn
 	RB_ClipSkyPolygons( &tess );
 
-	// r_showsky will let all the sky blocks be drawn in
+	// r_showSky will let all the sky blocks be drawn in
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
 
 #ifdef USE_VULKAN
-	if ( r_showsky->integer ) {
+	if ( r_showSky->integer ) {
 		tess.depthRange = DEPTH_RANGE_ZERO;
 	} else {
 		tess.depthRange = DEPTH_RANGE_ONE;
 	}
 #else
-	if ( r_showsky->integer ) {
+	if ( r_showSky->integer ) {
 		qglDepthRange( 0.0, 0.0 );
 	} else {
 		qglDepthRange( sky_min_depth, 1.0 );

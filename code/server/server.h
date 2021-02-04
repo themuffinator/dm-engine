@@ -237,7 +237,7 @@ typedef struct {
 
 	int			snapFlagServerBit;			// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
 
-	client_t	*clients;					// [sv_maxclients->integer];
+	client_t	*clients;					// [sv_maxClients->integer];
 	int			numSnapshotEntities;		// PACKET_BACKUP*MAX_SNAPSHOT_ENTITIES
 	entityState_t	*snapshotEntities;		// [numSnapshotEntities]
 	int			nextHeartbeatTime;
@@ -277,24 +277,24 @@ extern	vm_t			*gvm;				// game virtual machine
 
 extern	cvar_t	*sv_fps;
 extern	cvar_t	*sv_timeout;
-extern	cvar_t	*sv_zombietime;
+extern	cvar_t	*sv_zombieTime;
 extern	cvar_t	*sv_rconPassword;
 extern	cvar_t	*sv_privatePassword;
 extern	cvar_t	*sv_allowDownload;
-extern	cvar_t	*sv_maxclients;
+extern	cvar_t	*sv_maxClients;
 extern	cvar_t	*sv_maxclientsPerIP;
 extern	cvar_t	*sv_clientTLD;
 
 extern	cvar_t	*sv_privateClients;
 extern	cvar_t	*sv_hostname;
 extern	cvar_t	*sv_master[MAX_MASTER_SERVERS];
-extern	cvar_t	*sv_reconnectlimit;
+extern	cvar_t	*sv_reconnectLimit;
 extern	cvar_t	*sv_padPackets;
-extern	cvar_t	*sv_killserver;
+extern	cvar_t	*sv_killServer;
 extern	cvar_t	*sv_mapname;
 extern	cvar_t	*sv_mapChecksum;
 extern	cvar_t	*sv_referencedPakNames;
-extern	cvar_t	*sv_serverid;
+extern	cvar_t	*sv_serverID;
 extern	cvar_t	*sv_minRate;
 extern	cvar_t	*sv_maxRate;
 extern	cvar_t	*sv_dlRate;

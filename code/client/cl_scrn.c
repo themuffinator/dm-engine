@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean	scr_initialized;		// ready to draw
 
-cvar_t		*cl_timegraph;
-cvar_t		*cl_debuggraph;
-cvar_t		*cl_graphheight;
-cvar_t		*cl_graphscale;
-cvar_t		*cl_graphshift;
+cvar_t		*cl_timeGraph;
+cvar_t		*cl_debugGraph;
+cvar_t		*cl_graphHeight;
+cvar_t		*cl_graphScale;
+cvar_t		*cl_graphShift;
 
 /*
 ================
@@ -460,19 +460,19 @@ void SCR_DrawDebugGraph (void)
 	x = 0;
 	y = cls.glconfig.vidHeight;
 	re.SetColor( g_color_table[ ColorIndex( COLOR_BLACK ) ] );
-	re.DrawStretchPic(x, y - cl_graphheight->integer, 
-		w, cl_graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
+	re.DrawStretchPic(x, y - cl_graphHeight->integer, 
+		w, cl_graphHeight->integer, 0, 0, 0, 0, cls.whiteShader );
 	re.SetColor( NULL );
 
 	for (a=0 ; a<w ; a++)
 	{
 		i = (ARRAY_LEN(values)+current-1-(a % ARRAY_LEN(values))) % ARRAY_LEN(values);
 		v = values[i];
-		v = v * cl_graphscale->integer + cl_graphshift->integer;
+		v = v * cl_graphScale->integer + cl_graphShift->integer;
 		
 		if (v < 0)
-			v += cl_graphheight->integer * (1+(int)(-v / cl_graphheight->integer));
-		h = (int)v % cl_graphheight->integer;
+			v += cl_graphHeight->integer * (1+(int)(-v / cl_graphHeight->integer));
+		h = (int)v % cl_graphHeight->integer;
 		re.DrawStretchPic( x+w-1-a, y - h, 1, h, 0, 0, 0, 0, cls.whiteShader );
 	}
 }
@@ -485,11 +485,11 @@ SCR_Init
 ==================
 */
 void SCR_Init( void ) {
-	cl_timegraph = Cvar_Get ("timegraph", "0", CVAR_CHEAT);
-	cl_debuggraph = Cvar_Get ("debuggraph", "0", CVAR_CHEAT);
-	cl_graphheight = Cvar_Get ("graphheight", "32", CVAR_CHEAT);
-	cl_graphscale = Cvar_Get ("graphscale", "1", CVAR_CHEAT);
-	cl_graphshift = Cvar_Get ("graphshift", "0", CVAR_CHEAT);
+	cl_timeGraph = Cvar_Get ("cl_timeGraph", "0", CVAR_CHEAT, "0", "1", CV_INTEGER);
+	cl_debugGraph = Cvar_Get ("cl_debugGraph", "0", CVAR_CHEAT, "0", "1", CV_INTEGER);
+	cl_graphHeight = Cvar_Get ("cl_graphHeight", "32", CVAR_CHEAT, NULL, NULL, CV_NONE);
+	cl_graphScale = Cvar_Get ("cl_graphScale", "1", CVAR_CHEAT, NULL, NULL, CV_NONE);
+	cl_graphShift = Cvar_Get ("cl_graphShift", "0", CVAR_CHEAT, NULL, NULL, CV_NONE);
 
 	scr_initialized = qtrue;
 }
@@ -576,7 +576,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	Con_DrawConsole ();
 
 	// debug graph can be drawn on top of anything
-	if ( cl_debuggraph->integer || cl_timegraph->integer || cl_debugMove->integer ) {
+	if ( cl_debugGraph->integer || cl_timeGraph->integer || cl_debugMove->integer ) {
 		SCR_DrawDebugGraph ();
 	}
 }

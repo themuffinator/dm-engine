@@ -62,7 +62,7 @@ void GL_Bind( image_t *image ) {
 		image = tr.defaultImage;
 	}
 
-	if ( r_nobind->integer && tr.dlightImage ) {		// performance evaluation option
+	if ( r_noBind->integer && tr.dlightImage ) {		// performance evaluation option
 		image = tr.dlightImage;
 	}
 
@@ -81,7 +81,7 @@ void GL_Bind( image_t *image ) {
 		texnum = image->texnum;
 	}
 
-	if ( r_nobind->integer && tr.dlightImage ) {		// performance evaluation option
+	if ( r_noBind->integer && tr.dlightImage ) {		// performance evaluation option
 		texnum = tr.dlightImage->texnum;
 	}
 
@@ -534,7 +534,7 @@ static void RB_BeginDrawingView( void ) {
 	{
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
-	if ( 0 && r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
+	if ( 0 && r_fastSky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
 #ifdef _DEBUG
@@ -729,7 +729,7 @@ static void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 						{
 							viewParms_t temp = backEnd.viewParms;
 
-							R_SetupProjection(&temp, r_znear->value, qfalse);
+							R_SetupProjection(&temp, r_zNear->value, qfalse);
 
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(temp.projectionMatrix);
@@ -945,7 +945,7 @@ static void RB_RenderLitSurfList( dlight_t* dl ) {
 						{
 							viewParms_t temp = backEnd.viewParms;
 
-							R_SetupProjection(&temp, r_znear->value, qfalse);
+							R_SetupProjection(&temp, r_zNear->value, qfalse);
 
 							qglMatrixMode(GL_PROJECTION);
 							qglLoadMatrixf(temp.projectionMatrix);

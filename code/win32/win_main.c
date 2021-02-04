@@ -784,7 +784,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	// hide the early console since we've reached the point where we
 	// have a working graphics subsystems
-	if ( !com_dedicated->integer && !com_viewlog->integer ) {
+	if ( !com_dedicated->integer && !com_viewLog->integer ) {
 		Sys_ShowConsole( 0, qfalse );
 	}
 

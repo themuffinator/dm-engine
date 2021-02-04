@@ -538,7 +538,7 @@ modules of the program.
 
 */
 
-cvar_t *Cvar_Get( const char *var_name, const char *value, int flags );
+cvar_t *Cvar_Get( const char *var_name, const char *value, int flags, const char *mins, const char *maxs, cvarValidator_t type);
 // creates the variable if it doesn't exist, or returns the existing one
 // if it exists, the value will not be changed, but flags will be ORed in
 // that allows variables to be unarchived without needing bitflags
@@ -996,8 +996,8 @@ static ID_INLINE unsigned int log2pad( unsigned int v, int roundup )
 extern	cvar_t	*com_developer;
 extern	cvar_t	*com_dedicated;
 extern	cvar_t	*com_speeds;
-extern	cvar_t	*com_timescale;
-extern	cvar_t	*com_viewlog;			// 0 = hidden, 1 = visible, 2 = minimized
+extern	cvar_t	*com_timeScale;
+extern	cvar_t	*com_viewLog;			// 0 = hidden, 1 = visible, 2 = minimized
 extern	cvar_t	*com_version;
 extern	cvar_t	*com_blood;
 extern	cvar_t	*com_buildScript;		// for building release pak files
@@ -1006,12 +1006,12 @@ extern	cvar_t	*com_cameraMode;
 
 // both client and server must agree to pause
 extern	cvar_t	*sv_paused;
-extern	cvar_t	*sv_packetdelay;
+extern	cvar_t	*sv_packetDelay;
 extern	cvar_t	*com_sv_running;
 
 #ifndef DEDICATED
 extern	cvar_t	*cl_paused;
-extern	cvar_t	*cl_packetdelay;
+extern	cvar_t	*cl_packetDelay;
 extern	cvar_t	*com_cl_running;
 extern	cvar_t	*com_yieldCPU;
 #endif

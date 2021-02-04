@@ -334,9 +334,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	// gamma stuff
 	//
-	if ( r_gamma->modified || r_greyscale->modified ) {
+	if ( r_gamma->modified || r_greyScale->modified ) {
 		r_gamma->modified = qfalse;
-		r_greyscale->modified = qfalse;
+		r_greyScale->modified = qfalse;
 		R_SetColorMappings();
 	}
 
@@ -373,9 +373,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 
 #ifdef USE_VULKAN
-	if ( r_fastsky->integer && vk.fastSky ) {
+	if ( r_fastSky->integer && vk.fastSky ) {
 #else
-	if ( r_fastsky->integer ) {
+	if ( r_fastSky->integer ) {
 #endif
 		if ( stereoFrame != STEREO_RIGHT ) {
 			clearColorCommand_t *clrcmd; 

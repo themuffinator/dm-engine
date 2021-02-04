@@ -60,7 +60,7 @@ static kbutton_t in_strafe, in_speed;
 static kbutton_t in_up, in_down;
 static kbutton_t in_buttons[16];
 
-static cvar_t *cl_nodelta;
+static cvar_t *cl_noDelta;
 
 static cvar_t *cl_showSend;
 
@@ -71,14 +71,14 @@ static cvar_t *cl_mouseAccelStyle;
 static cvar_t *cl_showMouseRate;
 
 static cvar_t *cl_run;
-static cvar_t *cl_freelook;
+static cvar_t *cl_freeLook;
 
-static cvar_t *cl_yawspeed;
-static cvar_t *cl_pitchspeed;
-static cvar_t *cl_anglespeedkey;
+static cvar_t *cl_yawSpeed;
+static cvar_t *cl_pitchSpeed;
+static cvar_t *cl_angleSpeedKey;
 
-static cvar_t *cl_maxpackets;
-static cvar_t *cl_packetdup;
+static cvar_t *cl_maxPackets;
+static cvar_t *cl_packetDup;
 
 static cvar_t *m_pitch;
 static cvar_t *m_yaw;
@@ -99,7 +99,7 @@ static void IN_MLookDown( void ) {
 
 static void IN_MLookUp( void ) {
 	in_mlooking = qfalse;
-	if ( !cl_freelook->integer ) {
+	if ( !cl_freeLook->integer ) {
 		IN_CenterView ();
 	}
 }
@@ -299,18 +299,18 @@ static void CL_AdjustAngles( void ) {
 	float	speed;
 	
 	if ( in_speed.active ) {
-		speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
+		speed = 0.001 * cls.frametime * cl_angleSpeedKey->value;
 	} else {
 		speed = 0.001 * cls.frametime;
 	}
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-		cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		cl.viewangles[YAW] -= speed*cl_yawSpeed->value*CL_KeyState (&in_right);
+		cl.viewangles[YAW] += speed*cl_yawSpeed->value*CL_KeyState (&in_left);
 	}
 
-	cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-	cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
+	cl.viewangles[PITCH] -= speed*cl_pitchSpeed->value * CL_KeyState (&in_lookup);
+	cl.viewangles[PITCH] += speed*cl_pitchSpeed->value * CL_KeyState (&in_lookdown);
 }
 
 
@@ -411,19 +411,19 @@ static void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( in_speed.active ) {
-		anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
+		anglespeed = 0.001 * cls.frametime * cl_angleSpeedKey->value;
 	} else {
 		anglespeed = 0.001 * cls.frametime;
 	}
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] += anglespeed * cl_yawspeed->value * cl.joystickAxis[AXIS_SIDE];
+		cl.viewangles[YAW] += anglespeed * cl_yawSpeed->value * cl.joystickAxis[AXIS_SIDE];
 	} else {
 		cmd->rightmove = ClampCharMove( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
 	}
 
 	if ( in_mlooking ) {
-		cl.viewangles[PITCH] += anglespeed * cl_pitchspeed->value * cl.joystickAxis[AXIS_FORWARD];
+		cl.viewangles[PITCH] += anglespeed * cl_pitchSpeed->value * cl.joystickAxis[AXIS_FORWARD];
 	} else {
 		cmd->forwardmove = ClampCharMove( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
 	}
@@ -521,7 +521,7 @@ static void CL_MouseMove( usercmd_t *cmd )
 	else
 		cl.viewangles[YAW] -= m_yaw->value * mx;
 
-	if ( (in_mlooking || cl_freelook->integer) && !in_strafe.active )
+	if ( (in_mlooking || cl_freeLook->integer) && !in_strafe.active )
 		cl.viewangles[PITCH] += m_pitch->value * my;
 	else
 		cmd->forwardmove = ClampCharMove( cmd->forwardmove - m_forward->value * my );
@@ -717,7 +717,7 @@ static qboolean CL_ReadyToSendPacket( void ) {
 
 	oldPacketNum = (clc.netchan.outgoingSequence - 1) & PACKET_MASK;
 	delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
-	if ( delta < 1000 / cl_maxpackets->integer ) {
+	if ( delta < 1000 / cl_maxPackets->integer ) {
 		// the accumulated commands will go out in the next packet
 		return qfalse;
 	}
@@ -791,7 +791,7 @@ void CL_WritePacket( void ) {
 	// few packet, so even if a couple packets are dropped in a row,
 	// all the cmds will make it to the server
 
-	oldPacketNum = (clc.netchan.outgoingSequence - 1 - cl_packetdup->integer) & PACKET_MASK;
+	oldPacketNum = (clc.netchan.outgoingSequence - 1 - cl_packetDup->integer) & PACKET_MASK;
 	count = cl.cmdNumber - cl.outPackets[ oldPacketNum ].p_cmdNumber;
 	if ( count > MAX_PACKET_USERCMDS ) {
 		count = MAX_PACKET_USERCMDS;
@@ -803,7 +803,7 @@ void CL_WritePacket( void ) {
 		}
 
 		// begin a client move command
-		if ( cl_nodelta->integer || !cl.snap.valid || clc.demowaiting
+		if ( cl_noDelta->integer || !cl.snap.valid || clc.demowaiting
 			|| clc.serverMessageSequence != cl.snap.messageNum ) {
 			MSG_WriteByte (&buf, clc_moveNoDelta);
 		} else {
@@ -885,12 +885,12 @@ CL_InitInput
 ============
 */
 void CL_InitInput( void ) {
-	Cmd_AddCommand ("centerview",IN_CenterView);
+	Cmd_AddCommand ("centerView",IN_CenterView);
 
-	Cmd_AddCommand ("+moveup",IN_UpDown);
-	Cmd_AddCommand ("-moveup",IN_UpUp);
-	Cmd_AddCommand ("+movedown",IN_DownDown);
-	Cmd_AddCommand ("-movedown",IN_DownUp);
+	Cmd_AddCommand ("+moveUp",IN_UpDown);
+	Cmd_AddCommand ("-moveUp",IN_UpUp);
+	Cmd_AddCommand ("+moveDown",IN_DownDown);
+	Cmd_AddCommand ("-moveDown",IN_DownUp);
 	Cmd_AddCommand ("+left",IN_LeftDown);
 	Cmd_AddCommand ("-left",IN_LeftUp);
 	Cmd_AddCommand ("+right",IN_RightDown);
@@ -899,20 +899,24 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-forward",IN_ForwardUp);
 	Cmd_AddCommand ("+back",IN_BackDown);
 	Cmd_AddCommand ("-back",IN_BackUp);
-	Cmd_AddCommand ("+lookup", IN_LookupDown);
-	Cmd_AddCommand ("-lookup", IN_LookupUp);
-	Cmd_AddCommand ("+lookdown", IN_LookdownDown);
-	Cmd_AddCommand ("-lookdown", IN_LookdownUp);
+	Cmd_AddCommand ("+lookUp", IN_LookupDown);
+	Cmd_AddCommand ("-lookUp", IN_LookupUp);
+	Cmd_AddCommand ("+lookDown", IN_LookdownDown);
+	Cmd_AddCommand ("-lookDown", IN_LookdownUp);
 	Cmd_AddCommand ("+strafe", IN_StrafeDown);
 	Cmd_AddCommand ("-strafe", IN_StrafeUp);
-	Cmd_AddCommand ("+moveleft", IN_MoveleftDown);
-	Cmd_AddCommand ("-moveleft", IN_MoveleftUp);
-	Cmd_AddCommand ("+moveright", IN_MoverightDown);
-	Cmd_AddCommand ("-moveright", IN_MoverightUp);
+	Cmd_AddCommand ("+moveLeft", IN_MoveleftDown);
+	Cmd_AddCommand ("-moveLeft", IN_MoveleftUp);
+	Cmd_AddCommand ("+moveRight", IN_MoverightDown);
+	Cmd_AddCommand ("-moveRight", IN_MoverightUp);
 	Cmd_AddCommand ("+speed", IN_SpeedDown);
 	Cmd_AddCommand ("-speed", IN_SpeedUp);
 	Cmd_AddCommand ("+attack", IN_Button0Down);
 	Cmd_AddCommand ("-attack", IN_Button0Up);
+	Cmd_AddCommand("+useItem", IN_Button2Down);
+	Cmd_AddCommand("-useItem", IN_Button2Up);
+	Cmd_AddCommand("+gesture", IN_Button3Down);
+	Cmd_AddCommand("-gesture", IN_Button3Up);
 	Cmd_AddCommand ("+button0", IN_Button0Down);
 	Cmd_AddCommand ("-button0", IN_Button0Up);
 	Cmd_AddCommand ("+button1", IN_Button1Down);
@@ -945,47 +949,44 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-button14", IN_Button14Up);
 	Cmd_AddCommand ("+button15", IN_Button15Down);
 	Cmd_AddCommand ("-button15", IN_Button15Up);
-	Cmd_AddCommand ("+mlook", IN_MLookDown);
-	Cmd_AddCommand ("-mlook", IN_MLookUp);
+	Cmd_AddCommand ("+mLook", IN_MLookDown);
+	Cmd_AddCommand ("-mLook", IN_MLookUp);
 
-	cl_nodelta = Cvar_Get( "cl_nodelta", "0", CVAR_DEVELOPER );
-	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0 );
+	cl_noDelta = Cvar_Get( "cl_noDelta", "0", CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	cl_debugMove = Cvar_Get( "cl_debugMove", "0", CVAR_DEVELOPER, "0", "1", CV_INTEGER );
 
-	cl_showSend = Cvar_Get( "cl_showSend", "0", CVAR_TEMP );
+	cl_showSend = Cvar_Get( "cl_showSend", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
 
-	cl_yawspeed = Cvar_Get( "cl_yawspeed", "140", CVAR_ARCHIVE_ND );
-	cl_pitchspeed = Cvar_Get( "cl_pitchspeed", "140", CVAR_ARCHIVE_ND );
-	cl_anglespeedkey = Cvar_Get( "cl_anglespeedkey", "1.5", 0 );
+	cl_yawSpeed = Cvar_Get( "cl_yawSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
+	cl_pitchSpeed = Cvar_Get( "cl_pitchSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
+	cl_angleSpeedKey = Cvar_Get( "cl_angleSpeedKey", "1.5", 0, "0.1", "10.0", CV_FLOAT );
 
-	cl_maxpackets = Cvar_Get ("cl_maxpackets", "60", CVAR_ARCHIVE );
-	Cvar_CheckRange( cl_maxpackets, "15", "125", CV_INTEGER );
-	cl_packetdup = Cvar_Get( "cl_packetdup", "1", CVAR_ARCHIVE_ND );
-	Cvar_CheckRange( cl_packetdup, "0", "5", CV_INTEGER );
+	cl_maxPackets = Cvar_Get( "cl_maxPackets", "60", CVAR_ARCHIVE, "15", "125", CV_INTEGER );
+	cl_packetDup = Cvar_Get( "cl_packetDup", "1", CVAR_ARCHIVE_ND, "0", "5", CV_INTEGER );
 
-	cl_run = Cvar_Get( "cl_run", "1", CVAR_ARCHIVE_ND );
-	cl_sensitivity = Cvar_Get( "sensitivity", "5", CVAR_ARCHIVE );
-	cl_mouseAccel = Cvar_Get( "cl_mouseAccel", "0", CVAR_ARCHIVE_ND );
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE_ND );
+	cl_run = Cvar_Get( "cl_run", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	cl_sensitivity = Cvar_Get( "sensitivity", "2", CVAR_ARCHIVE, "0.01", "10.0", CV_FLOAT );
+	cl_mouseAccel = Cvar_Get( "cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "0.0", "10.0", CV_FLOAT );
+	cl_freeLook = Cvar_Get( "cl_freeLook", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
 	// 0: legacy mouse acceleration
 	// 1: new implementation
-	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND );
+	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	// offset for the power function (for style 1, ignored otherwise)
 	// this should be set to the max rate value
-	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND );
-	Cvar_CheckRange( cl_mouseAccelOffset, "0.001", "50000", CV_FLOAT );
+	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "0.001", "50000", CV_FLOAT );
 
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+	cl_showMouseRate = Cvar_Get( "cl_showMouseRate", "0", 0, "0", "1", CV_INTEGER );
 
-	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE_ND );
-	m_yaw = Cvar_Get( "m_yaw", "0.022", CVAR_ARCHIVE_ND );
-	m_forward = Cvar_Get( "m_forward", "0.25", CVAR_ARCHIVE_ND );
-	m_side = Cvar_Get( "m_side", "0.25", CVAR_ARCHIVE_ND );
+	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	m_yaw = Cvar_Get( "m_yaw", "0.022", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	m_forward = Cvar_Get( "m_forward", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	m_side = Cvar_Get( "m_side", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
 #ifdef MACOS_X
 	// Input is jittery on OS X w/o this
-	m_filter = Cvar_Get( "m_filter", "1", CVAR_ARCHIVE_ND );
+	m_filter = Cvar_Get( "m_filter", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #else
-	m_filter = Cvar_Get( "m_filter", "0", CVAR_ARCHIVE_ND );
+	m_filter = Cvar_Get( "m_filter", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #endif
 }
 
@@ -996,12 +997,12 @@ CL_InitInput
 ============
 */
 void CL_ClearInput( void ) {
-	Cmd_RemoveCommand ("centerview");
+	Cmd_RemoveCommand ("centerView");
 
-	Cmd_RemoveCommand ("+moveup");
-	Cmd_RemoveCommand ("-moveup");
-	Cmd_RemoveCommand ("+movedown");
-	Cmd_RemoveCommand ("-movedown");
+	Cmd_RemoveCommand ("+moveUp");
+	Cmd_RemoveCommand ("-moveUp");
+	Cmd_RemoveCommand ("+moveDown");
+	Cmd_RemoveCommand ("-moveDown");
 	Cmd_RemoveCommand ("+left");
 	Cmd_RemoveCommand ("-left");
 	Cmd_RemoveCommand ("+right");
@@ -1010,20 +1011,24 @@ void CL_ClearInput( void ) {
 	Cmd_RemoveCommand ("-forward");
 	Cmd_RemoveCommand ("+back");
 	Cmd_RemoveCommand ("-back");
-	Cmd_RemoveCommand ("+lookup");
-	Cmd_RemoveCommand ("-lookup");
-	Cmd_RemoveCommand ("+lookdown");
-	Cmd_RemoveCommand ("-lookdown");
+	Cmd_RemoveCommand ("+lookUp");
+	Cmd_RemoveCommand ("-lookUp");
+	Cmd_RemoveCommand ("+lookDown");
+	Cmd_RemoveCommand ("-lookDown");
 	Cmd_RemoveCommand ("+strafe");
 	Cmd_RemoveCommand ("-strafe");
-	Cmd_RemoveCommand ("+moveleft");
-	Cmd_RemoveCommand ("-moveleft");
-	Cmd_RemoveCommand ("+moveright");
-	Cmd_RemoveCommand ("-moveright");
+	Cmd_RemoveCommand ("+moveLeft");
+	Cmd_RemoveCommand ("-moveLeft");
+	Cmd_RemoveCommand ("+moveRight");
+	Cmd_RemoveCommand ("-moveRight");
 	Cmd_RemoveCommand ("+speed");
 	Cmd_RemoveCommand ("-speed");
 	Cmd_RemoveCommand ("+attack");
 	Cmd_RemoveCommand ("-attack");
+	Cmd_RemoveCommand ("+useItem");
+	Cmd_RemoveCommand ("-useItem");
+	Cmd_RemoveCommand ("+gesture");
+	Cmd_RemoveCommand ("-gesture");
 	Cmd_RemoveCommand ("+button0");
 	Cmd_RemoveCommand ("-button0");
 	Cmd_RemoveCommand ("+button1");
@@ -1056,6 +1061,6 @@ void CL_ClearInput( void ) {
 	Cmd_RemoveCommand ("-button14");
 	Cmd_RemoveCommand ("+button15");
 	Cmd_RemoveCommand ("-button15");
-	Cmd_RemoveCommand ("+mlook");
-	Cmd_RemoveCommand ("-mlook");
+	Cmd_RemoveCommand ("+mLook");
+	Cmd_RemoveCommand ("-mLook");
 }

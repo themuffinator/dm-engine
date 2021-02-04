@@ -90,7 +90,7 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 	if ( numLoaded )
 	{
 		// duplicate into higher lod spots that weren't
-		// loaded, in case the user changes r_lodbias on the fly
+		// loaded, in case the user changes r_lodBias on the fly
 		for ( lod--; lod >= 0; lod-- )
 		{
 			mod->numLods++;

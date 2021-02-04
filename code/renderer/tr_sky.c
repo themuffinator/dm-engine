@@ -367,7 +367,7 @@ static qboolean CullSkySide( const int mins[2], const int maxs[2] )
 	int s, t;
 	vec4_t v[4];
 
-	if ( r_nocull->integer )
+	if ( r_noCull->integer )
 		return qfalse;
 
 	s = mins[0] + HALF_SKY_SUBDIVISIONS;
@@ -815,7 +815,7 @@ void RB_StageIteratorSky( void ) {
 	}
 #endif // USE_PMLIGHT
 
-	if ( r_fastsky->integer ) {
+	if ( r_fastSky->integer ) {
 		return;
 	}
 
@@ -826,10 +826,10 @@ void RB_StageIteratorSky( void ) {
 	// to be drawn
 	RB_ClipSkyPolygons( &tess );
 
-	// r_showsky will let all the sky blocks be drawn in
+	// r_showSky will let all the sky blocks be drawn in
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
-	if ( r_showsky->integer ) {
+	if ( r_showSky->integer ) {
 		qglDepthRange( 0.0, 0.0 );
 	} else {
 		qglDepthRange( sky_min_depth, 1.0 );

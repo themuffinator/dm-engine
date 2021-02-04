@@ -48,7 +48,7 @@ typedef struct {
 
 	float	xadjust;		// for wide aspect screens
 
-	float	displayFrac;	// aproaches finalFrac at scr_conspeed
+	float	displayFrac;	// aproaches finalFrac at con_speed
 	float	finalFrac;		// 0.0 to 1.0 lines of console to display
 
 	int		vislines;		// in scanlines
@@ -69,8 +69,10 @@ extern  int         chat_playerNum;
 
 console_t	con;
 
-cvar_t		*con_conspeed;
-cvar_t		*con_notifytime;
+cvar_t		*con_speed;
+cvar_t		*con_notifyTime;
+cvar_t		*con_notifyXOffset;
+cvar_t		*con_backColor;
 
 int         g_console_field_width = DEFAULT_CONSOLE_WIDTH;
 
@@ -199,7 +201,7 @@ static void Con_Dump_f( void )
 
 	if ( Cmd_Argc() != 2 )
 	{
-		Com_Printf( "usage: condump <filename>\n" );
+		Com_Printf( "usage: conDump <filename>\n" );
 		return;
 	}
 
@@ -382,20 +384,32 @@ Con_Init
 */
 void Con_Init( void ) 
 {
-	con_notifytime = Cvar_Get( "con_notifytime", "3", 0 );
-	con_conspeed = Cvar_Get( "scr_conspeed", "3", 0 );
+	con_notifyTime = Cvar_Get( "con_notifyTime", "3", 0, "0", "10", CV_FLOAT );
+	Cvar_SetDescription(con_notifyTime, "Time notifications are displayed for (in seconds.)");
+	con_speed = Cvar_Get( "con_speed", "3", 0, "1", "10", CV_FLOAT );
+	Cvar_SetDescription(con_speed, "Console opening/closing scroll speed.");
+
+	con_notifyXOffset = Cvar_Get( "con_notifyXOffset", "0", 0, "0", NULL, CV_INTEGER );
+	Cvar_SetDescription(con_notifyXOffset, "Notifications X-offset.");
+	con_backColor = Cvar_Get( "con_backColor", "", 0, NULL, NULL, CV_NONE );
+	Cvar_SetDescription(con_backColor, "Console background color, set as R G B values from 0-255.");
 
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
 
 	Cmd_AddCommand( "clear", Con_Clear_f );
-	Cmd_AddCommand( "condump", Con_Dump_f );
-	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
-	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f );
+	Cmd_AddCommand( "conDump", Con_Dump_f );
+	Cmd_SetCommandCompletionFunc( "conDump", Cmd_CompleteTxtName );
+	Cmd_AddCommand( "toggleConsole", Con_ToggleConsole_f );
 	Cmd_AddCommand( "messagemode", Con_MessageMode_f );
 	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f );
 	Cmd_AddCommand( "messagemode3", Con_MessageMode3_f );
 	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f );
+
+	Cmd_AddCommand("chat", Con_MessageMode_f);
+	Cmd_AddCommand("chatTeam", Con_MessageMode2_f);
+	Cmd_AddCommand("chatTarget", Con_MessageMode3_f);
+	Cmd_AddCommand("chatAttacker", Con_MessageMode4_f);
 }
 
 
@@ -407,12 +421,16 @@ Con_Shutdown
 void Con_Shutdown( void )
 {
 	Cmd_RemoveCommand( "clear" );
-	Cmd_RemoveCommand( "condump" );
-	Cmd_RemoveCommand( "toggleconsole" );
+	Cmd_RemoveCommand( "conDump" );
+	Cmd_RemoveCommand( "toggleConsole" );
 	Cmd_RemoveCommand( "messagemode" );
 	Cmd_RemoveCommand( "messagemode2" );
 	Cmd_RemoveCommand( "messagemode3" );
 	Cmd_RemoveCommand( "messagemode4" );
+	Cmd_RemoveCommand( "chat" );
+	Cmd_RemoveCommand( "chatTeam" );
+	Cmd_RemoveCommand( "chatTarget" );
+	Cmd_RemoveCommand( "chatAttacker" );
 }
 
 
@@ -516,7 +534,7 @@ void CL_ConsolePrint( const char *txt ) {
 	}
 
 	// for some demos we don't want to ever show anything on the console
-	if ( cl_noprint && cl_noprint->integer ) {
+	if ( con_noPrint && con_noPrint->integer ) {
 		return;
 	}
 	
@@ -655,7 +673,7 @@ void Con_DrawNotify( void )
 		if (time == 0)
 			continue;
 		time = cls.realtime - time;
-		if ( time >= con_notifytime->value*1000 )
+		if ( time >= con_notifyTime->value*1000 )
 			continue;
 		text = con.text + (i % con.totallines)*con.linewidth;
 
@@ -672,7 +690,7 @@ void Con_DrawNotify( void )
 				currentColorIndex = colorIndex;
 				re.SetColor( g_color_table[ colorIndex ] );
 			}
-			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + (x+1)*smallchar_width, v, text[x] & 0xff );
+			SCR_DrawSmallChar( con_notifyXOffset->integer + con.xadjust + (x+1)*smallchar_width, v, text[x] & 0xff );
 		}
 
 		v += smallchar_height;
@@ -753,12 +771,12 @@ void Con_DrawSolidConsole( float frac ) {
 		yf = 0;
 	} else {
 		// custom console background color
-		if ( cl_conColor->string[0] ) {
+		if ( con_backColor->string[0] ) {
 			// track changes
-			if ( strcmp( cl_conColor->string, conColorString ) ) 
+			if ( strcmp( con_backColor->string, conColorString ) ) 
 			{
-				Q_strncpyz( conColorString, cl_conColor->string, sizeof( conColorString ) );
-				Q_strncpyz( buf, cl_conColor->string, sizeof( buf ) );
+				Q_strncpyz( conColorString, con_backColor->string, sizeof( conColorString ) );
+				Q_strncpyz( buf, con_backColor->string, sizeof( buf ) );
 				Com_Split( buf, v, 4, ' ' );
 				for ( i = 0; i < 4 ; i++ ) {
 					conColorValue[ i ] = Q_atof( v[ i ] ) / 255.0f;
@@ -905,14 +923,14 @@ void Con_RunConsole( void )
 	// scroll towards the destination height
 	if ( con.finalFrac < con.displayFrac )
 	{
-		con.displayFrac -= con_conspeed->value * cls.realFrametime * 0.001;
+		con.displayFrac -= con_speed->value * cls.realFrametime * 0.001;
 		if ( con.finalFrac > con.displayFrac )
 			con.displayFrac = con.finalFrac;
 
 	}
 	else if ( con.finalFrac > con.displayFrac )
 	{
-		con.displayFrac += con_conspeed->value * cls.realFrametime * 0.001;
+		con.displayFrac += con_speed->value * cls.realFrametime * 0.001;
 		if ( con.finalFrac < con.displayFrac )
 			con.displayFrac = con.finalFrac;
 	}

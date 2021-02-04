@@ -1301,7 +1301,7 @@ static void ParseSkyParms( const char **text ) {
 	int			i;
 	imgFlags_t imgFlags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
 
-	if ( r_neatsky->integer ) {
+	if ( r_neatSky->integer ) {
 		imgFlags = IMGFLAG_NONE;
 	}
 	
@@ -1822,7 +1822,7 @@ static qboolean ParseShader( const char **text )
 		else if ( !Q_stricmp( token, "skyparms" ) )
 		{
 			ParseSkyParms( text );
-			if ( r_neatsky->integer ) {
+			if ( r_neatSky->integer ) {
 				shader.noPicMip = qtrue;
 				shader.noMipMaps = qtrue;
 			}
