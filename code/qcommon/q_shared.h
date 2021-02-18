@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 1.32 released 7-10-2002
 
 //#define DEFAULT_GAME			"edawn"
+//#define GAME_QUAKE2 1
 
 #define USE_PROFILES			1
 
@@ -47,6 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BASEQ3					"baseq3"
 #define BASEQ3DEMO				"demoq3"
 #define BASETA					"missionpack"
+#define BASEQ4					"q4base"
 #define BASEQL					"baseq3"
 
 #define STEAMPATH_Q1_GAMEDIR	"Quake"
@@ -68,6 +70,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HEARTBEAT_FOR_MASTER	"QuakeArena-1"
 
 #define DEMOEXT	"dm_"			// standard demo extension
+
+typedef enum {
+	TITLE_DARKMATTER,
+	TITLE_QUAKE1,
+	TITLE_QUAKE2,
+	TITLE_QUAKE3,
+	TITLE_QUAKE4,
+	TITLE_QUAKELIVE,
+	TITLE_NUM_TITLES
+} gameTitle_enum_t;
 
 #ifdef _MSC_VER
 

@@ -16,9 +16,6 @@ CHANGELOG:
 	* noVLCollapse shader stage
 	* snowsteps and woodsteps surface parms
 	+ OGG Vorbis codec
-+ QUAKE II support:
-	* sound path correction
-	* Initial BSP collision model loading [IBSP 38], still WIP and still to complete renderer side
 + Full aspect ratio correction via r_arc_* cvars
 + Entity override dumping/loading to modify map entities:
 	sv_ent_dump [0|1]: Enabling saving .ent entity files on level loads and map_restart.

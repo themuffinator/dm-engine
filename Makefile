@@ -28,7 +28,7 @@ USE_VULKAN_API		= 1
 USE_RENDERER_DLOPEN = 1
 
 PRODUCT_NAME	 = DarkMatter
-CNAME            = $(PRODUCT_NAME).client
+CNAME            = $(PRODUCT_NAME)
 DNAME            = $(PRODUCT_NAME).server
 
 ifndef GAME_QUAKE2
@@ -127,12 +127,12 @@ ifndef USE_CURL
 USE_CURL=1
 endif
 
-ifndef USE_CODEC_VORBIS
-USE_CODEC_VORBIS=0
-endif
-
 ifndef USE_INTERNAL_JPEG
 USE_INTERNAL_JPEG=0
+endif
+
+ifndef USE_CODEC_VORBIS
+USE_CODEC_VORBIS=1
 endif
 
 ifndef USE_INTERNAL_OGG
@@ -961,6 +961,14 @@ Q3OBJ += \
 endif
 endif
 
+ifeq ($(NEED_OGG),1)
+ifeq ($(USE_INTERNAL_OGG),1)
+Q3OBJ += \
+  $(B)/client/bitwise.o \
+  $(B)/client/framing.o
+endif
+endif
+
 ifneq ($(USE_RENDERER_DLOPEN),1)
   ifeq ($(USE_VULKAN),1)
     Q3OBJ += $(Q3RENDVOBJ)
@@ -1051,14 +1059,6 @@ ifeq ($(USE_VULKAN_API),1)
         $(B)/client/linux_qvk.o
 endif
 endif # !USE_SDL
-
-ifeq ($(NEED_OGG),1)
-ifeq ($(USE_INTERNAL_OGG),1)
-Q3OBJ += \
-  $(B)/client/bitwise.o \
-  $(B)/client/framing.o
-endif
-endif
 
 endif # !MINGW
 

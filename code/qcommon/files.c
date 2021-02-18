@@ -294,6 +294,8 @@ static	char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no 
 static	cvar_t		*fs_debug;
 static	cvar_t		*fs_homePath;
 
+static	cvar_t		*fs_gameDetect;
+
 static	cvar_t		*fs_q_path;
 static	cvar_t		*fs_q2_path;
 static	cvar_t		*fs_q3_path;
@@ -818,6 +820,29 @@ qboolean FS_FileExists( const char *file )
 
 	f = Sys_FOpen( testpath, "rb" );
 	if (f) {
+		fclose( f );
+		return qtrue;
+	}
+	return qfalse;
+}
+
+
+/*
+================
+FS_FileExistsInPath
+
+================
+*/
+qboolean FS_FileExistsInPath( const char *file, const char *path ) {
+	FILE *f;
+	char *testpath;
+
+	if ( !path ) return qfalse;
+
+	testpath = FS_BuildOSPath( path, fs_gamedir, file );
+
+	f = Sys_FOpen( testpath, "rb" );
+	if ( f ) {
 		fclose( f );
 		return qtrue;
 	}
@@ -3930,10 +3955,10 @@ static void FS_SortFileList( char **list, int n ) {
 
 /*
 ================
-FS_NewDir_f
+FS_FDir_f
 ================
 */
-static void FS_NewDir_f( void ) {
+static void FS_FDir_f( void ) {
 	const char *filter;
 	char	**dirnames;
 	char	dirname[ MAX_STRING_CHARS ];
@@ -3941,8 +3966,8 @@ static void FS_NewDir_f( void ) {
 	int		i;
 
 	if ( Cmd_Argc() < 2 ) {
-		PrintUsageDesc("fdir", "<filter>", "Returns a list of files matching filters.");
-		Com_Printf( S_COL_BASE "Example: " S_COL_VAR "fdir " S_COL_VAL "*q3dm*.bsp\n");
+		PrintUsageDesc("fdir", "<filter>", "Returns a list of files matching filters.\n");
+		Com_Printf( S_COL_BASE "Example: " S_COL_VAR "fdir " S_COL_VAL "*q3dm*.bsp\n\n");
 		return;
 	}
 
@@ -4696,8 +4721,12 @@ static void FS_Startup( void ) {
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0, "0", "1", CV_INTEGER );
 	fs_copyFiles = Cvar_Get( "fs_copyFiles", "0", CVAR_INIT, "0", "1", CV_INTEGER );
+
 	fs_basePath = Cvar_Get( "fs_basePath", Sys_DefaultBasePath(), CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, NULL, NULL, CV_NONE );
 	fs_baseGame = Cvar_Get( "fs_baseGame", BASEGAME, CVAR_INIT | CVAR_PROTECTED, NULL, NULL, CV_NONE);
+
+	fs_gameDetect = Cvar_Get( "fs_gameDetect", "", CVAR_ROM | CVAR_PROTECTED, NULL, NULL, CV_NONE );
+	Sys_CheckForGame( fs_basePath->string );
 
 	fs_q_load = Cvar_Get("fs_q_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, "0", "3", CV_INTEGER);
 	fs_q2_load = Cvar_Get("fs_q2_load", "1", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, "0", "3", CV_INTEGER);
@@ -4711,27 +4740,43 @@ static void FS_Startup( void ) {
 
 	path = "";
 	if (fs_q_load->integer && !fs_q_path->string[0]) {
-		if (fs_q_load->integer < 2) path = (char *)Sys_Q1_Path();
-		if (!path[0] && fs_q_load->integer < 3) path = (char *)Sys_Q1_SteamPath(STEAMPATH_Q1_APPID, STEAMPATH_Q1_GAMEDIR);
-		if (!path[0] && fs_q_load->integer < 4) path = (char *)Sys_Q1_GOGPath();
-		if (path) Cvar_Set("fs_q_path", (const char *)path);
+		if ( fs_gameDetect && fs_gameDetect->integer & (1 << TITLE_QUAKE1) ) {
+			Cvar_Set( "fs_q_path", fs_basePath->string );
+		} else {
+			if ( fs_q_load->integer < 2 ) path = (char *)Sys_Q1_Path();
+			if ( !path[0] && fs_q_load->integer < 3 ) path = (char *)Sys_Q1_SteamPath( STEAMPATH_Q1_APPID, STEAMPATH_Q1_GAMEDIR );
+			if ( !path[0] && fs_q_load->integer < 4 ) path = (char *)Sys_Q1_GOGPath();
+			if ( path ) Cvar_Set( "fs_q_path", (const char *)path );
+		}
 	}
 	path = "";
 	if (fs_q2_load->integer && !fs_q2_path->string[0]) {
-		if (fs_q2_load->integer < 2) path = (char *)Sys_Q2_Path();
-		if (!path[0] && fs_q2_load->integer < 3) path = (char *)Sys_Q2_SteamPath(STEAMPATH_Q2_APPID, STEAMPATH_Q2_GAMEDIR);
-		if (!path[0] && fs_q2_load->integer < 4) path = (char *)Sys_Q2_GOGPath();
-		if (path) Cvar_Set("fs_q2_path", (const char *)path);
+		if ( fs_gameDetect && fs_gameDetect->integer & (1 << TITLE_QUAKE2) ) {
+			Cvar_Set( "fs_q2_path", fs_basePath->string );
+		} else {
+			if ( fs_q2_load->integer < 2 ) path = (char *)Sys_Q2_Path();
+			if ( !path[0] && fs_q2_load->integer < 3 ) path = (char *)Sys_Q2_SteamPath( STEAMPATH_Q2_APPID, STEAMPATH_Q2_GAMEDIR );
+			if ( !path[0] && fs_q2_load->integer < 4 ) path = (char *)Sys_Q2_GOGPath();
+			if ( path ) Cvar_Set( "fs_q2_path", (const char *)path );
+		}
 	}
 	path = "";
 	if (fs_q3_load->integer && !fs_q3_path->string[0]) {
-		if (fs_q3_load->integer < 2) path = (char *)Sys_Q3_Path();
-		if (!path[0] && fs_q3_load->integer < 3) path = (char *)Sys_Q3_SteamPath(STEAMPATH_Q3_APPID, STEAMPATH_Q3_GAMEDIR);
-		if (!path[0] && fs_q3_load->integer < 4) path = (char *)Sys_Q3_GOGPath();
-		if (path) Cvar_Set("fs_q3_path", (const char *)path);
+		if ( fs_gameDetect && fs_gameDetect->integer & ( 1 << TITLE_QUAKE3 ) ) {
+			Cvar_Set( "fs_q3_path", fs_basePath->string );
+		} else {
+			if ( fs_q3_load->integer < 2 ) path = (char *)Sys_Q3_Path();
+			if ( !path[0] && fs_q3_load->integer < 3 ) path = (char *)Sys_Q3_SteamPath( STEAMPATH_Q3_APPID, STEAMPATH_Q3_GAMEDIR );
+			if ( !path[0] && fs_q3_load->integer < 4 ) path = (char *)Sys_Q3_GOGPath();
+			if ( path ) Cvar_Set( "fs_q3_path", (const char *)path );
+		}
 	}
 	if (fs_ql_load->integer && !fs_ql_path->string[0]) {
-		Cvar_Set("fs_ql_path", (char *)Sys_QL_SteamPath(STEAMPATH_QL_APPID, STEAMPATH_QL_GAMEDIR));
+		if ( fs_gameDetect && fs_gameDetect->integer & ( 1 << TITLE_QUAKELIVE ) ) {
+			Cvar_Set( "fs_ql_path", fs_basePath->string );
+		} else {
+			Cvar_Set( "fs_ql_path", (char *)Sys_QL_SteamPath( STEAMPATH_QL_APPID, STEAMPATH_QL_GAMEDIR ) );
+		}
 	}
 	
 #ifndef USE_HANDLE_CACHE
@@ -4776,12 +4821,12 @@ static void FS_Startup( void ) {
 		FS_AddGameDirectory( fs_q2_path->string, BASEQ2 );
 	}
 
-	if ( fs_q3_path->string[0] ) {
-		FS_AddGameDirectory( fs_q3_path->string, BASEQ3 );
-	}
-
 	if ( fs_ql_path->string[0] ) {
 		FS_AddGameDirectory( fs_ql_path->string, BASEQL );
+	}
+
+	if ( fs_q3_path->string[0] ) {
+		FS_AddGameDirectory( fs_q3_path->string, BASEQ3 );
 	}
 
 	if ( fs_basePath->string[0] ) {
@@ -4828,7 +4873,7 @@ static void FS_Startup( void ) {
 	// add our commands
 	Cmd_AddCommand( "path", FS_Path_f );
 	Cmd_AddCommand( "dir", FS_Dir_f );
-	Cmd_AddCommand( "fdir", FS_NewDir_f );
+	Cmd_AddCommand( "fdir", FS_FDir_f );
 	Cmd_AddCommand( "touchFile", FS_TouchFile_f );
 	Cmd_AddCommand( "lsof", FS_ListOpenFiles_f );
  	Cmd_AddCommand( "which", FS_Which_f );

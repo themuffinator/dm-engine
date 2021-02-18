@@ -3682,7 +3682,7 @@ void Com_Init( char *commandLine ) {
 	// init commands and vars
 	//
 #ifndef DEDICATED
-	com_maxFPS = Cvar_Get( "com_maxFPS", "125", 0, "1", "1000", CV_INTEGER ); // try to force that in some light way
+	com_maxFPS = Cvar_Get( "com_maxFPS", "125", CVAR_ARCHIVE_ND, "1", "1000", CV_INTEGER ); // try to force that in some light way
 	/**/Cvar_SetDescription(com_maxFPS, "Sets maximum renderer frames per second.");
 	com_maxFPSUnfocused = Cvar_Get( "com_maxFPSUnfocused", "60", CVAR_ARCHIVE_ND, "1", "1000", CV_INTEGER );
 	/**/Cvar_SetDescription(com_maxFPSUnfocused, "Sets maximum renderer frames per second in unfocused game window.");

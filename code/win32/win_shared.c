@@ -709,6 +709,34 @@ const char *Sys_Q3_GOGPath( void ) {
 
 /*
 ================
+Sys_CheckForGame
+================
+*/
+void Sys_CheckForGame( const char *path ) {
+	int title = 0;
+
+	if ( FS_FileExistsInPath( "glquake.exe", path )
+		&& FS_FileExistsInPath( "pak0.pak", va( "%s\\%s", path, BASEQ1 ) ) )
+			title |= ( 1 << TITLE_QUAKE1 );
+	if ( FS_FileExistsInPath( "quake2.exe", path )
+		&& FS_FileExistsInPath( "pak0.pak", va( "%s\\%s", path, BASEQ2 ) ) )
+			title |= ( 1 << TITLE_QUAKE2 );
+	if ( FS_FileExistsInPath( "quake3.exe", path )
+		&& FS_FileExistsInPath( "pak0.pk3", va( "%s\\%s", path, BASEQ3 ) ) )
+			title |= ( 1 << TITLE_QUAKE3 );
+	if ( FS_FileExistsInPath( "quake4.exe", path )
+		&& FS_FileExistsInPath( "pak001.pk4", va( "%s\\%s", path, BASEQ4 ) ) )
+			title |= ( 1 << TITLE_QUAKE4 );
+	if ( FS_FileExistsInPath( "quakelive_steam.exe", path )
+		&& FS_FileExistsInPath( "pak00.pk3", va( "%s\\%s", path, BASEQL ) ) )
+			title |= ( 1 << TITLE_QUAKELIVE );
+
+	Cvar_Set( "fs_gameDetect", va( "%i", title ) );
+}
+
+
+/*
+================
 Sys_SetAffinityMask
 ================
 */

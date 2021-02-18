@@ -169,7 +169,6 @@ typedef enum {
 	NA_UNSPEC
 } netadrtype_t;
 
-
 typedef enum {
 	NS_CLIENT,
 	NS_SERVER
@@ -674,6 +673,7 @@ typedef enum {
 #define CONFIG_PATH_FULL		SERVER_PATH CONFIG_PATH
 #define LOGS_PATH_FULL			SERVER_PATH LOGS_PATH
 #define CONFIG_FILE				"config.cfg"
+#define BINDS_FILE				"binds.cfg"	//TODO: split config.cfg into binds and settings
 #define DEFAULT_FILE			"default.cfg"
 #define AUTOEXEC_FILE			"autoexec.cfg"
 #define CONSOLE_HISTORY_FILE	"console_history.log"
@@ -702,7 +702,9 @@ char	**FS_ListFiles( const char *directory, const char *extension, int *numfiles
 void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
-
+//dm
+qboolean FS_FileExistsInPath( const char *file, const char *path );
+//-dm
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 qboolean FS_CompareZipChecksum( const char *zipfile );
@@ -1299,6 +1301,7 @@ qboolean Sys_ResetReadOnlyAttribute( const char *ospath );
 const char *Sys_Pwd( void );
 const char *Sys_DefaultBasePath( void );
 const char *Sys_DefaultHomePath( void );
+
 const char *Sys_Q1_Path( void );
 const char *Sys_Q2_Path( void );
 const char *Sys_Q3_Path( void );
@@ -1311,6 +1314,7 @@ const char *Sys_QL_SteamPath(const char *appID, const char *gameDir);
 const char *Sys_Q1_GOGPath( void );
 const char *Sys_Q2_GOGPath( void );
 const char *Sys_Q3_GOGPath( void );
+void Sys_CheckForGame( const char *path );
 
 char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void Sys_FreeFileList( char **list );

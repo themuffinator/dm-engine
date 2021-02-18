@@ -482,6 +482,23 @@ char *Sys_QL_SteamPath(void)
 
 
 /*
+================
+Sys_CheckForGame
+================
+*/
+void Sys_CheckForGame( const char *path ) {
+	int title = 0;
+
+	if ( FS_FileExistsInPath( "glquake", path ) ) title |= ( 1 << TITLE_QUAKE1 );
+	if ( FS_FileExistsInPath( "quake2", path ) ) title |= ( 1 << TITLE_QUAKE2 );
+	if ( FS_FileExistsInPath( "quake3", path ) ) title |= ( 1 << TITLE_QUAKE3 );
+	if ( FS_FileExistsInPath( "quake4", path ) ) title |= ( 1 << TITLE_QUAKE4 );
+	if ( FS_FileExistsInPath( "quakelive_steam", path ) ) title |= ( 1 << TITLE_QUAKELIVE );
+
+	Cvar_Set( "fs_gameDetect", va( "%i", title ) );
+};
+
+/*
 =================
 Sys_ShowConsole
 =================

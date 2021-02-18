@@ -2262,6 +2262,58 @@ static void R_Q3_LoadEntities( const lump_t *l ) {
 }
 
 
+#ifdef GAME_QUAKE2
+/*
+=================
+R_Q2_LoadLeafs
+=================
+*/
+static void R_Q2_LoadLeafs( const lump_t *leafLump ) {
+	int			i;
+	q2_cLeaf_t *out;
+	q2_dLeaf_t *inLeaf;
+	int			numLeafs;
+
+	inLeaf = (void *)( fileBase + leafLump->fileofs );
+	if ( leafLump->filelen % sizeof( q2_dLeaf_t ) ||
+		leafLump->filelen % sizeof( q2_dLeaf_t ) ) {
+		ri.Error( ERR_DROP, "%s(): funny lump size in %s", __func__, s_worldData.name );
+	}
+	numLeafs = leafLump->filelen / sizeof( q2_dLeaf_t );
+
+	out = ri.Hunk_Alloc( numLeafs * sizeof( *out ), h_low );
+	s_worldData.numLeafs = numLeafs;
+
+	for ( i = 0; i < numLeafs; i++, inLeaf++, out++ )
+	{
+		out->contents = LittleLong( inLeaf->contents );
+		out->cluster = LittleShort( inLeaf->cluster );
+		out->area = LittleShort( inLeaf->area );
+		out->firstleafbrush = LittleShort( inLeaf->firstleafbrush );
+		out->numleafbrushes = LittleShort( inLeaf->numleafbrushes );
+
+		if ( out->cluster >= s_worldData.numClusters )
+			s_worldData.numClusters = out->cluster + 1;
+	}
+
+	if ( map_leafs[0].contents != CONTENTS_SOLID )
+		Com_Error( ERR_DROP, "Map leaf 0 is not CONTENTS_SOLID" );
+	solidleaf = 0;
+	emptyleaf = -1;
+	for ( i = 1; i < numleafs; i++ )
+	{
+		if ( !map_leafs[i].contents )
+		{
+			emptyleaf = i;
+			break;
+		}
+	}
+	if ( emptyleaf == -1 )
+		ri.Error( ERR_DROP, "Map does not have an empty leaf" );
+}
+#endif //GAME_QUAKE2
+
+
 /*
 =================
 RE_GetEntityToken
@@ -2359,7 +2411,11 @@ void RE_LoadWorldMap( const char *name ) {
 		R_Q3_LoadLightGrid(&header->lumps[Q3_LUMP_LIGHTGRID]);
 		break;
 	case IBSP_Q2:
+#ifdef GAME_QUAKE2
+		R_Q2_LoadLeafs( &header.lumps[Q2_LUMP_LEAFS] );
+#else
 		ri.Error(ERR_DROP, "RE_LoadWorldMap: Q2 maps not yet supported");
+#endif
 		break;
 	default:
 		ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has unsupported version number (%i)", name, version);

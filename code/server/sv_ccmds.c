@@ -194,7 +194,7 @@ static void SV_Map_f( void ) {
 		// may not set sv_maxClients directly, always set latched
 		Cvar_SetLatched( "sv_maxClients", "16" );
 		cmd += 2;
-		if (!Q_stricmp( cmd, "devMap" ) ) {
+		if (!Q_stricmp( cmd, "devmap" ) ) {
 			cheat = qtrue;
 		} else {
 			cheat = qfalse;
@@ -202,7 +202,7 @@ static void SV_Map_f( void ) {
 		killBots = qtrue;
 	}
 	else {
-		if ( !Q_stricmp( cmd, "devMap" ) ) {
+		if ( !Q_stricmp( cmd, "devmap" ) ) {
 			cheat = qtrue;
 			killBots = qtrue;
 		} else {
@@ -1450,12 +1450,12 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
 #ifndef PRE_RELEASE_DEMO
-	Cmd_AddCommand ("devMap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "devMap", SV_CompleteMapName );
-	Cmd_AddCommand ("spMap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spMap", SV_CompleteMapName );
-	Cmd_AddCommand ("spDevMap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spDevMap", SV_CompleteMapName );
+	Cmd_AddCommand ("devmap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
+	Cmd_AddCommand ("spmap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
+	Cmd_AddCommand ("spdevmap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
 #endif
 	Cmd_AddCommand ("killServer", SV_KillServer_f);
 #ifdef USE_BANS	

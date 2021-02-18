@@ -45,9 +45,10 @@ static void *S_CodecGetSound(const char *filename, snd_info_t *info)
 	void		*rtn = NULL;
 
 	Q_strncpyz( localName, filename, sizeof( localName ) );
-
+//dm: just strip extension to avoid any doubled extensions that baseq3 likes to do to non-wav
+	COM_StripExtension( filename, localName, MAX_QPATH );
+//-dm
 	ext = COM_GetExtension(localName);
-
 	if( *ext )
 	{
 		// Look for the correct loader and use it
