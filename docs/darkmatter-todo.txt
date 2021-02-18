@@ -1,0 +1,30 @@
+DarkMatter
+
+Based on Quake3e - 16 Jan 2021 release
+--------------------------------------------
+
+TODO:
+-----
+- Push changes from Quake3e at next major release
+- TrueType font from Spearmint
+- Complete Q2 BSP support
+- Q1 BSP collision model
+- Q1 BSP to renderer
+- Q1 BSP texture extraction from BSP
+- Q1 WAD loading
+- PAK file loading
+- PAK checksums tests for Q1/Q2, do not download rules for official paks
+- MD2 model support
+- MDL model support
+- WAL image loading
+- Negative values for fs_%GAME%_load to enable loading only in localhost, server info to add serverlist filter for servers with certain game bases
+- Asset base rules for QL: check for assets in Q3 first to avoid shader conflicts
+- Asset base flags for map loading, ie: map -q2 q2dm1 to search only QUAKE II path for the map
+- Asset base indicators for auto-complete map lists
+- File system check for loading DarkMatter from a game dir to override the appropriate fs_%GAME%_path (eg: check for original quake3.exe and baseq3/pak0.pk3)
+
+Low-priority/future TODO:
+-------------------------
+- Merge duplicate rendering code shared by r1, rvk to rcommon
+- Language file support
+- GeoIP

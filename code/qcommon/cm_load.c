@@ -71,7 +71,7 @@ q3_cBrush_t *q3_box_brush;
 void	CM_Q3_InitBoxHull(void);
 void	CM_Q3_FloodAreaConnections(void);
 
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 int			q2_box_headnode;
 q2_cLeaf_t *q2_box_leaf;
 q2_cBrush_t *q2_box_brush;
@@ -587,7 +587,7 @@ static void CMod_Q3_LoadPatches(const lump_t *surfs, const lump_t *verts) {
 //==================================================================
 // QUAKE 2 CMOD LOADING
 //==================================================================
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 /*
 =================
 CMod_Q2_LoadSubmodels
@@ -953,7 +953,7 @@ static void CMod_Q2_LoadVisibility(const lump_t *l) {
 		q2_vis->bitofs[i][1] = LittleLong(q2_vis->bitofs[i][1]);
 	}
 }
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 
 /*
 ==================
@@ -1013,7 +1013,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum, int *versi
 	cmod_base = (byte *)buf;
 
 	switch (header.version) {
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	case IBSP_Q2:
 		// load into heap
 		CMod_Q2_LoadSurfaces(&header.lumps[Q2_LUMP_TEXINFO]);
@@ -1029,7 +1029,7 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum, int *versi
 		CMod_Q2_LoadVisibility(&header.lumps[Q2_LUMP_VISIBILITY]);
 		CMod_LoadEntityString(&header.lumps[Q2_LUMP_ENTITIES]);
 		break;
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 	case IBSP_Q3A:
 	case IBSP_QL:
 		// load into heap
@@ -1058,13 +1058,13 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum, int *versi
 	FS_FreeFile(buf);
 
 	switch (header.version) {
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	case IBSP_Q2:
 		CM_Q2_InitBoxHull();
 
 		CM_Q2_FloodAreaConnections();
 		break;
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 	case IBSP_Q3A:
 	case IBSP_QL:
 		CM_Q3_InitBoxHull();
@@ -1091,7 +1091,7 @@ void CM_ClearMap(void) {
 	CM_ClearLevelPatches();
 }
 
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 /*
 ==================
 CM_Q2_ClipHandleToModel
@@ -1117,7 +1117,7 @@ q2_cModel_t *CM_Q2_ClipHandleToModel(clipHandle_t handle) {
 
 	return NULL;
 }
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 
 /*
 ==================
@@ -1169,7 +1169,7 @@ int CM_NumInlineModels(void) {
 
 char *CM_EntityString(void) {
 	char *s = cm.entityString;
-	s = replace(s, "\"advertisement\"", "\"func_static\"");
+	s = Com_ReplaceSubString(s, "\"advertisement\"", "\"func_static\"");
 	return s;
 }
 
@@ -1190,7 +1190,7 @@ int CM_LeafArea(int leafnum) {
 }
 
 //=======================================================================
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 void CM_Q2_InitBoxHull(void) {
 	int				i;
 	int				side;
@@ -1250,7 +1250,7 @@ void CM_Q2_InitBoxHull(void) {
 		p->normal[i >> 1] = -1;
 	}
 }
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 
 /*
 ===================
@@ -1348,7 +1348,7 @@ CM_ModelBounds
 ===================
 */
 void CM_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs) {
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	const int bspversion = Cvar_VariableIntegerValue("com_bspVersion");
 	if (bspversion == IBSP_Q2) {
 		q2_cModel_t *cmod;
@@ -1358,13 +1358,13 @@ void CM_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs) {
 		VectorCopy(cmod->maxs, maxs);
 	}
 	else {
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 		q3_cModel_t *cmod;
 
 		cmod = CM_ClipHandleToModel(model);
 		VectorCopy(cmod->mins, mins);
 		VectorCopy(cmod->maxs, maxs);
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	}
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 }

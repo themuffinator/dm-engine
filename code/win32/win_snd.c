@@ -764,9 +764,7 @@ qboolean SNDDMA_Init( void ) {
 
 	s_driver = Cvar_Get( "s_driver", defdrv, CVAR_LATCH | CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );
 
-	Cvar_SetDescription( s_driver, "Specify sound subsystem in win32 environment:\n"
-		" dsound - DirectSound\n"
-		" wasapi - WASAPI\n" );
+	//Cvar_SetDescription( s_driver, "Specify sound subsystem in win32 environment:\n dsound: DirectSound\n wasapi: Windows Audio Session API\n" );
 #endif
 
 	memset( &dma, 0, sizeof( dma ) );

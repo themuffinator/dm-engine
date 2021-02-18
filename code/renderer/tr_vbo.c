@@ -841,7 +841,7 @@ void R_BuildWorldVBO( msurface_t *surf, int surfCount )
 	}
 
 	if ( numStaticSurfaces == 0 ) {
-		ri.Printf( PRINT_ALL, "...no static surfaces for VBO\n" );
+		ri.Printf( PRINT_V_RENDERER, "...no static surfaces for VBO\n" );
 		return;
 	}
 
@@ -858,7 +858,7 @@ void R_BuildWorldVBO( msurface_t *surf, int surfCount )
 	vbo->items_queue = ri.Hunk_Alloc( ( numStaticSurfaces + 1 ) * sizeof( int ), h_low );
 	vbo->items_queue_count = 0;
 
-	ri.Printf( PRINT_ALL, "...found %i VBO surfaces (%i vertexes, %i indexes)\n",
+	ri.Printf( PRINT_V_RENDERER, "...found %i VBO surfaces (%i vertexes, %i indexes)\n",
 		numStaticSurfaces, numStaticVertexes, numStaticIndexes );
 	
 	//Com_Printf( S_COLOR_CYAN "VBO size: %i\n", vbo_size );

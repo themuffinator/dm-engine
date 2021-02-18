@@ -643,8 +643,8 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		// Com_Printf( "...registered window class\n" );
 	}
 
-	r.left = vid_xpos->integer;
-	r.top = vid_ypos->integer;
+	r.left = r_window_xPos->integer;
+	r.top = r_window_yPos->integer;
 	r.right = r.left + width;
 	r.bottom = r.top + height;
 
@@ -673,9 +673,9 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		else
 		{
 			exstyle = WINDOW_ESTYLE_NORMAL;
-			if ( r_noBorder->integer ) {
+			if ( !r_window_border->integer ) {
 				stylebits = WINDOW_STYLE_NORMAL_NB;
-				g_wv.borderless = r_noBorder->integer;
+				g_wv.borderless = !r_window_border->integer;
 			} else {
 				stylebits = WINDOW_STYLE_NORMAL;
 			}
@@ -686,8 +686,8 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		h = r.bottom - r.top;
 
 		// select monitor from window rect
-		r.left = vid_xpos->integer;
-		r.top = vid_ypos->integer;
+		r.left = r_window_xPos->integer;
+		r.top = r_window_yPos->integer;
 		r.right = r.left + w;
 		r.bottom = r.top + h;
 		UpdateMonitorInfo( &r );
@@ -699,8 +699,8 @@ static qboolean GLW_CreateWindow( int width, int height, int colorbits, qboolean
 		}
 		else
 		{
-			x = vid_xpos->integer;
-			y = vid_ypos->integer;
+			x = r_window_xPos->integer;
+			y = r_window_yPos->integer;
 
 			// adjust window coordinates if necessary 
 			// so that the window is completely on screen
@@ -983,8 +983,8 @@ static rserr_t GLW_SetMode( int mode, const char *modeFS, int colorbits, qboolea
 	int		cdsRet;
 	DEVMODE dm;
 
-	r.left = vid_xpos->integer;
-	r.top = vid_ypos->integer;
+	r.left = r_window_xPos->integer;
+	r.top = r_window_yPos->integer;
 	r.right = r.left + 320;
 	r.bottom = r.top + 240;
 

@@ -424,9 +424,9 @@ static void vk_create_swapchain( VkPhysicalDevice physical_device, VkDevice devi
 	present_modes = (VkPresentModeKHR *) ri.Malloc( present_mode_count * sizeof( VkPresentModeKHR ) );
 	VK_CHECK(qvkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &present_mode_count, present_modes));
 	
-	ri.Printf( PRINT_ALL, "...presentation modes:" );
+	ri.Printf( PRINT_V_RENDERER, "...presentation modes:" );
 	for ( i = 0; i < present_mode_count; i++ ) {
-		ri.Printf( PRINT_ALL, " %s", pmode_to_str( present_modes[i] ) );
+		ri.Printf( PRINT_V_RENDERER, " %s", pmode_to_str( present_modes[i] ) );
 		if ( present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR )
 			mailbox_supported = qtrue;
 		else if ( present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR )
@@ -435,7 +435,7 @@ static void vk_create_swapchain( VkPhysicalDevice physical_device, VkDevice devi
 			fifo_relaxed_supported = qtrue;
 
 	}
-	ri.Printf( PRINT_ALL, "\n" );
+	ri.Printf( PRINT_V_RENDERER, "\n" );
 
 	ri.Free( present_modes );
 
@@ -470,7 +470,7 @@ static void vk_create_swapchain( VkPhysicalDevice physical_device, VkDevice devi
 		image_count = MIN( MIN( image_count, surface_caps.maxImageCount ), MAX_SWAPCHAIN_IMAGES );
 	}
 
-	ri.Printf( PRINT_ALL, "...selected presentation mode: %s, image count: %i\n", pmode_to_str( present_mode ), image_count );
+	ri.Printf( PRINT_V_RENDERER, "...selected presentation mode: %s, image count: %i\n", pmode_to_str( present_mode ), image_count );
 
 	// create swap chain
 	desc.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -1235,7 +1235,7 @@ static const char *renderer_name( const VkPhysicalDeviceProperties *props ) {
 
 static qboolean vk_create_device( VkPhysicalDevice physical_device, int device_index ) {
 
-	ri.Printf( PRINT_ALL, "...selected physical device: %i\n", device_index );
+	ri.Printf( PRINT_V_RENDERER, "...selected physical device: %i\n", device_index );
 
 	// select surface format
 	if ( !vk_select_surface_format( physical_device, vk.surface ) ) {
@@ -1510,17 +1510,17 @@ static void init_vulkan_library( void )
 	// initial physical device index
 	device_index = r_device->integer;
 
-	ri.Printf( PRINT_ALL, ".......................\nAvailable physical devices:\n" );
+	ri.Printf( PRINT_V_RENDERER, ".......................\nAvailable physical devices:\n" );
 	for ( i = 0; i < device_count; i++ ) {
 		qvkGetPhysicalDeviceProperties( physical_devices[ i ], &props );
-		ri.Printf( PRINT_ALL, " %i: %s\n", i, renderer_name( &props ) );
+		ri.Printf( PRINT_V_RENDERER, " %i: %s\n", i, renderer_name( &props ) );
 		if ( device_index == -1 && props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ) {
 			device_index = i;
 		} else if ( device_index == -2 && props.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU ) {
 			device_index = i;
 		}
 	}
-	ri.Printf( PRINT_ALL, ".......................\n" );
+	ri.Printf( PRINT_V_RENDERER, ".......................\n" );
 
 	vk.physical_device = VK_NULL_HANDLE;
 	for ( i = 0; i < device_count; i++, device_index++ ) {
@@ -2772,7 +2772,7 @@ static void vk_alloc_attachments( void )
 		attachments[ i ].memory_offset = offset;
 		offset += attachments[ i ].reqs.size;
 #ifdef _DEBUG
-		ri.Printf( PRINT_ALL, S_COLOR_CYAN "[%i] type %i, size %i, align %i\n", i,
+		ri.Printf( PRINT_V_RENDERER, S_COLOR_CYAN "[%i] type %i, size %i, align %i\n", i,
 			attachments[ i ].reqs.memoryTypeBits,
 			(int)attachments[ i ].reqs.size,
 			(int)attachments[ i ].reqs.alignment );
@@ -2790,9 +2790,9 @@ static void vk_alloc_attachments( void )
 	}
 
 #ifdef _DEBUG
-	ri.Printf( PRINT_ALL, "memory type bits: %04x\n", memoryTypeBits );
-	ri.Printf( PRINT_ALL, "memory type index: %04x\n", memoryTypeIndex );
-	ri.Printf( PRINT_ALL, "total size: %i\n", (int)offset );
+	ri.Printf( PRINT_V_RENDERER, "memory type bits: %04x\n", memoryTypeBits );
+	ri.Printf( PRINT_V_RENDERER, "memory type index: %04x\n", memoryTypeIndex );
+	ri.Printf( PRINT_V_RENDERER, "total size: %i\n", (int)offset );
 #endif
 
 	alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -3434,7 +3434,7 @@ void vk_initialize( void )
 		vkSamples = MAX( log2pad( r_ext_multisample->integer, 1 ), VK_SAMPLE_COUNT_2_BIT );
 		while ( vkSamples > mask )
 				vkSamples >>= 1;
-		ri.Printf( PRINT_ALL, "...using %ix MSAA\n", vkSamples );
+		ri.Printf( PRINT_V_RENDERER, "...using %ix MSAA\n", vkSamples );
 	} else {
 		vkSamples = VK_SAMPLE_COUNT_1_BIT;
 	}
@@ -5787,9 +5787,7 @@ void vk_begin_main_render_pass( void )
 	vk.renderWidth = glConfig.vidWidth;
 	vk.renderHeight = glConfig.vidHeight;
 
-	//vk.renderScaleX = (float)vk.renderWidth / (float)glConfig.vidWidth;
-	//vk.renderScaleY = (float)vk.renderHeight / (float)glConfig.vidHeight;
-	vk.renderScaleX = vk.renderScaleY = r_pixelsize->integer;	// 1.0f;
+	vk.renderScaleX = vk.renderScaleY = 1.0f;
 
 	vk_begin_render_pass( vk.render_pass.main, frameBuffer, qtrue, vk.renderWidth, vk.renderHeight );
 }

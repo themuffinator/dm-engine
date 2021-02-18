@@ -1312,8 +1312,8 @@ extern	cvar_t	*r_noBind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
 extern	cvar_t	*r_roundImagesDown;
 extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage
-extern	cvar_t	*r_picmip;						// controls picmip values
-extern	cvar_t	*r_nomip;						// apply picmip only on worldspawn textures
+extern	cvar_t	*r_picMip;						// controls picmip values
+extern	cvar_t	*r_noMip;						// apply picmip only on worldspawn textures
 extern	cvar_t	*r_finish;
 extern	cvar_t	*r_textureMode;
 extern	cvar_t	*r_offsetFactor;
@@ -1376,9 +1376,10 @@ extern	cvar_t *r_defaultImageStyle;
 extern	cvar_t *r_drawSkyFloor;
 extern	cvar_t *r_mapOverBrightCap;
 
-extern	cvar_t *r_picmip_filter;
-extern	cvar_t *r_pixelsize;
-extern	cvar_t *r_fogGreyscale;
+extern	cvar_t *r_screenshotNameFormat;
+extern	cvar_t *r_dlightDesaturate;
+
+extern	cvar_t *r_fogGreyScale;
 //-fnq
 
 //====================================================================

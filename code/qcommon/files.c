@@ -3821,7 +3821,7 @@ static void FS_Dir_f( void ) {
 	int i;
 
 	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3 ) {
-		Com_Printf( "usage: dir <directory> [extension]\n" );
+		PrintUsageDesc( "dir", "<directory> [extension]", "Lists files within a directory." );
 		return;
 	}
 
@@ -3941,8 +3941,8 @@ static void FS_NewDir_f( void ) {
 	int		i;
 
 	if ( Cmd_Argc() < 2 ) {
-		Com_Printf( "usage: fdir <filter>\n" );
-		Com_Printf( "example: fdir *q3dm*.bsp\n");
+		PrintUsageDesc("fdir", "<filter>", "Returns a list of files matching filters.");
+		Com_Printf( S_COL_BASE "Example: " S_COL_VAR "fdir " S_COL_VAL "*q3dm*.bsp\n");
 		return;
 	}
 
@@ -4005,14 +4005,14 @@ static void FS_Path_f( void ) {
 FS_TouchFile_f
 
 The only purpose of this function is to allow game script files to copy
-arbitrary files furing an "fs_copyFiles 1" run.
+arbitrary files during an "fs_copyFiles 1" run.
 ============
 */
 static void FS_TouchFile_f( void ) {
 	fileHandle_t	f;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "Usage: touchFile <file>\n" );
+		PrintUsageDesc("touchFile", "<file>", "The only purpose of this function is to allow game script files to copy arbitrary files during an \"fs_copyFiles 1\" run.");
 		return;
 	}
 
@@ -4057,7 +4057,7 @@ static void FS_Which_f( void ) {
 	filename = Cmd_Argv(1);
 
 	if ( !filename[0] ) {
-		Com_Printf( "Usage: which <file>\n" );
+		PrintUsageDesc("which", "<file>", "Searches for a file and returns the path.");
 		return;
 	}
 
@@ -4736,9 +4736,7 @@ static void FS_Startup( void ) {
 	
 #ifndef USE_HANDLE_CACHE
 	fs_locked = Cvar_Get( "fs_locked", "0", CVAR_INIT, "0", "1", CV_INTEGER );
-	Cvar_SetDescription( fs_locked, "Set file handle policy for pk3 files:\n"
-		" 0 - release after use, unlimited number of pk3 files can be loaded\n"
-		" 1 - keep file handle locked, more consistent, total pk3 files count limited to ~1k-4k\n" );
+	/**/Cvar_SetDescription( fs_locked, "Set file handle policy for pk3 files:\n  0: Release after use, unlimited number of pk3 files can be loaded\n 1: Keep file handle locked, more consistent, total pk3 files count limited to ~1k-4k\n" );
 #endif
 
 	if ( !fs_baseGame->string[0] )
@@ -4750,7 +4748,7 @@ static void FS_Startup( void ) {
 	}
 
 	fs_homePath = Cvar_Get( "fs_homePath", homePath, CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, NULL, NULL, CV_NONE );
-	Cvar_SetDescription( fs_homePath, "Directory to store user configuration and downloaded files." );
+	/**/Cvar_SetDescription( fs_homePath, "Directory to store user configuration and downloaded files." );
 
 	fs_game = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO, NULL, NULL, CV_FSPATH );
 
@@ -4759,9 +4757,7 @@ static void FS_Startup( void ) {
 	}
 
 	fs_excludeReference = Cvar_Get( "fs_excludeReference", "", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
-	Cvar_SetDescription( fs_excludeReference,
-		"Exclude specified pak files from download list on client side.\n"
-		"Format is <moddir>/<pakname> (without .pk3 suffix), you may list multiple entries separated by space." );
+	/**/Cvar_SetDescription( fs_excludeReference, "Exclude specified pak files from download list on client side.\n Format is <moddir>/<pakname> (without .pk3 suffix), you may list multiple entries separated by space." );
 
 	start = Sys_Milliseconds();
 

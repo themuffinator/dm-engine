@@ -86,7 +86,7 @@ void GL_TextureMode( const char *string ) {
 	}
 
 	if ( mode == NULL ) {
-		ri.Printf( PRINT_ALL, "bad texture filter name '%s'\n", string );
+		ri.Printf( PRINT_WARNING, "bad texture filter name '%s'\n", string );
 		return;
 	}
 
@@ -107,7 +107,7 @@ void GL_TextureMode( const char *string ) {
 	if ( glConfig.hardwareType == GLHW_3DFX_2D3D && gl_filter_max == GL_LINEAR &&
 		gl_filter_min == GL_LINEAR_MIPMAP_LINEAR ) {
 		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
-		ri.Printf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
+		ri.Printf( PRINT_V_RENDERER, "Refusing to set trilinear on a voodoo.\n" );
 	}
 
 	// change all the existing mipmap texture objects
@@ -633,11 +633,11 @@ static void generate_image_upload_data( image_t *image, byte *data, Image_Upload
 	//
 	// perform optional picmip operation
 	//
-	if ( picmip && ( tr.mapLoading || r_nomip->integer == 0 ) ) {
-		scaled_width >>= r_picmip->integer;
-		scaled_height >>= r_picmip->integer;
-		//x >>= r_picmip->integer;
-		//y >>= r_picmip->integer;
+	if ( picmip && ( tr.mapLoading || r_noMip->integer == 0 ) ) {
+		scaled_width >>= r_picMip->integer;
+		scaled_height >>= r_picMip->integer;
+		//x >>= r_picMip->integer;
+		//y >>= r_picMip->integer;
 	}
 
 	//
@@ -940,11 +940,11 @@ static void Upload32( byte *data, int x, int y, int width, int height, image_t *
 	//
 	// perform optional picmip operation
 	//
-	if ( picmip && ( tr.mapLoading || r_nomip->integer == 0 ) ) {
-		scaled_width >>= r_picmip->integer;
-		scaled_height >>= r_picmip->integer;
-		x >>= r_picmip->integer;
-		y >>= r_picmip->integer;
+	if ( picmip && ( tr.mapLoading || r_noMip->integer == 0 ) ) {
+		scaled_width >>= r_picMip->integer;
+		scaled_height >>= r_picMip->integer;
+		x >>= r_picMip->integer;
+		y >>= r_picMip->integer;
 	}
 
 	//
@@ -1980,7 +1980,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 
 	// allocate a new skin
 	if ( tr.numSkins == MAX_SKINS ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
+		ri.Printf( PRINT_WARNING, "RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
 		return 0;
 	}
 	tr.numSkins++;
@@ -2040,7 +2040,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	ri.FS_FreeFile( text.v );
 
 	if ( totalSurfaces > MAX_SKIN_SURFACES ) {
-		ri.Printf( PRINT_WARNING, "WARNING: Ignoring excess surfaces (found %d, max is %d) in skin '%s'!\n",
+		ri.Printf( PRINT_WARNING, "Ignoring excess surfaces (found %d, max is %d) in skin '%s'!\n",
 					totalSurfaces, MAX_SKIN_SURFACES, name );
 	}
 

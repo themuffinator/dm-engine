@@ -974,7 +974,8 @@ void SV_AddFilter_f( void )
 
 	if ( Cmd_Argc() < 2 )
 	{
-		Com_Printf( "Usage: %s <id> [key1] [key2] ... [keyN] [date +<duration[h|d|w|m]>|<date> ] [reason <text>]\nDefault key is \"ip\"\nDefault duration unit is minutes, h(ours), d(ays), w(eeks), m(onths) suffixes can also be specified.\n", Cmd_Argv( 0 ) );
+		PrintUsageDesc(Cmd_Argv(0), "<id> [key1] [key2] ... [keyN] [date +<duration[h|d|w|m]>|<date> ] [reason <text>]", "Adds raw filter command string.");
+		Com_Printf( S_COL_BASE "Default key is \"ip\"\nDefault duration unit is minutes, h(ours), d(ays), w(eeks), m(onths) suffixes can also be specified.\n" );
 		return;
 	}
 
@@ -1124,7 +1125,7 @@ void SV_AddFilterCmd_f( void )
 
 	if ( Cmd_Argc() < 2 )
 	{
-		Com_Printf( "Usage: %s <filter format string>\n", Cmd_Argv( 0 ) );
+		PrintUsageDesc(Cmd_Argv(0), "<filter format string>", "Parses raw filter command string.");
 		return;
 	}
 

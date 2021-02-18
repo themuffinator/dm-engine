@@ -1,0 +1,58 @@
+DarkMatter
+
+Based on Quake3e - 16 Jan 2021 release
+--------------------------------------------
+
+CHANGELOG:
+----------
++ Windows: Automatic game installation path detection for CD, Steam and GOG installations of QUAKE, QUAKE II, QUAKE III: ARENA and QUAKE LIVE.
+	DarkMatter can be installed anywhere.
+	Paths are stored in (and can be overridden in command line) fs_%GAME%_path where %GAME% is q, q2, q3 or ql for the appropriate game.
++ Initial multi-game asset base support, enable on command line via +set "fs_%GAME%_load [1|2|3]" where %GAME% is q, q2, q3 or ql for the appropriate game.
+	 The filesystem will search in order of CD, Steam then GOG. Setting the cvar value to 2 or 3 will skip to Steam or GOG respectively. This does not apply to QUAKE LIVE which has only a Steam path.
++ QUAKE LIVE support:
+	* BSP loading [IBSP 47]
+	* Ad banners converted to func_statics
+	* noVLCollapse shader stage
+	* snowsteps and woodsteps surface parms
+	+ OGG Vorbis codec
++ QUAKE II support:
+	* sound path correction
+	* Initial BSP collision model loading [IBSP 38], still WIP and still to complete renderer side
++ Full aspect ratio correction via r_arc_* cvars
++ Entity override dumping/loading to modify map entities:
+	sv_ent_dump [0|1]: Enabling saving .ent entity files on level loads and map_restart.
+	sv_ent_dump_path: Path within maps/ directory where .ent entity files are to be saved to.
+	sv_ent_load [0|1]: Enabling loading .ent entity files to override map entities.
+	sv_ent_load_path: Path within maps/ directory where .ent entity files are to be loaded from.
++ Alias support straight from QUAKE II: creates custom commands (or even custom button commands using +/-).
+	Example:
+		alias atest "say This is an alias"
+		bind A atest
+	Use unAlias to move a specific alias or unAliasAll to remove all aliases.
++ Neatened up cvar system, consistent naming conventions applied across most cvars and commands.
++ Detailed cvar descriptions available in console for almost all engine-based cvars.
++ cvarAdd, cvarMulti commands to modify cvar values
++ r_screenshotNameFormat [string]: Set naming convention for screenshots. Valid hashtag tokens to use:
+	[#02/#04]y: year, [#02/#]m = month, [#02/#]d = day, [#02/#]h = hour, [#02/#]n = minute, [#02/#]s = second, #l = mapname, #g = gametype
+	Example: r_screenshotNameFormat "#l-#g" //This will name screenshots as current map name + gametype + index, such as screenshots/pro-q3dm6-3.tga, screenshots/pro-q3dm6-3-0002.tga, etc.
++ r_defaultImageStyle [0|1]: Default image style for missing or invalid shaders/textures:
+		0: Quake III grey with white outlines
+		1: Quake II small red and black tiles
++ r_defaultImageSize <value>: Set image size for default images.
++ r_drawSkyFloor [0|1]: Draw the bottom plane of scrolling sky boxes.
++ r_clearColor [0|1]: Set color to clear buffer to in hex RGB format. Requires \r_clear 1.
++ r_teleporterFlash [0|1|2]: Screen flash effect when teleporting:
+		0: Disabled
+		1: Black
+		2: White
++ Configuration files are now loaded from cfg/ subdirectory or cfg-sv/ when dedicated.
++ Base configuration file is now config.cfg.
++ Windows home path for user files now set to %APPDATA%/DarkMatter.
++ cl_cinematics_arc [0|1]: Show cinematics at intended aspect ratio.
++ r_dlightDesaturate <0.0..1.0>: Colour desaturation for dynamic lights. Set to 0 to revert to original colour values.
++ r_fogGreyScale <0.0..1.0>: Desaturates fog volumes, works independently from r_greyScale.
++ All listing commands renamed to "list%TYPE%", such as cvarList now named as listCvars.
++ cl_allowConsoleChat [0|1]: Console command capture behaviour. Valid options:
+	0: Console always assumes input as commands.
+	1: Console assumes chat command when cvars or commands are not found.

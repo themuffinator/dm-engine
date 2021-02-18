@@ -753,6 +753,7 @@ void SV_Init( void )
 
 #ifdef USE_BANS
 	sv_banFile = Cvar_Get( "sv_banFile", "serverbans.dat", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	Cvar_SetDescription(sv_banFile, "Name of file used to store server bans.");
 #endif
 
 	sv_levelTimeReset = Cvar_Get( "sv_levelTimeReset", "0", CVAR_ARCHIVE_ND, NULL, NULL, CV_INTEGER );
@@ -761,9 +762,13 @@ void SV_Init( void )
 
 //fnq
 	sv_ent_dump = Cvar_Get( "sv_ent_dump", "0", 0, "0", "1", CV_INTEGER );
+	Cvar_SetDescription(sv_ent_dump, "Enabling saving .ent entity files on level loads and map_restart.");
 	sv_ent_dump_path = Cvar_Get("sv_ent_dump_path", "", 0, NULL, NULL, CV_NONE );
+	Cvar_SetDescription(sv_ent_dump_path, "Path within maps/ directory where .ent entity files are to be saved to.");
 	sv_ent_load = Cvar_Get("sv_ent_load", "1", 0, "0", "1", CV_INTEGER );
+	Cvar_SetDescription(sv_ent_load, "Enabling loading .ent entity files to override map entities.");
 	sv_ent_load_path = Cvar_Get("sv_ent_load_path", "", 0, NULL, NULL, CV_NONE );
+	Cvar_SetDescription(sv_ent_load_path, "Path within maps/ directory where .ent entity files are to be loaded from.");
 //-fnq
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib

@@ -440,13 +440,12 @@ static void RB_Hyperspace( void ) {
 	if ( !backEnd.isHyperspace ) {
 		// do initialization shit
 	}
-
-	if (r_teleporterFlash->integer) {
-		c = (backEnd.refdef.time & 255) / 255.0f;
-		qglClearColor(c, c, c, 1);
-		qglClear(GL_COLOR_BUFFER_BIT);
+	if ( r_teleporterFlash->integer ) {
+		c = r_teleporterFlash->integer > 1 ? ( ( backEnd.refdef.time & 255 ) / 255.0f ) : 0;
+		qglClearColor( c, c, c, 1 );
+		qglClear( GL_COLOR_BUFFER_BIT );
+		backEnd.isHyperspace = qtrue;
 	}
-	backEnd.isHyperspace = qtrue;
 }
 
 
@@ -991,7 +990,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, byte *data, 
 
 	if ( r_speeds->integer ) {
 		end = ri.Milliseconds();
-		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
+		ri.Printf( PRINT_DEVELOPER, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
 	tr.cinematicShader->stages[0]->bundle[0].image[0] = tr.scratchImage[client];
@@ -1392,7 +1391,7 @@ void RB_ShowImages( void ) {
 	qglFinish();
 
 	end = ri.Milliseconds();
-	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
+	ri.Printf( PRINT_DEVELOPER, "%i msec to draw all images\n", end - start );
 }
 
 
@@ -1542,19 +1541,19 @@ static const void *RB_SwapBuffers( const void *data ) {
 		if ( backEnd.screenshotMask & SCREENSHOT_TGA && backEnd.screenshotTGA[0] ) {
 			RB_TakeScreenshot( 0, 0, captureWidth, captureHeight, backEnd.screenshotTGA );
 			if ( !backEnd.screenShotTGAsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotTGA );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotTGA );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_JPG && backEnd.screenshotJPG[0] ) {
 			RB_TakeScreenshotJPEG( 0, 0, captureWidth, captureHeight, backEnd.screenshotJPG );
 			if ( !backEnd.screenShotJPGsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotJPG );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotJPG );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_BMP && ( backEnd.screenshotBMP[0] || ( backEnd.screenshotMask & SCREENSHOT_BMP_CLIPBOARD ) ) ) {
 			RB_TakeScreenshotBMP( 0, 0, captureWidth, captureHeight, backEnd.screenshotBMP, backEnd.screenshotMask & SCREENSHOT_BMP_CLIPBOARD );
 			if ( !backEnd.screenShotBMPsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotBMP );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotBMP );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_AVI ) {

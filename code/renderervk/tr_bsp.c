@@ -638,7 +638,7 @@ static void ParseFace(const q3_dSurface_t *ds, const drawVert_t *verts, msurface
 
 	numPoints = LittleLong(ds->numVerts);
 	if (numPoints > MAX_FACE_POINTS) {
-		ri.Printf(PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints);
+		ri.Printf(PRINT_WARNING, "MAX_FACE_POINTS exceeded: %i\n", numPoints);
 		numPoints = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
@@ -2071,12 +2071,12 @@ static void R_Q3_LoadFogs(const lump_t *l, const lump_t *brushesLump, const lump
 
 		VectorCopy(shader->fogParms.color, fogColor);
 
-		if ( r_mapGreyScale->value > 0 ) {
+		if ( r_fogGreyScale->value > 0 ) {
 			float luminance;
 			luminance = LUMA(fogColor[0], fogColor[1], fogColor[2]);
-			fogColor[0] = LERP( fogColor[0], luminance, r_mapGreyScale->value );
-			fogColor[1] = LERP( fogColor[1], luminance, r_mapGreyScale->value );
-			fogColor[2] = LERP( fogColor[2], luminance, r_mapGreyScale->value );
+			fogColor[0] = LERP( fogColor[0], luminance, r_fogGreyScale->value );
+			fogColor[1] = LERP( fogColor[1], luminance, r_fogGreyScale->value );
+			fogColor[2] = LERP( fogColor[2], luminance, r_fogGreyScale->value );
 		}
 
 		out->parms = shader->fogParms;
@@ -2146,7 +2146,7 @@ static void R_Q3_LoadLightGrid(const lump_t *l) {
 	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
 
 	if (l->filelen != numGridPoints * 8) {
-		ri.Printf(PRINT_WARNING, "WARNING: light grid mismatch\n");
+		ri.Printf(PRINT_WARNING, "light grid mismatch\n");
 		w->lightGridData = NULL;
 		return;
 	}
@@ -2273,7 +2273,7 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 		if (!Q_strncmp(keyname, s, strlen(s))) {
 			s = strchr(value, ';');
 			if (!s) {
-				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value);
+				ri.Printf(PRINT_WARNING, "no semi colon in vertexshaderremap '%s'\n", value);
 				break;
 			}
 			*s++ = '\0';
@@ -2287,7 +2287,7 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 		if (!Q_strncmp(keyname, s, (int)strlen(s))) {
 			s = strchr(value, ';');
 			if (!s) {
-				ri.Printf(PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value);
+				ri.Printf(PRINT_WARNING, "no semi colon in shaderremap '%s'\n", value);
 				break;
 			}
 			*s++ = '\0';
@@ -2308,7 +2308,7 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 
 
 // QUAKE 2 MAP LOADING
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 model_t *q2_loadModel;
 /*
 =================
@@ -2810,7 +2810,7 @@ static void R_Q2_LoadTexInfo(const lump_t *l) {
 			out->numframes++;
 	}
 }
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 // ----------------
 
 /*
@@ -2894,7 +2894,7 @@ void RE_LoadWorldMap(const char *name) {
 
 	version = LittleLong(header->version);
 	switch (version) {
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	case IBSP_Q2:
 		ri.Error(ERR_DROP, "%s: Q2 maps not yet supported", __func__);
 
@@ -2914,7 +2914,7 @@ void RE_LoadWorldMap(const char *name) {
 		//r_q2_numvisleafs = 0;
 		//R_NumberLeafs(s_worldData.nodes);
 		break;
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 	case IBSP_QL:
 		R_Q3_LoadAdvertisements(&header->lumps[Q3_LUMP_ADVERTS]);
 	case IBSP_Q3A:

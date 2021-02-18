@@ -1157,8 +1157,8 @@ void HandleEvents( void )
 				{
 					case SDL_WINDOWEVENT_MOVED:
 						if ( gw_active && !glw_state.isFullscreen ) {
-							Cvar_SetIntegerValue( "vid_xpos", e.window.data1 );
-							Cvar_SetIntegerValue( "vid_ypos", e.window.data2 );
+							Cvar_SetIntegerValue( "r_window_xPos", e.window.data1 );
+							Cvar_SetIntegerValue( "r_window_yPos", e.window.data2 );
 						}
 						break;
 					case SDL_WINDOWEVENT_MINIMIZED:		re.SyncRender();

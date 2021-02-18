@@ -155,6 +155,7 @@
     <ClCompile Include="..\..\..\code\renderercommon\tr_image_pcx.c" />
     <ClCompile Include="..\..\..\code\renderercommon\tr_image_png.c" />
     <ClCompile Include="..\..\..\code\renderercommon\tr_image_tga.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_wal.c" />
     <ClCompile Include="..\..\..\code\renderercommon\tr_noise.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1499,7 +1499,7 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	s_testSound = Cvar_Get( "s_testSound", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 #if defined(__linux__) && !defined(USE_SDL)
 	s_device = Cvar_Get( "s_device", "default", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
-	Cvar_SetDescription( s_device, "Set ALSA output device\n"
+	/**/Cvar_SetDescription( s_device, "Set ALSA output device\n"
 		" Use \"default\", \"sysdefault\", \"front\", etc.\n"
 		" Enter " S_COLOR_CYAN "aplay -L "S_COLOR_WHITE"in your shell to see all options.\n"
 		S_COLOR_YELLOW " Please note that only mono/stereo devices are acceptable.\n" );

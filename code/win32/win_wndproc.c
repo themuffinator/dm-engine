@@ -740,10 +740,10 @@ LRESULT WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM  wParam, LPARAM lParam 
 		IN_Activate( gw_active );
 
 		if ( !glw_state.cdsFullscreen )	{
-			Cvar_SetIntegerValue( "vid_xpos", g_wv.winRect.left );
-			Cvar_SetIntegerValue( "vid_ypos", g_wv.winRect.top );
-			vid_xpos->modified = qfalse;
-			vid_ypos->modified = qfalse;
+			Cvar_SetIntegerValue( "r_window_xPos", g_wv.winRect.left );
+			Cvar_SetIntegerValue( "r_window_yPos", g_wv.winRect.top );
+			r_window_xPos->modified = qfalse;
+			r_window_yPos->modified = qfalse;
 		}
 		break;
 

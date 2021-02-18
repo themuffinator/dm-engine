@@ -302,7 +302,7 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, char *shaderNam
 	int mode = (forceMode >= 0) ? forceMode : r_arc_uiMode->integer;
 
 	//Com_Printf( "RE_ScaleCorrection() x:%f y:%f w:%f h:%f\n", *x, *y, *w, *h );
-	if ( !mode ) return;
+	if ( !mode || backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
 	else {
 		const float aratio = (float)glConfig.vidWidth/(float)glConfig.vidHeight;
 		//const qboolean widescreen = (aratio > 1.3334) ? qtrue : qfalse;
@@ -405,7 +405,7 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 	
 	cmd->shader = R_GetShaderByHandle( hShader );
 
-	if ( (backEnd.refdef.rdflags & RDF_HYPERSPACE) ) {
+	if ( backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		goto shader_parms;
 	}
 	

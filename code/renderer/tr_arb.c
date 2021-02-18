@@ -980,7 +980,7 @@ qboolean ARB_CompileProgram( programType ptype, const char *text, GLuint program
 		// we may receive error with active FBO but compiled programs will continue to work properly
 		if ( (errCode == GL_INVALID_OPERATION && !fboEnabled) || errorPos != -1 )
 		{
-			ri.Printf( PRINT_ALL, S_COLOR_YELLOW "%s Compile Error(%i,%i): %s\n" S_COLOR_CYAN "%s\n", (ptype == Fragment) ? "FP" : "VP",
+			ri.Printf( PRINT_WARNING, "%s Compile Error(%i,%i): %s\n" S_COLOR_CYAN "%s\n", (ptype == Fragment) ? "FP" : "VP",
 				errCode, errorPos, qglGetString( GL_PROGRAM_ERROR_STRING_ARB ), text );
 			qglBindProgramARB( kind, 0 );
 			ARB_DeletePrograms();
@@ -1344,7 +1344,7 @@ static qboolean FBO_Create( frameBuffer_t *fb, GLsizei width, GLsizei height, qb
 	fboStatus = qglCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if ( fboStatus != GL_FRAMEBUFFER_COMPLETE )
 	{
-		ri.Printf( PRINT_ALL, "Failed to create %s (%s:%s) FBO (status %s, error %s)\n",
+		ri.Printf( PRINT_WARNING, "Failed to create %s (%s:%s) FBO (status %s, error %s)\n",
 			glDefToStr( internalFormat ), glDefToStr( textureFormat ), glDefToStr( textureType ),
 			glDefToStr( fboStatus ), glDefToStr( (int)qglGetError() ) );
 		FBO_Clean( fb );
@@ -1387,10 +1387,10 @@ static qboolean FBO_CreateMS( frameBuffer_t *fb, int width, int height )
 	while ( nSamples > 0 ) {
 		qglRenderbufferStorageMultisample( GL_RENDERBUFFER, nSamples, fboInternalFormat, width, height );
 		if ( (int)qglGetError() == GL_INVALID_VALUE/* != GL_NO_ERROR */ ) {
-			ri.Printf( PRINT_ALL, "...%ix MSAA is not available\n", nSamples );
+			ri.Printf( PRINT_V_RENDERER, "...%ix MSAA is not available\n", nSamples );
 			nSamples -= 2;
 		} else {
-			ri.Printf( PRINT_ALL, "...using %ix MSAA\n", nSamples );
+			ri.Printf( PRINT_V_RENDERER, "...using %ix MSAA\n", nSamples );
 			break;
 		}
 	}
@@ -1469,7 +1469,7 @@ static qboolean FBO_CreateBloom( void )
 			break;
 	}
 
-	ri.Printf( PRINT_ALL, "...%i bloom passes\n", fboBloomPasses );
+	ri.Printf( PRINT_V_RENDERER, "...%i bloom passes\n", fboBloomPasses );
 
 	return qtrue;
 }
@@ -1802,7 +1802,7 @@ qboolean FBO_Bloom( const float gamma, const float obScale, qboolean finalStage 
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...bloom framebuffers created\n" );
+			ri.Printf( PRINT_V_RENDERER, "...bloom framebuffers created\n" );
 		}
 	}
 
@@ -2048,7 +2048,7 @@ static void QGL_EarlyInitFBO( void )
 	{
 		if ( r_renderScale->integer )
 		{
-			ri.Printf( PRINT_ALL, "...ignoring r_renderScale due to disabled FBO\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring r_renderScale due to disabled FBO\n" );
 		}
 		return;
 	}
@@ -2198,7 +2198,7 @@ void QGL_InitFBO( void )
 	{
 		fboEnabled = qtrue;
 		FBO_BindMain();
-		ri.Printf( PRINT_ALL, "...using %s (%s:%s) FBO\n", glDefToStr( fboInternalFormat ),
+		ri.Printf( PRINT_V_RENDERER, "...using %s (%s:%s) FBO\n", glDefToStr( fboInternalFormat ),
 			glDefToStr( fboTextureFormat ), glDefToStr( fboTextureType ) );
 	}
 	else

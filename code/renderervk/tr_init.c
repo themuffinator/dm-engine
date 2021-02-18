@@ -34,8 +34,8 @@ glstate_t	glState;
 #ifdef USE_VULKAN
 static void VkInfo_f( void );
 #endif
-static void GfxInfo( void );
-static void VarInfo( void );
+static void GfxInfo( const qboolean force );
+static void VarInfo( const qboolean force );
 static void GL_SetDefaultState( void );
 
 cvar_t	*r_flareSize;
@@ -127,8 +127,8 @@ cvar_t	*r_noBind;
 cvar_t	*r_singleShader;
 cvar_t	*r_roundImagesDown;
 cvar_t	*r_colorMipLevels;
-cvar_t	*r_picmip;
-cvar_t	*r_nomip;
+cvar_t	*r_picMip;
+cvar_t	*r_noMip;
 cvar_t	*r_showTris;
 cvar_t	*r_showSky;
 cvar_t	*r_showNormals;
@@ -181,8 +181,10 @@ cvar_t *r_defaultImageStyle;
 cvar_t *r_drawSkyFloor;
 cvar_t *r_mapOverBrightCap;
 
-cvar_t *r_picmip_filter;
-cvar_t *r_pixelsize;
+cvar_t *r_screenshotNameFormat;
+cvar_t *r_dlightDesaturate;
+
+cvar_t *r_fogGreyScale;
 //-fnq
 
 cvar_t	*r_aviMotionJpegQuality;
@@ -348,15 +350,15 @@ static void R_InitExtensions( void )
 
 	if ( !r_allowExtensions->integer )
 	{
-		ri.Printf( PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n" );
+		ri.Printf( PRINT_V_RENDERER, "*** IGNORING OPENGL EXTENSIONS ***\n" );
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
+	ri.Printf( PRINT_V_RENDERER, "Initializing OpenGL extensions\n" );
 
 	if ( R_HaveExtension( "GL_EXT_texture_edge_clamp" ) ) {
 		gl_clamp_mode = GL_CLAMP_TO_EDGE;
-		ri.Printf( PRINT_ALL, "...using GL_EXT_texture_edge_clamp\n" );
+		ri.Printf( PRINT_V_RENDERER, "...using GL_EXT_texture_edge_clamp\n" );
 	}
 
 	// GL_EXT_texture_compression_s3tc
@@ -365,12 +367,12 @@ static void R_InitExtensions( void )
 	{
 		if ( r_ext_compressed_textures->integer ){ 
 			glConfig.textureCompression = TC_S3TC_ARB;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+			ri.Printf( PRINT_V_RENDERER, "...using GL_EXT_texture_compression_s3tc\n" );
 		} else {
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring GL_EXT_texture_compression_s3tc\n" );
 		}
 	} else {
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
+		ri.Printf( PRINT_V_RENDERER, "...GL_EXT_texture_compression_s3tc not found\n" );
 	}
 
 	// GL_S3_s3tc
@@ -378,13 +380,13 @@ static void R_InitExtensions( void )
 		if ( R_HaveExtension( "GL_S3_s3tc" ) ) {
 			if ( r_ext_compressed_textures->integer ) {
 				glConfig.textureCompression = TC_S3TC;
-				ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
+				ri.Printf( PRINT_V_RENDERER, "...using GL_S3_s3tc\n" );
 			} else {
 				glConfig.textureCompression = TC_NONE;
-				ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
+				ri.Printf( v, "...ignoring GL_S3_s3tc\n" );
 			}
 		} else {
-			ri.Printf( PRINT_ALL, "...GL_S3_s3tc not found\n" );
+			ri.Printf( PRINT_V_RENDERER, "...GL_S3_s3tc not found\n" );
 		}
 	}
 
@@ -392,13 +394,13 @@ static void R_InitExtensions( void )
 	if ( R_HaveExtension( "EXT_texture_env_add" ) ) {
 		if ( r_ext_texture_env_add->integer ) {
 			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
+			ri.Printf( PRINT_V_RENDERER, "...using GL_EXT_texture_env_add\n" );
 		} else {
 			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	} else {
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+		ri.Printf( PRINT_V_RENDERER, "...GL_EXT_texture_env_add not found\n" );
 	}
 
 	// GL_ARB_multitexture
@@ -416,25 +418,25 @@ static void R_InitExtensions( void )
 
 				if ( glConfig.numTextureUnits > 1 )
 				{
-					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
+					ri.Printf( PRINT_V_RENDERER, "...using GL_ARB_multitexture\n" );
 				}
 				else
 				{
 					qglMultiTexCoord2fARB = NULL;
 					qglActiveTextureARB = NULL;
 					qglClientActiveTextureARB = NULL;
-					ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
+					ri.Printf( PRINT_V_RENDERER, "...not using GL_ARB_multitexture, < 2 texture units\n" );
 				}
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring GL_ARB_multitexture\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+		ri.Printf( PRINT_V_RENDERER, "...GL_ARB_multitexture not found\n" );
 	}
 
 	// GL_EXT_compiled_vertex_array
@@ -442,7 +444,7 @@ static void R_InitExtensions( void )
 	{
 		if ( r_ext_compiled_vertex_array->integer )
 		{
-			ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
+			ri.Printf( PRINT_V_RENDERER, "...using GL_EXT_compiled_vertex_array\n" );
 			qglLockArraysEXT = ri.GL_GetProcAddress( "glLockArraysEXT" );
 			qglUnlockArraysEXT = ri.GL_GetProcAddress( "glUnlockArraysEXT" );
 			if ( !qglLockArraysEXT || !qglUnlockArraysEXT ) {
@@ -451,12 +453,12 @@ static void R_InitExtensions( void )
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring GL_EXT_compiled_vertex_array\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+		ri.Printf( PRINT_V_RENDERER, "...GL_EXT_compiled_vertex_array not found\n" );
 	}
 
 	if ( R_HaveExtension( "GL_EXT_texture_filter_anisotropic" ) )
@@ -464,24 +466,24 @@ static void R_InitExtensions( void )
 		if ( r_ext_texture_filter_anisotropic->integer ) {
 			qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy );
 			if ( maxAnisotropy <= 0 ) {
-				ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
+				ri.Printf( PRINT_V_RENDERER, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
 				maxAnisotropy = 0;
 			}
 			else
 			{
-				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", maxAnisotropy );
+				ri.Printf( PRINT_V_RENDERER, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", maxAnisotropy );
 				textureFilterAnisotropic = qtrue;
 				maxAnisotropy = MIN( r_ext_texture_filter_anisotropic->integer, maxAnisotropy );
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
+			ri.Printf( PRINT_V_RENDERER, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
+		ri.Printf( PRINT_V_RENDERER, "...GL_EXT_texture_filter_anisotropic not found\n" );
 	}
 }
 #endif
@@ -581,14 +583,14 @@ static void InitOpenGL( void )
 			glConfig.deviceSupportsGamma = qfalse;
 
 		// print info
-		GfxInfo();
+		GfxInfo( qfalse );
 	}
 
 #ifdef USE_VULKAN
 	vk_init_buffers();
 #endif
 
-	VarInfo();
+	VarInfo( qfalse );
 
 	// set default state
 	GL_SetDefaultState();
@@ -943,26 +945,142 @@ void RB_TakeScreenshotBMP( int x, int y, int width, int height, const char *file
 }
 
 
+#if 0
+/*
+================
+FS_ValidatePath
+
+Checks for bad (OS specific) and mixed case characters in path.
+================
+*/
+int FS_ValidatePath(const char *s)
+{
+	int res = PATH_VALID;
+
+	for (; *s; s++) {
+		if (!validate_char(*s))
+			return PATH_INVALID;
+
+		if (Q_isupper(*s))
+			res = PATH_MIXED_CASE;
+	}
+
+	return res;
+}
+
+
+/*
+================
+FS_SanitizeFilenameVariable
+
+Checks that console variable is a valid single filename (not a path), otherwise
+resets it to default value, printing a warning.
+================
+*/
+void FS_SanitizeFilenameVariable(cvar_t *var)
+{
+	if (!FS_ValidatePath(var->string)) {
+		Com_Printf("'%s' contains invalid characters for a filename.\n", var->name);
+		goto reset;
+	}
+
+	if (strchr(var->string, '/') || strchr(var->string, '\\')) {
+		Com_Printf("'%s' should be a single filename, not a path.\n", var->name);
+		goto reset;
+	}
+
+	return;
+
+reset:
+	Com_Printf("...falling back to %s\n", var->default_string);
+	Cvar_Reset(var);
+}
+#endif
+
+
+/*
+==================
+R_ReplaceSubString
+Replace substrings in a string. Source: Netocrat from bytes.com
+==================
+*/
+char *R_ReplaceSubString(const char *s, const char *old, const char *new) {
+	char *ret;
+	int 	i, count = 0;
+
+	size_t newlen = strlen(new);
+	size_t oldlen = strlen(old);
+
+	for (i = 0; s[i] != '\0'; i++) {
+		if (strstr(&s[i], old) == &s[i]) {
+			count++;
+			i += oldlen - 1;
+		}
+	}
+
+	ret = ri.Malloc(i + 1 + count * (newlen - oldlen));
+	if (ret == NULL) return "";
+
+	i = 0;
+	while (*s) {
+		if (strstr(s, old) == s) {
+			strcpy(&ret[i], new);
+			i += newlen;
+			s += oldlen;
+		}
+		else
+			ret[i++] = *s++;
+	}
+	ret[i] = '\0';
+
+	return ret;
+}
+
+
 /* 
 ================== 
 R_ScreenshotFilename
+
 ================== 
 */  
-static void R_ScreenshotFilename( char *fileName, const char *fileExt ) {
+static void R_ScreenshotFilename(char *fileName, const char *fileExt) {
 	qtime_t t;
-	int count;
+	int		count = 0;
+	char *s = r_screenshotNameFormat->string;
+	const char *gametype = ri.Cvar_VariableString("sv_gametype");
+	int		gtnum = -1;
 
-	count = 0;
-	ri.Com_RealTime( &t );
+	if (gametype) {
+		gtnum = atoi(gametype);
+	}
 
-	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot-%04d%02d%02d-%02d%02d%02d.%s", 
-			1900 + t.tm_year, 1 + t.tm_mon,	t.tm_mday,
-			t.tm_hour, t.tm_min, t.tm_sec, fileExt );
+	ri.Com_RealTime(&t);
 
-	while (	ri.FS_FileExists( fileName ) && ++count < 1000 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot-%04d%02d%02d-%02d%02d%02d-%d.%s", 
-				1900 + t.tm_year, 1 + t.tm_mon,	t.tm_mday,
-				t.tm_hour, t.tm_min, t.tm_sec, count, fileExt );
+	if (s && strstr(s, "#")) {
+		s = R_ReplaceSubString(s, "#04y", va("%04d", 1900 + t.tm_year));
+		s = R_ReplaceSubString(s, "#02y", va("%02d", abs(100 - t.tm_year)));
+		s = R_ReplaceSubString(s, "#02m", va("%02d", 1 + t.tm_mon));
+		s = R_ReplaceSubString(s, "#m", va("%d", 1 + t.tm_mon));
+		s = R_ReplaceSubString(s, "#02d", va("%02d", t.tm_mday));
+		s = R_ReplaceSubString(s, "#d", va("%d", t.tm_mday));
+		s = R_ReplaceSubString(s, "#02h", va("%02d", t.tm_hour));
+		s = R_ReplaceSubString(s, "#h", va("%d", t.tm_hour));
+		s = R_ReplaceSubString(s, "#02n", va("%02d", t.tm_min));
+		s = R_ReplaceSubString(s, "#n", va("%d", t.tm_min));
+		s = R_ReplaceSubString(s, "#02s", va("%02d", t.tm_sec));
+		s = R_ReplaceSubString(s, "#s", va("%d", t.tm_sec));
+		s = R_ReplaceSubString(s, "#l", va("%s", tr.world->baseName));
+		s = R_ReplaceSubString(s, "#g", va("%d", gtnum));
+	}
+
+	if (!s) s = "shot";
+
+	//TODO: sanitize string for filename
+
+	Com_sprintf(fileName, MAX_OSPATH, "screenshots/%s.%s", s, fileExt);
+
+	while (ri.FS_FileExists(fileName) && ++count < 1000) {
+		Com_sprintf(fileName, MAX_OSPATH, "screenshots/%s-%04d.%s", s, count, fileExt);
 	}
 }
 
@@ -1031,7 +1149,7 @@ static void R_LevelShot( void ) {
 	ri.Hunk_FreeTempMemory(buffer);
 	ri.Hunk_FreeTempMemory(allsource);
 
-	ri.Printf( PRINT_ALL, "Wrote %s\n", checkname );
+	ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", checkname );
 }
 
 
@@ -1054,7 +1172,7 @@ static void R_ScreenShot_f( void ) {
 	const char	*ext;
 
 	if ( ri.CL_IsMinimized() && !RE_CanMinimize() ) {
-		ri.Printf( PRINT_WARNING, "WARNING: unable to take screenshot when minimized because FBO is not available/enabled.\n" );
+		ri.Printf( PRINT_WARNING, "unable to take screenshot when minimized because FBO is not available/enabled.\n" );
 		return;
 	}
 
@@ -1302,44 +1420,44 @@ GfxInfo
 Prints persistent rendering configuration
 ================
 */
-static void GfxInfo( void )
-{
+static void GfxInfo( const qboolean force ) {
+	const int level = PRINT_ALL;	// force ? PRINT_ALL : PRINT_V_RENDERER;
 	const char *fsstrings[] = { "windowed", "fullscreen" };
 	const char *fs;
 	int mode;
 #ifdef USE_VULKAN
-	ri.Printf( PRINT_ALL, "\nVK_VENDOR: %s\n", glConfig.vendor_string );
-	ri.Printf( PRINT_ALL, "VK_RENDERER: %s\n", glConfig.renderer_string );
-	ri.Printf( PRINT_ALL, "VK_VERSION: %s\n", glConfig.version_string );
+	ri.Printf( level, "\nVK_VENDOR: %s\n", glConfig.vendor_string );
+	ri.Printf( level, "VK_RENDERER: %s\n", glConfig.renderer_string );
+	ri.Printf( level, "VK_VERSION: %s\n", glConfig.version_string );
 
 	ri.Printf( PRINT_DEVELOPER, "VK_EXTENSIONS: " );
 	R_PrintLongString( glConfig.extensions_string );
 
-	ri.Printf( PRINT_ALL, "\nVK_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "VK_MAX_TEXTURE_UNITS: %d\n", glConfig.numTextureUnits );
+	ri.Printf( level, "\nVK_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
+	ri.Printf( level, "VK_MAX_TEXTURE_UNITS: %d\n", glConfig.numTextureUnits );
 #else
 	const char *enablestrings[] = { "disabled", "enabled" };
 
-	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
-	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
-	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
+	ri.Printf( level, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
+	ri.Printf( level, "GL_RENDERER: %s\n", glConfig.renderer_string );
+	ri.Printf( level, "GL_VERSION: %s\n", glConfig.version_string );
 	ri.Printf( PRINT_DEVELOPER, "GL_EXTENSIONS: " );
 	R_PrintLongString( glConfig.extensions_string );
-	ri.Printf( PRINT_ALL, "\n" );
-	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.numTextureUnits );
+	ri.Printf( level, "\n" );
+	ri.Printf( level, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
+	ri.Printf( level, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.numTextureUnits );
 #endif
 
-	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
+	ri.Printf( level, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 #ifdef USE_VULKAN
-	ri.Printf( PRINT_ALL, " presentation: %s\n", vk_format_string( vk.surface_format.format ) );
+	ri.Printf( level, " presentation: %s\n", vk_format_string( vk.surface_format.format ) );
 	if ( vk.color_format != vk.surface_format.format ) {
-		ri.Printf( PRINT_ALL, " color: %s\n", vk_format_string( vk.color_format ) );
+		ri.Printf( level, " color: %s\n", vk_format_string( vk.color_format ) );
 	}
 	if ( vk.capture_format != vk.surface_format.format || vk.capture_format != vk.color_format ) {
-		ri.Printf( PRINT_ALL, " capture: %s\n", vk_format_string( vk.capture_format ) );
+		ri.Printf( level, " capture: %s\n", vk_format_string( vk.capture_format ) );
 	}
-	ri.Printf( PRINT_ALL, " depth: %s\n", vk_format_string( vk.depth_format ) );
+	ri.Printf( level, " depth: %s\n", vk_format_string( vk.depth_format ) );
 #endif
 	if ( glConfig.isFullscreen )
 	{
@@ -1356,22 +1474,22 @@ static void GfxInfo( void )
 		fs = fsstrings[0];
 	}
 
-	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", mode, glConfig.vidWidth, glConfig.vidHeight, fs );
+	ri.Printf( level, "MODE: %d, %d x %d %s hz:", mode, glConfig.vidWidth, glConfig.vidHeight, fs );
 	
 	if ( glConfig.displayFrequency )
 	{
-		ri.Printf( PRINT_ALL, "%d\n", glConfig.displayFrequency );
+		ri.Printf( level, "%d\n", glConfig.displayFrequency );
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "N/A\n" );
+		ri.Printf( level, "N/A\n" );
 	}
 
 #ifndef USE_VULKAN
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
-	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
-	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
-	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression!=TC_NONE] );
+	ri.Printf( level, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
+	ri.Printf( level, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
+	ri.Printf( level, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
+	ri.Printf( level, "compressed textures: %s\n", enablestrings[glConfig.textureCompression!=TC_NONE] );
 #endif
 }
 
@@ -1383,34 +1501,35 @@ VarInfo
 Prints info that may change every R_Init() call
 ================
 */
-static void VarInfo( void )
+static void VarInfo( const qboolean force )
 {
+	const int level = PRINT_ALL;	// force ? PRINT_ALL : PRINT_V_RENDERER;
 	if ( glConfig.deviceSupportsGamma ) {
-		ri.Printf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
+		ri.Printf( level, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
 	} else {
-		ri.Printf( PRINT_ALL, "GAMMA: software w/ %d overbright bits\n", tr.overbrightBits );
+		ri.Printf( level, "GAMMA: software w/ %d overbright bits\n", tr.overbrightBits );
 	}
 
 
-	ri.Printf( PRINT_ALL, "texturemode: %s\n", r_textureMode->string );
-	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_textureBits->integer ? r_textureBits->integer : 32 );
-	ri.Printf( PRINT_ALL, "picmip: %d%s\n", r_picmip->integer, r_nomip->integer ? ", worldspawn only" : "" );
+	ri.Printf( level, "texturemode: %s\n", r_textureMode->string );
+	ri.Printf( level, "texture bits: %d\n", r_textureBits->integer ? r_textureBits->integer : 32 );
+	ri.Printf( level, "picmip: %d%s\n", r_picMip->integer, r_noMip->integer ? ", worldspawn only" : "" );
 
 #ifdef USE_VULKAN
 	if ( r_vertexLight->integer ) {
-		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
+		ri.Printf( level, "HACK: using vertex lightmap approximation\n" );
 	}
 #else
 	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
+		ri.Printf( level, "HACK: using vertex lightmap approximation\n" );
 	} else if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
-		ri.Printf( PRINT_ALL, "HACK: ragePro approximations\n" );
+		ri.Printf( level, "HACK: ragePro approximations\n" );
 	} else if ( glConfig.hardwareType == GLHW_RIVA128 ) {
-		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
+		ri.Printf( level, "HACK: riva128 approximations\n" );
 	}
 
 	if ( r_finish->integer ) {
-		ri.Printf( PRINT_ALL, "Forcing glFinish\n" );
+		ri.Printf( level, "Forcing glFinish\n" );
 	}
 #endif
 }
@@ -1423,8 +1542,8 @@ GfxInfo_f
 */
 static void GfxInfo_f( void )
 {
-	GfxInfo();
-	VarInfo();
+	GfxInfo( qtrue );
+	VarInfo( qtrue );
 }
 
 
@@ -1492,120 +1611,171 @@ static void R_Register( void )
 	r_simpleMipMaps = ri.Cvar_Get( "r_simpleMipMaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 	r_vertexLight = ri.Cvar_Get( "r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
 
-	r_picmip = ri.Cvar_Get( "r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "16", CV_INTEGER );
-	ri.Cvar_SetDescription( r_picmip, "Set texture quality, lower is better" );
+	r_picMip = ri.Cvar_Get( "r_picMip", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "16", CV_INTEGER );
+	ri.Cvar_SetDescription( r_picMip, "Set texture quality, lower is better." );
 
-	r_nomip = ri.Cvar_Get( "r_nomip", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription( r_nomip, "Apply picmip only on worldspawn textures" );
+	r_noMip = ri.Cvar_Get( "r_noMip", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_noMip, "Limits /r_picMip to worldspawn textures.");
 
 	r_neatSky = ri.Cvar_Get( "r_neatSky", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(r_neatSky, "Applies texture mipping to skies.");
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
 	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_detailTextures, "Enables usage of shader stages flagged as detail." );
 	r_textureBits = ri.Cvar_Get( "r_textureBits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "32", CV_INTEGER );
+	ri.Cvar_SetDescription( r_textureBits, "Number of texture bits per texture." );
 
 	r_mergeLightmaps = ri.Cvar_Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
 #if defined (USE_VULKAN) && defined (USE_VBO)
 	r_vbo = ri.Cvar_Get( "r_vbo", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_vbo, "Use Vertex Buffer Objects to cache static map geometry, may improve FPS on modern GPUs, increases hunk memory usage by 15-30MB (map-dependent)." );
 #endif
 
 	r_mapGreyScale = ri.Cvar_Get( "r_mapGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "-1", "1", CV_FLOAT );
+	ri.Cvar_SetDescription(r_mapGreyScale, "Desaturate world map textures only, works independently from \\r_greyScale, negative values desaturates lightmaps only.");
 
-	r_subdivisions = ri.Cvar_Get( "r_subdivisions", "4", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	r_subdivisions = ri.Cvar_Get("r_subdivisions", "2", CVAR_ARCHIVE_ND | CVAR_LATCH, "1", "16", CV_INTEGER);
+	ri.Cvar_SetDescription(r_subdivisions, "Distance to subdivide bezier curved surfaces. Higher values mean less subdivision and less geometric complexity.");
 
-	r_maxPolys = ri.Cvar_Get( "r_maxPolys", XSTRING( MAX_POLYS ), CVAR_LATCH, NULL, NULL, CV_INTEGER );
-	r_maxPolyVerts = ri.Cvar_Get( "r_maxPolyVerts", XSTRING( MAX_POLYVERTS ), CVAR_LATCH, NULL, NULL, CV_INTEGER );
+	r_maxPolys = ri.Cvar_Get("r_maxPolys", XSTRING(MAX_POLYS), CVAR_LATCH, NULL, NULL, CV_INTEGER);
+	ri.Cvar_SetDescription( r_maxPolys, "Maximum number of polygons to draw in a scene." );
+	r_maxPolyVerts = ri.Cvar_Get("r_maxPolyVerts", XSTRING(MAX_POLYVERTS), CVAR_LATCH, NULL, NULL, CV_INTEGER);
+	ri.Cvar_SetDescription( r_maxPolyVerts, "Maximum number of polygon vertices to draw in a scene." );
 
 	//
 	// archived variables that can change at any time
 	//
 	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE_ND | CVAR_CHEAT, NULL, NULL, CV_INTEGER );
 	r_lodBias = ri.Cvar_Get( "r_lodBias", "0", CVAR_ARCHIVE_ND, "0", "3", CV_INTEGER );
-	r_flares = ri.Cvar_Get ("r_flares", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	r_zNear = ri.Cvar_Get( "r_zNear", "4", CVAR_CHEAT, "0.001", "200", CV_FLOAT );
-	r_zProj = ri.Cvar_Get( "r_zProj", "64", CVAR_ARCHIVE_ND, "8", "128", CV_FLOAT );
-	r_stereoSeparation = ri.Cvar_Get( "r_stereoSeparation", "64", CVAR_ARCHIVE_ND, NULL, NULL, CV_FLOAT );
-	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	r_fastSky = ri.Cvar_Get( "r_fastSky", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
-	r_drawSun = ri.Cvar_Get( "r_drawSun", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	r_dynamicLight = ri.Cvar_Get( "r_dynamicLight", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_lodBias, "Sets the level of detail of in-game models:\n 0: High\n 1: Medium\n 2: Low" );
+	r_flares = ri.Cvar_Get( "r_flares", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_flares, "Enables corona effects on light sources." );
+	r_zNear = ri.Cvar_Get("r_zNear", "4", CVAR_CHEAT, "0.001", "200", CV_FLOAT);
+	ri.Cvar_SetDescription( r_zNear, "Viewport distance from view origin." );
+	r_zProj = ri.Cvar_Get("r_zProj", "64", CVAR_ARCHIVE_ND, "8", "128", CV_FLOAT);
+	ri.Cvar_SetDescription( r_zProj, "Projected viewport frustum." );
+	r_stereoSeparation = ri.Cvar_Get("r_stereoSeparation", "64", CVAR_ARCHIVE_ND, NULL, NULL, CV_FLOAT);
+	ri.Cvar_SetDescription( r_stereoSeparation, "Control eye separation. Resulting separation is \\r_zProj divided by this value in standard units." );
+	r_ignoreGLErrors = ri.Cvar_Get("r_ignoreGLErrors", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER);
+	ri.Cvar_SetDescription( r_ignoreGLErrors, "Ignore OpenGL errors." );
+	r_fastSky = ri.Cvar_Get("r_fastSky", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER);
+	ri.Cvar_SetDescription( r_fastSky, "Draw flat colored skies." );
+	r_drawSun = ri.Cvar_Get("r_drawSun", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER);
+	ri.Cvar_SetDescription( r_drawSun, "Draw sun shader in skies." );
+	r_dynamicLight = ri.Cvar_Get("r_dynamicLight", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER);
+	ri.Cvar_SetDescription( r_dynamicLight, "Enables dynamic lighting." );
 #ifdef USE_PMLIGHT
 #if arm32 || arm64 // RPi4 Vulkan driver have very poor GLSL shaders performance...
 	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
 #else
 	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
 #endif
-	r_dlightScale = ri.Cvar_Get( "r_dlightScale", "0.5", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT );
-	r_dlightIntensity = ri.Cvar_Get( "r_dlightIntensity", "1.0", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT );
+	ri.Cvar_SetDescription( r_dlightMode, "Dynamic light mode:\n 0: VQ3 'fake' dynamic lights\n 1: High-quality per-pixel dynamic lights, slightly faster than VQ3's on modern hardware\n 2: Same as 1 but applies to all MD3 models too" );
+	r_dlightScale = ri.Cvar_Get("r_dlightScale", "0.5", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT);
+	ri.Cvar_SetDescription( r_dlightScale, "Scales dynamic light radii." );
+	r_dlightIntensity = ri.Cvar_Get("r_dlightIntensity", "1.0", CVAR_ARCHIVE_ND, "0.1", "1", CV_FLOAT);
+	ri.Cvar_SetDescription( r_dlightIntensity, "Adjusts dynamic light intensity but not radius." );
 #endif // USE_PMLIGHT
 
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	ri.Cvar_SetDescription(r_textureMode, "Texture interpolation mode:\n GL_NEAREST:		Nearest neighbor interpolation and will therefore appear similar to Quake II except with the added colored lighting\n GL_LINEAR:			Linear interpolation and will appear to blend in objects that are closer than the resolution that the textures are set as\n GL_NEAREST_MIPMAP_NEAREST:	Nearest neighbor interpolation with mipmapping for bilinear hardware, mipmapping will blend objects that are farther away than the resolution that they are set as\n GL_LINEAR_MIPMAP_NEAREST:	Linear interpolation with mipmapping for bilinear hardware\n GL_NEAREST_MIPMAP_LINEAR:	Nearest neighbor interpolation with mipmapping for trilinear hardware\n GL_LINEAR_MIPMAP_LINEAR:	Linear interpolation with mipmapping for trilinear hardware" );
 	ri.Cvar_SetGroup( r_textureMode, CVG_RENDERER );
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE_ND, "0.5", "3", CV_FLOAT );
+	ri.Cvar_SetDescription( r_gamma, "Gamma correction factor." );
 	ri.Cvar_SetGroup( r_gamma, CVG_RENDERER );
 	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_facePlaneCull, "Enables culling of planar surfaces with back side test." );
 
 	r_railWidth = ri.Cvar_Get( "r_railWidth", "16", CVAR_ARCHIVE_ND, "1", "128", CV_INTEGER );
+	ri.Cvar_SetDescription( r_railWidth, "Radius of railgun trails." );
 	r_railCoreWidth = ri.Cvar_Get( "r_railCoreWidth", "6", CVAR_ARCHIVE_ND, "1", "64", CV_INTEGER );
+	ri.Cvar_SetDescription( r_railCoreWidth, "Size of railgun trail rings when enabled in game code (normally \\cg_oldRail 0.)" );
 	r_railSegmentLength = ri.Cvar_Get( "r_railSegmentLength", "32", CVAR_ARCHIVE_ND, "1", "256", CV_INTEGER );
+	ri.Cvar_SetDescription( r_railSegmentLength, "Length of segments in railgun trails." );
 
 	r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.6", CVAR_CHEAT, "0", "1", CV_FLOAT );
+	ri.Cvar_SetDescription( r_ambientScale, "Light grid ambient light scaling on entity models" );
 	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT, "0", "1", CV_FLOAT );
+	ri.Cvar_SetDescription( r_directedScale, "Light grid direct light scaling on entity models" );
 
 	//r_anaglyphMode = ri.Cvar_Get( "r_anaglyphMode", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_INTEGER );
 
 	r_greyScale = ri.Cvar_Get( "r_greyScale", "0", CVAR_ARCHIVE_ND, "-1", "1", CV_FLOAT );
+	ri.Cvar_SetDescription( r_greyScale, "Desaturates rendered frame, requires \\r_fbo 1." );
 	ri.Cvar_SetGroup( r_greyScale, CVG_RENDERER );
 
 	//
 	// temporary variables that can change at any time
 	//
 	r_showImages = ri.Cvar_Get( "r_showImages", "0", CVAR_TEMP, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_showImages, "Draw all images currently loaded into memory:\n 0: Disabled\n 1: Show images set to uniform size\n 2: Show images with scaled relative to largest image" );
 
-	r_debugLight = ri.Cvar_Get( "r_debuglight", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	r_debugLight = ri.Cvar_Get( "r_debugLight", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_debugLight, "Debugging tool to print ambient and directed lighting information." );
 	r_debugSort = ri.Cvar_Get( "r_debugSort", "0", CVAR_CHEAT, "0", "100", CV_INTEGER );
+	ri.Cvar_SetDescription( r_debugSort, "Debugging tool to filter out shaders with depth sorting order values higher than the set value." );
 	r_printShaders = ri.Cvar_Get( "r_printShaders", "0", 0, "0", "1", CV_INTEGER );
 	r_saveFontData = ri.Cvar_Get( "r_saveFontData", "0", 0, "0", "1", CV_INTEGER );
 
 	r_noCurves = ri.Cvar_Get ("r_noCurves", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_noCurves, "Disable drawing bezier curves." );
 	r_drawWorld = ri.Cvar_Get ("r_drawWorld", "1", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_drawWorld, "Disable drawing world." );
 	r_lightmap = ri.Cvar_Get ("r_lightmap", "0", CVAR_CHEAT, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_lightmap, "Show only lightmaps on all world surfaces." );
 	r_portalOnly = ri.Cvar_Get ("r_portalOnly", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 
 	r_flareSize = ri.Cvar_Get( "r_flareSize", "40", CVAR_CHEAT, "0", "640", CV_FLOAT );
+	ri.Cvar_SetDescription( r_flareSize, "Radius of light flares. Requires \\r_flares 1." );
 	r_flareFade = ri.Cvar_Get( "r_flareFade", "10", CVAR_CHEAT, "0", "1000", CV_FLOAT );
+	ri.Cvar_SetDescription( r_flareFade, "Distance to fade out light flares. Requires \\r_flares 1." );
 	r_flareCoeff = ri.Cvar_Get( "r_flareCoeff", "150", CVAR_CHEAT, "0.1", "1500", CV_FLOAT );
+	ri.Cvar_SetDescription( r_flareCoeff, "Coefficient for the light flare intensity falloff function. Requires \\r_flares 1." );
 
 	r_skipBackEnd = ri.Cvar_Get( "r_skipBackEnd", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_skipBackEnd, "Skips loading rendering backend." );
 
 	r_lodScale = ri.Cvar_Get( "r_lodScale", "5", CVAR_CHEAT, "0", "20", CV_FLOAT );
 	r_noRefresh = ri.Cvar_Get( "r_noRefresh", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_noRefresh, "Bypasses refreshing of the rendered scene." );
 	r_drawEntities = ri.Cvar_Get( "r_drawEntities", "1", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_drawEntities, "Draw all world entities." );
 	r_noCull = ri.Cvar_Get( "r_noCull", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 	r_noVis = ri.Cvar_Get( "r_noVis", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_noVis, "Disables usage of PVS." );
+	
 	r_showCluster = ri.Cvar_Get( "r_showCluster", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_showCluster, "Shows current cluster index." );
 	r_speeds = ri.Cvar_Get( "r_speeds", "0", CVAR_CHEAT, "0", "6", CV_INTEGER );
+	ri.Cvar_SetDescription( r_speeds, "Prints out various debugging stats from PVS:\n 0: Disabled\n 1: Backend BSP\n 2: Frontend grid culling\n 3: Current view cluster index\n 4: Dynamic lighting\n 5: zFar clipping\n 6: Flares" );
 	r_debugSurface = ri.Cvar_Get( "r_debugSurface", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_debugSurface, "Backend visual debugging tool for bezier mesh surfaces." );
 	r_noBind = ri.Cvar_Get( "r_noBind", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_noBind, "Backend debugging tool: Disables texture binding." );
 	r_showTris = ri.Cvar_Get( "r_showTris", "0", CVAR_CHEAT, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_showTris, "Debugging tool: Wireframe rendering of polygon triangles in the world." );
 	r_showSky = ri.Cvar_Get( "r_showSky", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_showSky, "Forces sky in front of all surfaces." );
 	r_showNormals = ri.Cvar_Get ("r_showNormals", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_showNormals, "Debugging tool: Show wireframe surface normals." );
 	r_clear = ri.Cvar_Get( "r_clear", "0", 0, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_clear, "Forces screen buffer clearing every frame, removing any hall of mirrors effect in void.\n Use \\r_clearColor to set color." );
 	r_offsetFactor = ri.Cvar_Get( "r_offsetFactor", "-1", CVAR_CHEAT, NULL, NULL, CV_FLOAT );
+	ri.Cvar_SetDescription( r_offsetFactor, "Offset factor for shaders with polygonOffset stages." );
 	r_offsetUnits = ri.Cvar_Get( "r_offsetUnits", "-2", CVAR_CHEAT, NULL, NULL, CV_FLOAT );
+	ri.Cvar_SetDescription( r_offsetUnits, "Offset units for shaders with polygonOffset stages." );
 	r_drawBuffer = ri.Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, NULL, NULL, CV_NONE );
 	r_lockPVS = ri.Cvar_Get( "r_lockPVS", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_lockPVS, "Debugging tool: Locks to current potentially visible set. Useful for testing vis-culling in maps." );
 	r_noPortals = ri.Cvar_Get( "r_noPortals", "0", 0, "0", "2", CV_INTEGER );
-	ri.Cvar_SetDescription(r_noPortals, "Disables in-game portals, valid values:"
-		" 0: Portals enabled\n"
-		" 1: Portals disabled\n"
-		" 2: Portals and mirrors disabled"
-	);
+	ri.Cvar_SetDescription(r_noPortals, "Disables in-game portals, valid values: 0: Portals enabled\n 1: Portals disabled\n 2: Portals and mirrors disabled" );
 	r_shadows = ri.Cvar_Get( "cg_shadows", "1", 0, "0", "3", CV_INTEGER );
 
-	r_marksOnTriangleMeshes = ri.Cvar_Get("r_marksOnTriangleMeshes", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	r_marksOnTriangleMeshes = ri.Cvar_Get("r_marksOnTriangleMeshes", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_marksOnTriangleMeshes, "Enables impact marks on triangle mesh surfaces (ie: MD3 models.) Requires impact marks to be enabled in the game code." );
 
 //fnq
 	r_arc_fov = ri.Cvar_Get( "r_arc_fov", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
@@ -1614,43 +1784,42 @@ static void R_Register( void )
 			ri.Cvar_Set("cg_fovAdjust", "0");
 		}
 	}
-	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for wide screen aspect ratios:\n"
-		" 0 - disabled\n"
-		" 1 - enabled\n");
+	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
 
 	r_arc_uiMode = ri.Cvar_Get( "r_arc_uiMode", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
-	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of UI elements in wide screen aspect ratios:\n"
-		" 0 - disabled\n"
-		" 1 - adjust aspect and coordinates\n"
-		" 1 - adjust aspect, preserve coordinates\n");
+	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of UI elements in wide screen aspect ratios:\n 0: Disabled\n 1: Adjust aspect and coordinates\n 2: Adjust aspect, preserve coordinates\n");
 	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of crosshairs in wide screen aspect ratios:\n"
-		" 0 - disabled\n"
-		" 1 - enabled\n");
+	ri.Cvar_SetDescription(r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
 	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
-	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_teleporterFlash, "Draw the screen flash effect when teleporting.\n"
-		" 0 - disabled\n"
-		" 1 - enabled\n");
+	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_teleporterFlash, "Screen flash effect when teleporting:\n 0: Disabled\n 1: Black\n 2: White" );
 
 	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
-	ri.Cvar_SetDescription(r_clearColor, "Set color of buffer clearing when r_clear 1 in hex RGB format.\n");
+	ri.Cvar_SetDescription( r_clearColor, "Set color to clear buffer to in hex RGB format. Requires \\r_clear 1." );
 
 	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_defaultImageStyle, "Default image style for missing or invalid shaders/textures:\n 0: Quake III grey with white outlines\n 1: Quake II small red and black tiles" );
 	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH, "16", "128", CV_INTEGER );
+	ri.Cvar_SetDescription( r_defaultImageSize, "Set image size for default images." );
 
 	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_drawSkyFloor, "Draw the bottom plane of scrolling sky boxes.\n"
-		" 0 - disabled\n"
-		" 1 - enabled\n");
+	ri.Cvar_SetDescription( r_drawSkyFloor, "Draw the bottom plane of scrolling sky boxes." );
 
-	r_picmip_filter = ri.Cvar_Get("r_picmip_filter", "63", CVAR_ARCHIVE | CVAR_LATCH, "0", "63", CV_INTEGER );
-	r_pixelsize = ri.Cvar_Get("r_pixelsize", "1", CVAR_ARCHIVE | CVAR_LATCH, "1", "16", CV_INTEGER );
+	r_screenshotNameFormat = ri.Cvar_Get( "r_screenshotNameFormat", "#l", CVAR_ARCHIVE, "", "", CV_NONE );
+	ri.Cvar_SetDescription( r_screenshotNameFormat, "Set naming convention for screenshots. Valid hashtag tokens to use:\n [#02/#04]y: year, [#02/#]m = month, [#02/#]d = day, [#02/#]h = hour, [#02/#]n = minute, [#02/#]s = second, #l = mapname, #g = gametype" );
+
+	r_dlightDesaturate = ri.Cvar_Get("r_dlightDesaturate", "0.1", CVAR_ARCHIVE, "0", "1", CV_FLOAT);
+	ri.Cvar_SetDescription(r_dlightDesaturate, "Colour desaturation for dynamic lights. Set to 0 to revert to original colour values.");
+
+	r_fogGreyScale = ri.Cvar_Get("r_fogGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_FLOAT);
+	ri.Cvar_SetDescription(r_fogGreyScale, "Desaturates fog volumes, works independently from \\r_greyScale.");
 //-fnq
 
 	r_aviMotionJpegQuality = ri.Cvar_Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE_ND, "0", "100", CV_INTEGER );
+	ri.Cvar_SetDescription( r_aviMotionJpegQuality, "Controls quality of Jpeg video capture when \\cl_aviMotionJpeg 1." );
 	r_screenshotJpegQuality = ri.Cvar_Get( "r_screenshotJpegQuality", "90", CVAR_ARCHIVE_ND, "0", "100", CV_INTEGER );
+	ri.Cvar_SetDescription( r_screenshotJpegQuality, "Controls quality of Jpeg screenshots when using screenshotJpeg." );
 
 	if ( glConfig.vidWidth )
 		return;
@@ -1660,53 +1829,58 @@ static void R_Register( void )
 	//
 	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
 	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_compressed_textures, "Enables texture compression." );
 	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
 	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_compiled_vertex_array, "Enables hardware-compiled vertex array rendering method." );
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE_ND | CVAR_LATCH | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_texture_env_add, "Enables additive blending in multitexturing. Requires \\r_ext_multitexture 1." );
 
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",	"0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_texture_filter_anisotropic, "Allow anisotropic filtering." );
 
 	r_ext_max_anisotropy = ri.Cvar_Get( "r_ext_max_anisotropy", "2", CVAR_ARCHIVE_ND | CVAR_LATCH, "1", NULL, CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_max_anisotropy, "Sets maximum anistrophic level for your graphics driver. Requires \\r_ext_texture_filter_anisotropic." );
 
 	r_stencilBits = ri.Cvar_Get( "r_stencilBits", "8", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "8", CV_INTEGER );
+	ri.Cvar_SetDescription( r_stencilBits, "Stencil buffer size, value decreases Z-buffer depth." );
 	r_ignoreHWGamma = ri.Cvar_Get( "r_ignoreHWGamma", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ignoreHWGamma, "Ignore hardware gamma ramps. Irrelevant when \\r_fbo 1." );
 
 #ifdef USE_VULKAN
-	r_device = ri.Cvar_Get( "r_device", "-1", CVAR_ARCHIVE_ND | CVAR_LATCH, "-2", NULL, CV_INTEGER );
-	ri.Cvar_SetDescription( r_device, "Select physical device to render:\n" \
-		" 0+ - use explicit device index\n" \
-		" -1 - first discrete GPU\n" \
-		" -2 - first integrated GPU" );
-	r_device->modified = qfalse;
-
-	r_fbo = ri.Cvar_Get( "r_fbo", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
-	r_hdr = ri.Cvar_Get( "r_hdr", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "-1", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_hdr, "Enables high dynamic range frame buffer texture format. Requires \\r_fbo 1.\n"
-		" -1: 4-bit, for testing purposes, heavy color banding, might not work on all systems\n"
-		" 0: 8 bit, default, moderate color banding with multi - stage shaders\n"
-		" 1: 16 bit, enhanced blending precision, no color banding, might decrease performance on AMD / Intel GPUs\n"
-	);
-	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription( r_bloom, "Enables bloom post-processing effect. Requires \\r_fbo 1." );
-
-	r_bloom_threshold = ri.Cvar_Get( "r_bloom_threshold", "0.6", CVAR_ARCHIVE_ND | CVAR_LATCH, "0.01", "1", CV_FLOAT );
-	r_bloom_intensity = ri.Cvar_Get( "r_bloom_intensity", "0.5", CVAR_ARCHIVE_ND | CVAR_LATCH, "0.01", "2", CV_FLOAT );
-
-	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "64", CV_INTEGER );
-	r_ext_supersample = ri.Cvar_Get( "r_ext_supersample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
-	r_ext_alpha_to_coverage = ri.Cvar_Get( "r_ext_alpha_to_coverage", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
-
-	r_renderWidth = ri.Cvar_Get( "r_renderWidth", "800", CVAR_ARCHIVE_ND | CVAR_LATCH, "96", NULL, CV_INTEGER );
-	r_renderHeight = ri.Cvar_Get( "r_renderHeight", "600", CVAR_ARCHIVE_ND | CVAR_LATCH, "72", NULL, CV_INTEGER );
+	r_fbo = ri.Cvar_Get( "r_fbo", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_fbo, "Use framebuffer objects, enables gamma correction in windowed mode and allows arbitrary video size and screenshot/video capture.\n Required for bloom, HDR rendering, anti-aliasing and greyscale effects." );
+	r_hdr = ri.Cvar_Get("r_hdr", "1", CVAR_ARCHIVE_ND, "-1", "1", CV_INTEGER);
+	ri.Cvar_SetDescription(r_hdr, "Enables high dynamic range frame buffer texture format. Requires \\r_fbo 1.\n -1: 4-bit, for testing purposes, heavy color banding, might not work on all systems\n 0: 8 bit, default, moderate color banding with multi - stage shaders\n 1: 16 bit, enhanced blending precision, no color banding, might decrease performance on AMD / Intel GPUs" );
+	ri.Cvar_SetGroup(r_hdr, CVG_RENDERER);
+	r_renderWidth = ri.Cvar_Get( "r_renderWidth", "854", CVAR_ARCHIVE_ND | CVAR_LATCH, "96", NULL, CV_INTEGER );
+	ri.Cvar_SetDescription( r_renderWidth, "Video width to render to when \\r_renderScale > 0." );
+	r_renderHeight = ri.Cvar_Get( "r_renderHeight", "480", CVAR_ARCHIVE_ND | CVAR_LATCH, "72", NULL, CV_INTEGER );
+	ri.Cvar_SetDescription( r_renderHeight, "Video height to render to when \\r_renderScale > 0." );
 
 	r_renderScale = ri.Cvar_Get( "r_renderScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "4", CV_INTEGER );
-	ri.Cvar_SetDescription( r_renderScale, "Scaling mode to be used with custom render resolution:\n"
-		" 0 - disabled\n"
-		" 1 - nearest filtering, stretch to full size\n"
-		" 2 - nearest filtering, preserve aspect ratio (black bars on sides)\n"
-		" 3 - linear filtering, stretch to full size\n"
-		" 4 - linear filtering, preserve aspect ratio (black bars on sides)\n" );
+	ri.Cvar_SetDescription( r_renderScale, "Scaling mode to be used with custom render resolution:\n 0: Disabled\n 1: Nearest filtering, stretch to full size\n 2: Nearest filtering, preserve aspect ratio (black bars on sides)\n 3: Linear filtering, stretch to full size\n 4: Linear filtering, preserve aspect ratio (black bars on sides)" );
+
+	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "8", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_multisample, "Multi-sample anti-aliasing, valid values: 0|2|4|6|8. Requires \\r_fbo 1." );
+	r_ext_supersample = ri.Cvar_Get( "r_ext_supersample", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_supersample, "Super-sample anti-aliasing, requires \\r_fbo 1." );
+	r_ext_alpha_to_coverage = ri.Cvar_Get( "r_ext_alpha_to_coverage", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription( r_ext_alpha_to_coverage, "Enables alpha-to-coverage multisampling, requires \\r_fbo 1." );
+
+	// bloom
+	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER | CVAR_LATCH);
+	ri.Cvar_SetDescription( r_bloom, "Enables bloom post-processing effect. Requires \\r_fbo 1." );
+
+	r_bloom_threshold = ri.Cvar_Get("r_bloom_threshold", "0.6", CVAR_ARCHIVE_ND, "0", "1", CV_FLOAT | CVAR_LATCH);
+	ri.Cvar_SetGroup(r_bloom_threshold, CVG_RENDERER);
+	r_bloom_intensity = ri.Cvar_Get("r_bloom_intensity", "0.5", CVAR_ARCHIVE_ND, "0", "2", CV_FLOAT | CVAR_LATCH);
+
+	r_device = ri.Cvar_Get( "r_device", "-1", CVAR_ARCHIVE_ND | CVAR_LATCH, "-2", NULL, CV_INTEGER );
+	ri.Cvar_SetDescription( r_device, "Select physical device to render:\n 0+: use explicit device index\n -1: first discrete GPU\n -2: first integrated GPU" );
+	r_device->modified = qfalse;
 #endif // USE_VULKAN
+
 }
 
 
@@ -1810,7 +1984,7 @@ RE_Shutdown
 */
 static void RE_Shutdown( refShutdownCode_t code ) {
 
-	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", code );
+	ri.Printf( PRINT_V_RENDERER, "RE_Shutdown( %i )\n", code );
 
 	ri.Cmd_RemoveCommand( "listModels" );
 	ri.Cmd_RemoveCommand( "screenshotBMP" );
@@ -1820,7 +1994,6 @@ static void RE_Shutdown( refShutdownCode_t code ) {
 	ri.Cmd_RemoveCommand( "listShaders" );
 	ri.Cmd_RemoveCommand( "listSkins" );
 	ri.Cmd_RemoveCommand( "gfxInfo" );
-	ri.Cmd_RemoveCommand( "shaderstate" );
 #ifdef USE_VULKAN
 	ri.Cmd_RemoveCommand( "vkInfo" );
 #endif
@@ -1900,7 +2073,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	Com_Memset( &re, 0, sizeof( re ) );
 
 	if ( apiVersion != REF_API_VERSION ) {
-		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n", 
+		ri.Printf( PRINT_WARNING, "Mismatched REF_API_VERSION: expected %i, got %i\n",
 			REF_API_VERSION, apiVersion );
 		return NULL;
 	}

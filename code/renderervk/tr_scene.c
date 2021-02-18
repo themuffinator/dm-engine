@@ -126,7 +126,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 #if 0
 	if ( !hShader ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+		ri.Printf( PRINT_WARNING, "RE_AddPolyToScene: NULL poly shader\n");
 		return;
 	}
 #endif
@@ -261,6 +261,27 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 		return;
 	}
 #endif
+
+	if (r_dlightDesaturate->value) {
+		byte		bcol[3];
+
+		bcol[0] = r * 0xff;
+		bcol[1] = g * 0xff;
+		bcol[2] = b * 0xff;
+
+		if (r_dlightDesaturate->integer) {
+			const float luma = LUMA(bcol[0], bcol[1], bcol[2]) / 255;
+			r = g = b = luma;
+		} else if (r_dlightDesaturate->value) {
+			const float scale = fabs(r_dlightDesaturate->value);
+			const float luma = LUMA(bcol[0], bcol[1], bcol[2]);
+
+			r = LERP(bcol[0], luma, scale) / 255;
+			g = LERP(bcol[1], luma, scale) / 255;
+			b = LERP(bcol[2], luma, scale) / 255;
+		}
+	}
+
 #ifdef USE_PMLIGHT
 #ifdef USE_LEGACY_DLIGHTS
 	if ( r_dlightMode->integer )
@@ -378,6 +399,8 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 		return;
 	}
 
+	if ( backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
+
 	startTime = ri.Milliseconds();
 
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
@@ -422,7 +445,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	}
 //fnq
 	// do aspect correction for 3D HUD elements
-	else if (cgame && r_arc_uiMode->integer) {
+	else if (cgame && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 		//Com_Printf( "RE_RenderScene() arcMode 1: x:%i y:%i w:%i h:%i\n", tr.refdef.x, tr.refdef.y, tr.refdef.width, tr.refdef.height );
 		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);
@@ -525,18 +548,6 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	// leilei - end
 //-openarena
 
-	if (r_pixelsize->integer > 1 && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
-		parms.viewportX /= r_pixelsize->integer;
-		parms.viewportY /= r_pixelsize->integer;
-		parms.viewportWidth /= r_pixelsize->integer;
-		parms.viewportHeight /= r_pixelsize->integer;
-
-		parms.scissorX = floor(parms.scissorX / r_pixelsize->integer);
-		parms.scissorY = floor(parms.scissorY / r_pixelsize->integer);
-		parms.scissorWidth = floor(parms.scissorWidth / r_pixelsize->integer);
-		parms.scissorHeight = floor(parms.scissorHeight / r_pixelsize->integer);
-	}
-	
 	parms.stereoFrame = tr.refdef.stereoFrame;
 
 	VectorCopy( fd->vieworg, parms.or.origin );

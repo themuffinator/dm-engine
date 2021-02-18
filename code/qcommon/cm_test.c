@@ -331,7 +331,7 @@ AREAPORTALS
 ===============================================================================
 */
 
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 void CM_Q2_FloodArea_r( int areaNum, int floodnum ) {
 	int					i;
 	q2_cArea_t			*area;
@@ -378,7 +378,7 @@ void CM_Q2_FloodAreaConnections( void ) {
 		CM_Q2_FloodArea_r(i, floodnum);
 	}
 }
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 
 void CM_Q3_FloodArea_r( int areaNum, int floodnum ) {
 	int		i;

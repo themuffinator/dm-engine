@@ -1553,21 +1553,19 @@ static qboolean NET_GetCvars( void ) {
 
 #if defined (DEDICATED) || !defined (USE_IPV6)
 	// I want server owners to explicitly turn on ipv6 support.
-	net_enabled = Cvar_Get( "net_enabled", "1", CVAR_LATCH | CVAR_ARCHIVE_ND | CVAR_NORESTART, "0", "15", CV_INTEGER );
+	net_enabled = Cvar_Get( "net_enabled", "1", CVAR_LATCH | CVAR_ARCHIVE_ND | CVAR_NORESTART, "0", "1", CV_INTEGER );
 #else
 	/* End users have it enabled so they can connect to ipv6-only hosts, but ipv4 will be
 	 * used if available due to ping */
 	net_enabled = Cvar_Get( "net_enabled", "3", CVAR_LATCH | CVAR_ARCHIVE_ND | CVAR_NORESTART, "0", "15", CV_INTEGER );
 #endif
 
-	Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n"
-		" 1 - enable IPv4\n"
+	
 #ifdef USE_IPV6
-		" 2 - enable IPv6\n"
-		" 4 - prioritize IPv6 connections over IPv4\n"
-		" 8 - disable IPv6 multicast"
+	/**/Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n 2: Enable IPv6\n 4: Prioritize IPv6 connections over IPv4\n 8: Disable IPv6 multicast" );
+#else
+	/**/Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n" );
 #endif
-		);
 
 	modified = net_enabled->modified;
 	net_enabled->modified = qfalse;

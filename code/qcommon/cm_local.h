@@ -234,7 +234,7 @@ typedef struct {
 	int			checkcount;					// incremented on each trace
 
 	unsigned int checksum;
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 	// QUAKE 2 ONLY BELOW
 
 	int			numTexInfo;
@@ -304,9 +304,9 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum );
 void CM_StoreBrushes( leafList_t *ll, int nodenum );
 
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
-#ifdef QUAKE2
+#ifdef GAME_QUAKE2
 q2_cModel_t	*CM_Q2_ClipHandleToModel( clipHandle_t handle );
-#endif //QUAKE2
+#endif //GAME_QUAKE2
 q3_cModel_t	*CM_ClipHandleToModel( clipHandle_t handle );
 qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
 qboolean CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );

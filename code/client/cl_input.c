@@ -953,41 +953,57 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-mLook", IN_MLookUp);
 
 	cl_noDelta = Cvar_Get( "cl_noDelta", "0", CVAR_DEVELOPER, "0", "1", CV_INTEGER );
-	cl_debugMove = Cvar_Get( "cl_debugMove", "0", CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_noDelta, "Disables delta compression on uploaded user commands." );
+	cl_debugMove = Cvar_Get( "cl_debugMove", "0", CVAR_DEVELOPER, "0", "2", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_debugMove, "Prints a graph of view angle deltas.\n 0: Disabled\n 1: Yaw\n 2: Pitch" );
 
 	cl_showSend = Cvar_Get( "cl_showSend", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_showSend, "Prints client to server packet information." );
 
 	cl_yawSpeed = Cvar_Get( "cl_yawSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
+	/**/Cvar_SetDescription( cl_yawSpeed, "Side-to-side turning speed using keys (+left and +right)." );
 	cl_pitchSpeed = Cvar_Get( "cl_pitchSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
+	/**/Cvar_SetDescription( cl_pitchSpeed, "Up and down pitching speed using keys (+lookUp and +lookDown)." );
 	cl_angleSpeedKey = Cvar_Get( "cl_angleSpeedKey", "1.5", 0, "0.1", "10.0", CV_FLOAT );
 
 	cl_maxPackets = Cvar_Get( "cl_maxPackets", "60", CVAR_ARCHIVE, "15", "125", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_maxPackets, "Maximum packet upload rate." );
 	cl_packetDup = Cvar_Get( "cl_packetDup", "1", CVAR_ARCHIVE_ND, "0", "5", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_packetDup, "Limits the number of duplicate commands allowed per packet." );
 
 	cl_run = Cvar_Get( "cl_run", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_run, "Persistent player running movement, +speed then becomes walk speed." );
 	cl_sensitivity = Cvar_Get( "sensitivity", "2", CVAR_ARCHIVE, "0.01", "10.0", CV_FLOAT );
-	cl_mouseAccel = Cvar_Get( "cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "0.0", "10.0", CV_FLOAT );
+	/**/Cvar_SetDescription( cl_sensitivity, "Sets base mouse sensitivity." );
+	cl_mouseAccel = Cvar_Get( "cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "-10.0", "10.0", CV_FLOAT );
+	/**/Cvar_SetDescription( cl_mouseAccel, "Enables mouse acceleration." );
 	cl_freeLook = Cvar_Get( "cl_freeLook", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_freeLook, "Allow pitching or up/down look with mouse." );
 
-	// 0: legacy mouse acceleration
-	// 1: new implementation
 	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	// offset for the power function (for style 1, ignored otherwise)
-	// this should be set to the max rate value
+	/**/Cvar_SetDescription( cl_mouseAccelStyle, "Enables newer mouse acceleration algorithm." );
+
 	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "0.001", "50000", CV_FLOAT );
+	/**/Cvar_SetDescription( cl_mouseAccelOffset, "Mouse acceleration power function for \\cl_mouseAccelStyle 1. This should be set to the max rate value." );
 
 	cl_showMouseRate = Cvar_Get( "cl_showMouseRate", "0", 0, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_showMouseRate, "Prints mouse acceleration info when \\cl_mouseAccel has a value set." );
 
-	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
-	m_yaw = Cvar_Get( "m_yaw", "0.022", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE_ND, "-100", "100", CV_FLOAT );
+	/**/Cvar_SetDescription( m_pitch, "Post-acceleration vertical mouse sensitivity." );
+	m_yaw = Cvar_Get( "m_yaw", "0.022", CVAR_ARCHIVE_ND, "-100", "100", CV_FLOAT );
+	/**/Cvar_SetDescription( m_yaw, "Post-acceleration horizontal mouse sensitivity." );
 	m_forward = Cvar_Get( "m_forward", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	/**/Cvar_SetDescription( m_forward, "Forward and backward mouse sensitivity when strafing." );
 	m_side = Cvar_Get( "m_side", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
+	/**/Cvar_SetDescription( m_side, "Side-to-side mouse sensitivity when strafing." );
 #ifdef MACOS_X
 	// Input is jittery on OS X w/o this
 	m_filter = Cvar_Get( "m_filter", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #else
 	m_filter = Cvar_Get( "m_filter", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #endif
+	/**/Cvar_SetDescription( m_filter, "Enables mouse smoothing." );
 }
 
 

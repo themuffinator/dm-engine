@@ -587,35 +587,48 @@ Prints the value, default, and latched string of the given variable
 */
 static void Cvar_Print( const cvar_t *v ) {
 
-	Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\"", v->name, v->string );
+	Com_Printf("\n");
+
+	Com_Printf ( S_COL_VAR "%s" S_COL_BASE " is \"" S_COL_VAL "%s" S_COL_BASE "\"", v->name, v->string );
 
 	if ( !( v->flags & CVAR_ROM ) ) {
-		if (!Q_stricmp(v->string, v->resetString)) {
-			Com_Printf( " (default)" S_COLOR_WHITE );
-		} else {
-			Com_Printf(" default:\"%s" S_COLOR_WHITE "\"", v->resetString);
+
+		Com_Printf( S_COL_BASE " (" );
+		if (v->mins && v->maxs) {
+			Com_Printf( S_COL_VAL "%s " S_COL_BASE "to" S_COL_VAL " %s, ", v->mins, v->maxs);
+		} else if (v->mins) {
+			Com_Printf( S_COL_BASE "min: " S_COL_VAL "%s, ", v->mins);
+		} else if (v->maxs) {
+			Com_Printf( S_COL_BASE "max: " S_COL_VAL "%s, ", v->maxs);
 		}
 
-		if (v->mins && v->maxs) {
-			Com_Printf( " range:%s-%s" S_COLOR_WHITE, v->mins, v->maxs );
+		if (!Q_stricmp(v->string, v->resetString)) {
+			Com_Printf( S_COL_BASE "default" );
+		} else {
+			Com_Printf( S_COL_BASE "default: \"" S_COL_VAL "%s" S_COL_BASE "\"", v->resetString );
 		}
-		else if (v->mins) {
-			Com_Printf(" min:%s" S_COLOR_WHITE, v->mins);
+
+		if (v->latchedString) {
+			Com_Printf( S_COL_BASE ", latched: " S_COL_VAL "%s", v->latchedString);
 		}
-		else if (v->maxs) {
-			Com_Printf(" max:%s" S_COLOR_WHITE, v->maxs);
+
+		Com_Printf( S_COL_BASE ")" );
+
+		if (v->validator == CV_INTEGER) {
+			Com_Printf(S_COL24_DEEP_SKY_BLUE " INT");
 		}
-	}
+		else if (v->validator == CV_FLOAT) {
+			Com_Printf(S_COL24_AMBER " FLOAT");
+		}
+	}	
 
 	Com_Printf ("\n");
 
-	if ( v->latchedString ) {
-		Com_Printf( "latched: \"%s\"\n", v->latchedString );
+	if ( v->description ) {
+		Com_Printf( S_COL_BASE "%s\n", v->description );
 	}
 
-	if ( v->description ) {
-		Com_Printf( "%s\n", v->description );
-	}
+	Com_Printf("\n");
 }
 
 
@@ -806,6 +819,66 @@ void Cvar_SetLatched( const char *var_name, const char *value) {
 }
 
 
+//dm
+/*
+===============
+Cvar_CmdAdd_f
+
+Adds/subtracts to the value of a cvar
+===============
+*/
+void Cvar_CmdAdd_f( void ) {
+	float	value;
+	float	min, max;
+
+	if ( Cmd_Argc() < 3 || Cmd_Argc() > 5 ) {
+		PrintUsageDesc("cvarAdd", "<variable> <amount> <min. limit> <max. limit>", "Add or subtract to or from a cvar value.");
+		return;
+	}
+	
+	min = atof(Cmd_Argv(3));
+	max = atof(Cmd_Argv(4));
+	value = Cvar_VariableValue(Cmd_Argv(1));
+	value += atof(Cmd_Argv(2));
+	if ( Cmd_Argc() >= 4 && value < min )
+		value = min;
+	if ( Cmd_Argc() == 5 && value > max )
+		value = max;
+
+	Cvar_Set2( Cmd_Argv(1), va("%.4g", value), qfalse );
+}
+
+
+/*
+===============
+Cvar_CmdMultiply_f
+
+Multiplies to the value of a cvar
+===============
+*/
+void Cvar_CmdMultiply_f( void ) {
+	float	value;
+	float	min, max;
+	
+	if ( Cmd_Argc() < 3 || Cmd_Argc() > 5 ) {
+		PrintUsageDesc("cvarMulti", "<variable> <factor> <min. limit> <max. limit>", "Factors a cvar value.");
+		return;
+	}
+
+	min = atof(Cmd_Argv(3));
+	max = atof(Cmd_Argv(4));
+	value = Cvar_VariableValue(Cmd_Argv(1));
+	value *= atof(Cmd_Argv(2));
+	if ( Cmd_Argc() >= 4 && value < min )
+		value = min;
+	if ( Cmd_Argc() == 5 && value > max )
+		value = max;
+
+	Cvar_Set2( Cmd_Argv(1), va("%g", value), qfalse );
+}
+//-dm
+
+
 /*
 ============
 Cvar_SetValue
@@ -966,7 +1039,7 @@ static void Cvar_Print_f( void )
 	
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf ("usage: print <variable>\n");
+		PrintUsageDesc("print", "<variable>", "Prints the current value of a cvar.");
 		return;
 	}
 
@@ -977,7 +1050,7 @@ static void Cvar_Print_f( void )
 	if(cv)
 		Cvar_Print(cv);
 	else
-		Com_Printf ("Cvar %s does not exist.\n", name);
+		Com_Printf ( S_COL_BASE "Cvar " S_COL_VAL "%s " S_COL_BASE "does not exist.\n", name );
 }
 
 
@@ -995,7 +1068,7 @@ static void Cvar_Toggle_f( void ) {
 
 	c = Cmd_Argc();
 	if ( c < 2 ) {
-		Com_Printf( "usage: toggle <variable> [value1, value2, ...]\n" );
+		PrintUsageDesc("toggle", "<variable> [value1, value2, ...]", "Cycles through values to set a cvar to. Leave blank to toggle between 0 and 1.");
 		return;
 	}
 
@@ -1043,7 +1116,7 @@ static void Cvar_Set_f( void ) {
 	cmd = Cmd_Argv(0);
 
 	if ( c < 2 ) {
-		Com_Printf ("usage: %s <variable> <value>\n", cmd);
+		PrintUsageDesc(cmd, "<variable> <value>", "Sets a cvar value.");
 		return;
 	}
 	if ( c == 2 ) {
@@ -1085,7 +1158,7 @@ Cvar_Reset_f
 */
 static void Cvar_Reset_f( void ) {
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("usage: reset <variable>\n");
+		PrintUsageDesc("reset", "<variable>", "Resets a cvar to default.");
 		return;
 	}
 	Cvar_Reset( Cmd_Argv( 1 ) );
@@ -1390,62 +1463,29 @@ static void Cvar_List_f( void ) {
 	}
 
 	i = 0;
-	for (var = cvar_vars ; var ; var = var->next, i++)
-	{
-		if(!var->name || (match && !Com_Filter(match, var->name)))
+	for (var = cvar_vars ; var ; var = var->next, i++) {
+		if ( !var->name || (match && !Com_Filter(match, var->name)) )
 			continue;
 
-		if (var->flags & CVAR_SERVERINFO) {
-			Com_Printf("S");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_SYSTEMINFO) {
-			Com_Printf("s");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USERINFO) {
-			Com_Printf("U");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ROM) {
-			Com_Printf("R");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_INIT) {
-			Com_Printf("I");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ARCHIVE) {
-			Com_Printf("A");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_LATCH) {
-			Com_Printf("L");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_CHEAT) {
-			Com_Printf("C");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USER_CREATED) {
-			Com_Printf("?");
-		} else {
-			Com_Printf(" ");
-		}
-
-		Com_Printf (" %s \"%s\"\n", var->name, var->string);
+		Com_Printf( S_COL_VALB );
+		Com_Printf( (var->flags & CVAR_ARCHIVE) ? "A" : " ");
+		Com_Printf( (var->flags & CVAR_USERINFO) ? "U" : " ");
+		Com_Printf( (var->flags & CVAR_SERVERINFO) ? "S" : " ");
+		Com_Printf( (var->flags & CVAR_SYSTEMINFO) ? "s" : " ");
+		Com_Printf( (var->flags & CVAR_INIT) ? "I" : " ");
+		Com_Printf( (var->flags & CVAR_LATCH) ? "L" : " ");
+		Com_Printf( (var->flags & CVAR_ROM) ? "R" : " ");
+		Com_Printf( (var->flags & CVAR_USER_CREATED) ? "?" : " ");
+		Com_Printf( (var->flags & CVAR_CHEAT) ? "C" : " ");
+		Com_Printf( (var->flags & CVAR_DEVELOPER) ? "D" : " ");
+		
+		Com_Printf( " %c%c%s ", Q_COLOR_ESCAPE, ( var->flags & CVAR_ROM ) ? COLOR_RED : COL_VAR, var->name);
+		
+		Com_Printf( S_COL_BASE "\"" S_COL_VAL "%c%c%s" S_COL_BASE "\"\n", Q_COLOR_ESCAPE, Q_stricmp(var->string, var->resetString) ? COL_VAL : COL_VALB, var->string);
 	}
 
-	Com_Printf ("\n%i total cvars\n", i);
-	Com_Printf ("%i cvar indexes\n", cvar_numIndexes);
+	Com_Printf( "\n" S_COL_VAL "%i " S_COL_BASE "total cvars\n", i );
+	Com_Printf( S_COL_VAL "%i" S_COL_BASE " cvar indexes\n", cvar_numIndexes );
 }
 
 
@@ -1467,8 +1507,7 @@ static void Cvar_ListModified_f( void ) {
 	}
 
 	totalModified = 0;
-	for (var = cvar_vars ; var ; var = var->next)
-	{
+	for (var = cvar_vars ; var ; var = var->next) {
 		if ( !var->name || !var->modificationCount )
 			continue;
 
@@ -1476,61 +1515,36 @@ static void Cvar_ListModified_f( void ) {
 		if ( !strcmp( value, var->resetString ) )
 			continue;
 
+		//muff: ignore read-only
+		if ( ( var->flags & CVAR_ROM ) )
+			continue;
+
 		totalModified++;
 
 		if (match && !Com_Filter(match, var->name))
 			continue;
 
-		if (var->flags & CVAR_SERVERINFO) {
-			Com_Printf("S");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_SYSTEMINFO) {
-			Com_Printf("s");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USERINFO) {
-			Com_Printf("U");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ROM) {
-			Com_Printf("R");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_INIT) {
-			Com_Printf("I");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_ARCHIVE) {
-			Com_Printf("A");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_LATCH) {
-			Com_Printf("L");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_CHEAT) {
-			Com_Printf("C");
-		} else {
-			Com_Printf(" ");
-		}
-		if (var->flags & CVAR_USER_CREATED) {
-			Com_Printf("?");
-		} else {
-			Com_Printf(" ");
-		}
+		Com_Printf( S_COL_VALB );
+		Com_Printf( (var->flags & CVAR_ARCHIVE) ? "A" : " ");
+		Com_Printf( (var->flags & CVAR_USERINFO) ? "U" : " ");
+		Com_Printf( (var->flags & CVAR_SERVERINFO) ? "S" : " ");
+		Com_Printf( (var->flags & CVAR_SYSTEMINFO) ? "s" : " ");
+		Com_Printf( (var->flags & CVAR_INIT) ? "I" : " ");
+		Com_Printf( (var->flags & CVAR_LATCH) ? "L" : " ");
+		Com_Printf( (var->flags & CVAR_ROM) ? "R" : " ");
+		Com_Printf( (var->flags & CVAR_USER_CREATED) ? "?" : " ");
+		Com_Printf( (var->flags & CVAR_CHEAT) ? "C" : " ");
+		Com_Printf( (var->flags & CVAR_DEVELOPER) ? "D" : " ");
 
-		Com_Printf (" %s \"%s\", default \"%s\"\n", var->name, value, var->resetString);
+		Com_Printf( " %c%c%s ", Q_COLOR_ESCAPE, ( var->flags & CVAR_ROM ) ? COLOR_RED : COL_VAR, var->name );
+		
+		Com_Printf( S_COL_BASE "\"" S_COL_VAL "%c%c%s" S_COL_BASE "\"", Q_COLOR_ESCAPE, Q_stricmp(var->string, var->resetString) ? COL_VAL : COL_VALB, value );
+
+		Com_Printf( S_COL_BASE ", default: " S_COL_VAL "%s" S_COL_BASE "\"\n", var->resetString );
 	}
-
-	Com_Printf ("\n%i total modified cvars\n", totalModified);
+	
+	Com_Printf( "\n" S_COL_VAL "%i " S_COL_BASE "total modified cvars\n", totalModified );
+	Com_Printf( S_COL_VAL "%i " S_COL_BASE "cvar indexes\n", cvar_numIndexes );
 }
 
 
@@ -1587,7 +1601,7 @@ static cvar_t *Cvar_Unset( cvar_t *cv )
 ============
 Cvar_Unset_f
 
-Unsets a userdefined cvar
+Unsets a user-defined cvar
 ============
 */
 static void Cvar_Unset_f( void )
@@ -1596,7 +1610,7 @@ static void Cvar_Unset_f( void )
 	
 	if ( Cmd_Argc() != 2 )
 	{
-		Com_Printf( "Usage: %s <varname>\n", Cmd_Argv( 0 ) );
+		PrintUsageDesc(Cmd_Argv(0), "<varname>", "Unsets a user-defined cvar.");
 		return;
 	}
 	
@@ -2089,7 +2103,14 @@ void Cvar_Init (void)
 	Cmd_AddCommand( "varfunc", Cvar_Func_f );
 
 	Cmd_AddCommand ("listCvars", Cvar_List_f);
-	Cmd_AddCommand ("cvar_modified", Cvar_ListModified_f);
+	Cmd_AddCommand ("listModCvars", Cvar_ListModified_f);	//TODO: move this to a listCvars switch option
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
 	Cmd_AddCommand ("cvar_trim", Cvar_Trim_f);
+
+//dm
+	Cmd_AddCommand("cvarAdd", Cvar_CmdAdd_f);
+	Cmd_SetCommandCompletionFunc("cvarAdd", Cvar_CompleteCvarName);
+	Cmd_AddCommand("cvarMulti", Cvar_CmdMultiply_f);
+	Cmd_SetCommandCompletionFunc("cvarMulti", Cvar_CompleteCvarName);
+//-dm
 }

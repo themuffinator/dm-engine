@@ -41,6 +41,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
 
+//dm
+typedef enum {
+	SA_NONE,
+	SA_STRETCH,
+	SA_CENTER,
+	SA_LEFT,
+	SA_RIGHT
+} screenAdjustEnum_t;
+//-dm
+
 // snapshots are a view of the server at a given time
 typedef struct {
 	qboolean		valid;			// cleared if delta parsing was invalid
@@ -348,12 +358,20 @@ typedef struct {
 	float		biasX;
 	float		biasY;
 
+	float		bigchar_width;
+	float		bigchar_height;
+	float		smallchar_width;
+	float		smallchar_height;
+
 } clientStatic_t;
 
-extern int bigchar_width;
-extern int bigchar_height;
-extern int smallchar_width;
-extern int smallchar_height;
+typedef enum {
+	CHATMODE_ALL,
+	CHATMODE_TEAM,
+	CHATMODE_TARGET,
+	CHATMODE_ATTACKER,
+	CHATMODE_TOTAL
+} chatModeEnum_t;
 
 extern	clientStatic_t		cls;
 
@@ -409,9 +427,9 @@ extern	cvar_t	*cl_autoRecordDemo;
 
 extern	cvar_t	*com_maxFPS;
 
-extern	cvar_t	*vid_xpos;
-extern	cvar_t	*vid_ypos;
-extern	cvar_t	*r_noBorder;
+extern	cvar_t	*r_window_xPos;
+extern	cvar_t	*r_window_yPos;
+extern	cvar_t	*r_window_border;
 
 extern	cvar_t	*r_allowSoftwareGL;
 extern	cvar_t	*r_swapInterval;
@@ -464,6 +482,12 @@ qboolean CL_GetModeInfo( int *width, int *height, float *windowAspect, int mode,
 
 
 //
+// cl_console
+//
+extern cvar_t *con_scrollLines;
+
+
+//
 // cl_input
 //
 void CL_InitInput( void );
@@ -501,12 +525,11 @@ void Con_CheckResize( void );
 void Con_Init( void );
 void Con_Shutdown( void );
 void Con_ToggleConsole_f( void );
-void Con_DrawNotify( void );
 void Con_ClearNotify( void );
 void Con_RunConsole( void );
 void Con_DrawConsole( void );
-void Con_PageUp( int lines );
-void Con_PageDown( int lines );
+void Con_ScrollUp( int lines );
+void Con_ScrollDown( int lines );
 void Con_Top( void );
 void Con_Bottom( void );
 void Con_Close( void );
@@ -524,17 +547,16 @@ void	SCR_DebugGraph( float value );
 
 int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
 
-void	SCR_AdjustFrom640( float *x, float *y, float *w, float *h );
-void	SCR_FillRect( float x, float y, float width, float height, 
-					 const float *color );
-void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
-void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname );
+void	SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdjustEnum_t scrAlign );
+void	SCR_FillRect( float x, float y, float width, float height, const float *color, const int scrAdjust);
+void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader, const int scrAdjust );
+void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname, const int scrAdjust );
 
-void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawStringExt( int x, int y, float size, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape, const int scrAdjust );			// draws a string with embedded color control characters with fade
+void	SCR_DrawStringExt( int x, int y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust );
 void	SCR_DrawSmallStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
-void	SCR_DrawSmallChar( int x, int y, int ch );
-void	SCR_DrawSmallString( int x, int y, const char *s, int len );
+void	SCR_DrawSmallChar(int x, int y, int ch);
+void	SCR_DrawSmallString( int x, int y, const char *s, int len, const int scrAdjust );
 
 //
 // cl_cin.c

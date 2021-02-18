@@ -48,18 +48,16 @@ vec4_t		colorMdGrey	= {0.5, 0.5, 0.5, 1};
 vec4_t		colorDkGrey	= {0.25, 0.25, 0.25, 1};
 
 // actually there is 35 colors but we want to use bitmask safely
-const vec4_t g_color_table[ 64 ] = {
+const vec4_t g_color_table[64] = {
 
 	{0.0f, 0.0f, 0.0f, 1.0f},
 	{1.0f, 0.0f, 0.0f, 1.0f},
 	{0.0f, 1.0f, 0.0f, 1.0f},
 	{1.0f, 1.0f, 0.0f, 1.0f},
-	{0.2f, 0.2f, 1.0f, 1.0f}, //{0.0, 0.0, 1.0, 1.0},
+	{0.2f, 0.2f, 1.0f, 1.0f},
 	{0.0f, 1.0f, 1.0f, 1.0f},
 	{1.0f, 0.0f, 1.0f, 1.0f},
 	{1.0f, 1.0f, 1.0f, 1.0f},
-
-	// extended color codes from CPMA/CNQ3:
 	{ 1.00000f, 0.50000f, 0.00000f, 1.00000f },	// 8
 	{ 0.60000f, 0.60000f, 1.00000f, 1.00000f },	// 9
 
@@ -88,8 +86,10 @@ const vec4_t g_color_table[ 64 ] = {
 	{ 1.00000f, 0.00000f, 0.73205f, 1.00000f },	// v
 	{ 1.00000f, 0.00000f, 0.50000f, 1.00000f },	// w
 	{ 1.00000f, 0.00000f, 0.26795f, 1.00000f },	// x
-	{ 1.0, 1.0, 1.0, 1.0 }, // y, white, duped so all colors can be expressed with this palette
-	{ 0.5, 0.5, 0.5, 1.0 }, // z, grey
+
+	// DarkMatter:
+	{ 0.85400f, 0.85000f, 0.46600f, 1.00000f },	// y = cream
+	{ 0.50000f, 0.50000f, 0.50000f, 1.00000f },	// z = medium grey
 };
 
 

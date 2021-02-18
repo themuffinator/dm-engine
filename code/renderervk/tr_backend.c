@@ -445,29 +445,24 @@ A player has predicted a teleport, but hasn't arrived yet
 ================
 */
 static void RB_Hyperspace( void ) {
-	float		c;
+	vec4_t color;
 
 	if ( !backEnd.isHyperspace ) {
 		// do initialization shit
 	}
 
-	if (r_teleporterFlash->integer) {
+	if ( r_teleporterFlash->integer ) {
+		color[0] = color[1] = color[2] = r_teleporterFlash->integer > 1 ? ( ( backEnd.refdef.time & 255 ) / 255.0f ) : 0;
+		color[3] = 1.0;
 #ifdef USE_VULKAN
-		{
-			vec4_t color;
-			c = (backEnd.refdef.time & 255) / 255.0f;
-			color[0] = color[1] = color[2] = c;
-			color[3] = 1.0;
-			vk_clear_color(color);
-		}
+		vk_clear_color( color );
 #else
-		c = (backEnd.refdef.time & 255) / 255.0f;
-		qglClearColor(c, c, c, 1);
-		qglClear(GL_COLOR_BUFFER_BIT);
+		qglClearColor( color[0], color[1], color[2], color[3] );
+		qglClear( GL_COLOR_BUFFER_BIT );
 #endif
-	}
 
-	backEnd.isHyperspace = qtrue;
+		backEnd.isHyperspace = qtrue;
+	}
 }
 
 
@@ -1081,7 +1076,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, byte *data, 
 
 	if ( r_speeds->integer ) {
 		end = ri.Milliseconds();
-		ri.Printf( PRINT_ALL, "RE_UploadCinematic( %i, %i ): %i msec\n", cols, rows, end - start );
+		ri.Printf( PRINT_V_RENDERER, "RE_UploadCinematic( %i, %i ): %i msec\n", cols, rows, end - start );
 	}
 
 	tr.cinematicShader->stages[0]->bundle[0].image[0] = tr.scratchImage[client];
@@ -1773,19 +1768,19 @@ static const void *RB_SwapBuffers( const void *data ) {
 		if ( backEnd.screenshotMask & SCREENSHOT_TGA && backEnd.screenshotTGA[0] ) {
 			RB_TakeScreenshot( 0, 0, captureWidth, captureHeight, backEnd.screenshotTGA );
 			if ( !backEnd.screenShotTGAsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotTGA );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotTGA );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_JPG && backEnd.screenshotJPG[0] ) {
 			RB_TakeScreenshotJPEG( 0, 0, captureWidth, captureHeight, backEnd.screenshotJPG );
 			if ( !backEnd.screenShotJPGsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotJPG );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotJPG );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_BMP && ( backEnd.screenshotBMP[0] || ( backEnd.screenshotMask & SCREENSHOT_BMP_CLIPBOARD ) ) ) {
-			RB_TakeScreenshotBMP( 0, 0, captureHeight, captureHeight, backEnd.screenshotBMP, backEnd.screenshotMask & SCREENSHOT_BMP_CLIPBOARD );
+			RB_TakeScreenshotBMP( 0, 0, captureWidth, captureHeight, backEnd.screenshotBMP, backEnd.screenshotMask & SCREENSHOT_BMP_CLIPBOARD );
 			if ( !backEnd.screenShotBMPsilent ) {
-				ri.Printf( PRINT_ALL, "Wrote %s\n", backEnd.screenshotBMP );
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotBMP );
 			}
 		}
 		if ( backEnd.screenshotMask & SCREENSHOT_AVI ) {

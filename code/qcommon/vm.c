@@ -1960,7 +1960,7 @@ static void VM_VmProfile_f( void ) {
 	double		total;
 
 	if ( Cmd_Argc() < 2 ) {
-		Com_Printf( "usage: %s <game|cgame|ui>\n", Cmd_Argv( 0 ) );
+		PrintUsageDesc(Cmd_Argv(0), "<game|cgame|ui>", "Returns profile of a game VM module.");
 		return;
 	}
 

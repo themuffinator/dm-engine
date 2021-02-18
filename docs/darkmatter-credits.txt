@@ -1,0 +1,14 @@
+DarkMatter
+
+Based on Quake3e - 16 Jan 2021 release
+--------------------------------------------
+
+CREDITS:
+--------
+* id Software/QUAKE III: ARENA - idTech3
+* id Software/QUAKE II - alias functions, IBSP 38
+* Eugene C., Ensiform and the rest of the Quake3e Team for the excellent engine source port
+* ioquake3 contributors - a huge range of fixes and improvements to standard Q3, some cvar descriptions
+* Challenge Team/CNQ3 - various features such as extended color table for text etc., some dynamic light code, some cvar descriptions
+* leilei/OpenArena - widescreen FOV aspect correction
+* Brugal/Wolfcamql - majority of QL BSP support

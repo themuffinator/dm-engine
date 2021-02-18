@@ -229,11 +229,11 @@ static int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qbool
 	}
 	else
 	{
-		x = vid_xpos->integer;
-		y = vid_ypos->integer;
+		x = r_window_xPos->integer;
+		y = r_window_yPos->integer;
 
 		// find out to which display our window belongs to
-		// according to previously stored \vid_xpos and \vid_ypos coordinates
+		// according to previously stored \r_window_xPos and \r_window_yPos coordinates
 		display = FindNearestDisplay( &x, &y, 640, 480 );
 
 		//Com_Printf("Selected display: %i\n", display );
@@ -283,7 +283,7 @@ static int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qbool
 		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
 #endif
 	}
-	else if ( r_noBorder->integer )
+	else if ( !r_window_border->integer )
 	{
 		flags |= SDL_WINDOW_BORDERLESS;
 	}
@@ -497,7 +497,7 @@ static int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qbool
 		return RSERR_INVALID_MODE;
 	}
 
-	if ( !config->isFullscreen && r_noBorder->integer )
+	if ( !config->isFullscreen && !r_window_border->integer )
 		SDL_SetWindowHitTest( SDL_window, SDL_HitTestFunc, NULL );
 
 #ifdef USE_VULKAN_API

@@ -132,7 +132,7 @@ typedef struct {
 //
 typedef struct {
 	// print message on the local console
-	void	(QDECL *Printf)( printParm_t printLevel, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+	void	( QDECL *Printf )( printParm_t printLevel, const char *fmt, ... ) __attribute__( ( format( printf, 2, 3 ) ) );
 
 	// abort the game
 	void	(QDECL *Error)( errorParm_t errorLevel, const char *fmt, ... ) __attribute__ ((noreturn, format (printf, 2, 3)));

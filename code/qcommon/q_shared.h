@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define DEFAULT_GAME			"edawn"
 
 #define USE_PROFILES			1
-//#define QUAKE2					0
 
 #define BASEGAME				"base"
 
@@ -282,6 +281,11 @@ typedef enum {
 // print levels from renderer (FIXME: set up for game / cgame?)
 typedef enum {
 	PRINT_ALL,
+//#if 0
+	PRINT_V_CLIENT,			// only when verbose & 1
+	PRINT_V_SERVER,			// only when verbose & 2
+	PRINT_V_RENDERER,		// only when verbose & 4
+//#endif
 	PRINT_DEVELOPER,		// only print when "developer 1"
 	PRINT_WARNING,
 	PRINT_ERROR
@@ -407,14 +411,20 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 #define	SCREEN_WIDTH		640
 #define	SCREEN_HEIGHT		480
 
-#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
-#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
+//#define TINYCHAR_WIDTH		(SMALLCHAR_WIDTH)
+//#define TINYCHAR_HEIGHT		(SMALLCHAR_HEIGHT/2)
+#define TINYCHAR_WIDTH		5
+#define TINYCHAR_HEIGHT		10
 
-#define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	16
+//#define SMALLCHAR_WIDTH		8
+//#define SMALLCHAR_HEIGHT	16
+#define SMALLCHAR_WIDTH		6
+#define SMALLCHAR_HEIGHT	12
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		16
+//#define BIGCHAR_WIDTH		16
+//#define BIGCHAR_HEIGHT		16
+#define BIGCHAR_WIDTH		10
+#define BIGCHAR_HEIGHT		20
 
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
@@ -434,24 +444,94 @@ extern	vec4_t		colorDkGrey;
 #define Q_COLOR_ESCAPE	'^'
 #define Q_IsColorString(p) ( *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
 
-#define COLOR_BLACK		'0'
-#define COLOR_RED		'1'
-#define COLOR_GREEN		'2'
-#define COLOR_YELLOW	'3'
-#define COLOR_BLUE		'4'
-#define COLOR_CYAN		'5'
-#define COLOR_MAGENTA	'6'
-#define COLOR_WHITE		'7'
-#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
+#define COLOR_BLACK				'0'
+#define COLOR_RED				'1'
+#define COLOR_GREEN				'2'
+#define COLOR_YELLOW			'3'
+#define COLOR_BLUE				'4'
+#define COLOR_CYAN				'5'
+#define COLOR_MAGENTA			'6'
+#define COLOR_WHITE				'7'
+#define ColorIndex(c)			( ( (c) - '0' ) & 7 )
 
-#define S_COLOR_BLACK	"^0"
-#define S_COLOR_RED		"^1"
-#define S_COLOR_GREEN	"^2"
-#define S_COLOR_YELLOW	"^3"
-#define S_COLOR_BLUE	"^4"
-#define S_COLOR_CYAN	"^5"
-#define S_COLOR_MAGENTA	"^6"
-#define S_COLOR_WHITE	"^7"
+#define COLOR_ORANGE			'8'
+#define COLOR_PURPLE			'9'
+
+#define COL24_RED				'A'
+#define COL24_ORANGE_RED		'B'
+#define COL24_DARK_ORANGE		'C'
+#define COL24_AMBER				'D'
+#define COL24_YELLOW			'E'
+#define COL24_ELEC_LIME			'F'
+#define COL24_CHARTREUSE		'G'
+#define COL24_HARLEQUIN			'H'
+#define COL24_GREEN				'I'
+#define COL24_FREESPEECHGR		'J'
+#define COL24_SPRING_GREEN		'K'
+#define COL24_MED_SPRING_GR		'L'
+#define COL24_AQUA				'M'
+#define COL24_DEEP_SKY_BLUE		'N'
+#define COL24_DODGER_BLUE		'O'
+#define COL24_BLUE2				'P'
+#define COL24_BLUE1				'Q'
+#define COL24_HAN_PURPLE		'R'
+#define COL24_ELEC_INDIGO		'S'
+#define COL24_ELEC_PURPLE		'T'
+#define COL24_ELEC_MAGENTA		'U'
+#define COL24_HOT_MAGENTA		'V'
+#define COL24_DEEP_PINK			'W'
+#define COL24_TORCH_RED			'X'
+#define COL24_CREAM				'Y'
+#define COL24_MED_GREY			'Z'
+
+#define S_COLOR_BLACK			"^0"
+#define S_COLOR_RED				"^1"
+#define S_COLOR_GREEN			"^2"
+#define S_COLOR_YELLOW			"^3"
+#define S_COLOR_BLUE			"^4"
+#define S_COLOR_CYAN			"^5"
+#define S_COLOR_MAGENTA			"^6"
+#define S_COLOR_WHITE			"^7"
+#define S_COLOR_ORANGE			"^8"
+#define S_COLOR_PURPLE			"^9"
+
+#define S_COL24_RED				"^A"
+#define S_COL24_ORANGE_RED		"^B"
+#define S_COL24_DARK_ORANGE		"^C"
+#define S_COL24_AMBER			"^D"
+#define S_COL24_YELLOW			"^E"
+#define S_COL24_ELEC_LIME		"^F"
+#define S_COL24_CHARTREUSE		"^G"
+#define S_COL24_HARLEQUIN		"^H"
+#define S_COL24_GREEN			"^I"
+#define S_COL24_FREESPEECHGR	"^J"
+#define S_COL24_SPRING_GREEN	"^K"
+#define S_COL24_MED_SPRING_GR	"^L"
+#define S_COL24_AQUA			"^M"
+#define S_COL24_DEEP_SKY_BLUE	"^N"
+#define S_COL24_DODGER_BLUE		"^O"
+#define S_COL24_BLUE2			"^P"
+#define S_COL24_BLUE1			"^Q"
+#define S_COL24_HAN_PURPLE		"^R"
+#define S_COL24_ELEC_INDIGO		"^S"
+#define S_COL24_ELEC_PURPLE		"^T"
+#define S_COL24_ELEC_MAGENTA	"^U"
+#define S_COL24_HOT_MAGENTA		"^V"
+#define S_COL24_DEEP_PINK		"^W"
+#define S_COL24_TORCH_RED		"^X"
+#define S_COL24_CREAM			"^Y"
+#define S_COL24_MED_GREY		"^Z"
+
+// DarkMatter system message colours
+#define COL_BASE				COL24_CREAM				// base colour
+#define COL_VAR					COL24_ORANGE_RED		// colours for variables
+#define COL_VAL					COLOR_WHITE				// colours for variable values
+#define COL_VALB				COL24_MED_GREY			// colours for variable values, second state
+
+#define S_COL_BASE				S_COL24_CREAM			// base colour
+#define S_COL_VAR				S_COL24_ORANGE_RED		// colours for variables
+#define S_COL_VAL				S_COLOR_WHITE			// colours for variable values
+#define S_COL_VALB				S_COL24_MED_GREY		// colours for variable values, second state
 
 extern const vec4_t	g_color_table[ 64 ];
 extern int ColorIndexFromChar( char ccode );
@@ -882,7 +962,11 @@ int Info_RemoveKey( char *s, const char *key );
 void	QDECL Com_Error( errorParm_t level, const char *fmt, ... ) __attribute__ ((noreturn, format (printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
-
+//dm
+#define PrintUsage(x, y) Com_Printf( S_COL_BASE "Usage: " S_COL_VAR "%s " S_COL_VAL "%s\n", x, y )
+#define PrintUsageDesc(x, y, z) Com_Printf( S_COL_BASE "Usage: " S_COL_VAR "%s " S_COL_VAL "%s\n\n" S_COL_BASE "%s", x, y, z )
+#define PrintWarning(x) Com_Printf( S_COL24_YELLOW "WARNING: " S_COL24_AMBER "%s\n", x )
+//-dm
 /*
 ==========================================================
 

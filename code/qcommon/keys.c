@@ -494,16 +494,16 @@ static void Key_Bind_f( void )
 	b = Key_StringToKeynum( Cmd_Argv( 1 ) );
 	if ( b == -1 )
 	{
-		Com_Printf( "\"%s\" isn't a valid key\n", Cmd_Argv( 1 ) );
+		Com_Printf( S_COL_VAL "%s " S_COL_BASE "isn't a valid key.\n", Cmd_Argv(1) );
 		return;
 	}
 
 	if ( c == 2 )
 	{
 		if ( keys[b].binding && keys[b].binding[0] )
-			Com_Printf( "\"%s\" = \"%s\"\n", Cmd_Argv( 1 ), keys[b].binding );
+			Com_Printf( S_COL_BASE "Key " S_COL_VAR "%s " S_COL_BASE "is set to " S_COL_VAL "%s\n", Cmd_Argv( 1 ), keys[b].binding );
 		else
-			Com_Printf( "\"%s\" is not bound\n", Cmd_Argv( 1 ) );
+			Com_Printf( S_COL_BASE "Key " S_COL_VAR "%s " S_COL_BASE "is not bound.\n", Cmd_Argv(1) );
 		return;
 	}
 	

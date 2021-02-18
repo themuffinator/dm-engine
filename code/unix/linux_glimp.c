@@ -899,8 +899,8 @@ void HandleEvents( void )
 					}
 				}
 
-				Cvar_SetIntegerValue( "vid_xpos", win_x );
-				Cvar_SetIntegerValue( "vid_ypos", win_y );
+				Cvar_SetIntegerValue( "r_window_xPos", win_x );
+				Cvar_SetIntegerValue( "r_window_yPos", win_y );
 
 				RandR_UpdateMonitor( win_x, win_y,
 					event.xconfigure.width,
@@ -1498,7 +1498,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 	root = RootWindow( dpy, scrnum );
 
 	// Init xrandr and get desktop resolution if available
-	RandR_Init( vid_xpos->integer, vid_ypos->integer, 640, 480 );
+	RandR_Init( r_window_xPos->integer, r_window_yPos->integer, 640, 480 );
 
 	if ( !glw_state.randr_ext )
 	{
@@ -1616,7 +1616,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 		motifHints_t decohint;
 		decohint.flags = (1L << 1);
 		decohint.functions = 0;
-		decohint.decorations = r_noBorder->integer ? 0 : 1;
+		decohint.decorations = r_window_border->integer ? 1 : 0;
 		decohint.input_mode = decohint.status = 0;
 
 		XChangeProperty( dpy, win, motifWMHints, motifWMHints, 32,
@@ -1650,7 +1650,7 @@ int GLW_SetMode( int mode, const char *modeFS, qboolean fullscreen, qboolean vul
 	}
 	else
 	{
-		XMoveWindow( dpy, win, vid_xpos->integer, vid_ypos->integer );
+		XMoveWindow( dpy, win, r_window_xPos->integer, r_window_yPos->integer );
 	}
 
 //	XSync( dpy, False );

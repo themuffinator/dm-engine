@@ -1,16 +1,11 @@
-
-# Quake3 Unix Makefile
 #
-# Nov '98 by Zoid <zoid@idsoftware.com>
-#
-# Loki Hacking by Bernd Kreimeier
-#  and a little more by Ryan C. Gordon.
-#  and a little more by Rafael Barrero
-#  and a little more by the ioq3 cr3w
+# DarkMatter Makefile
 #
 # GNU Make required
 #
+
 COMPILE_PLATFORM=$(shell uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
+
 COMPILE_ARCH=$(shell uname -m | sed -e 's/i.86/x86/' | sed -e 's/^arm.*/arm/')
 
 ifeq ($(COMPILE_PLATFORM),mingw32)
@@ -19,22 +14,26 @@ ifeq ($(COMPILE_PLATFORM),mingw32)
   endif
 endif
 
-BUILD_CLIENT		= 1
-BUILD_SERVER		= 1
+ifndef BUILD_CLIENT
+  BUILD_CLIENT     = 1
+endif
+ifndef BUILD_SERVER
+  BUILD_SERVER     = 1
+endif
 
 USE_SDL				= 1
-USE_CURL			= 1
-USE_LOCAL_HEADERS	= 0
 USE_VULKAN			= 1
-USE_SYSTEM_JPEG		= 0
-USE_SYSTEM_OGG		= 0
-USE_SYSTEM_VORBIS	= 0
-USE_VULKAN_API		= 0
+USE_VULKAN_API		= 1
 
 USE_RENDERER_DLOPEN = 1
 
-CNAME            = DarkMatter
-DNAME            = DarkMatter.ded
+PRODUCT_NAME	 = DarkMatter
+CNAME            = $(PRODUCT_NAME).client
+DNAME            = $(PRODUCT_NAME).server
+
+ifndef GAME_QUAKE2
+  GAME_QUAKE2     = 0
+endif
 
 RENDERER_PREFIX  = $(CNAME)
 
@@ -103,16 +102,12 @@ else
 endif
 export CROSS_COMPILING
 
-ifndef COPYDIR
-COPYDIR="/usr/local/games/quake3"
-endif
-
-ifndef DESTDIR
-DESTDIR=/usr/local/games/quake3
-endif
-
 ifndef MOUNT_DIR
 MOUNT_DIR=code
+endif
+
+ifndef LIB_DIR
+LIB_DIR=code
 endif
 
 ifndef BUILD_DIR
@@ -128,16 +123,28 @@ USE_CCACHE=0
 endif
 export USE_CCACHE
 
+ifndef USE_CURL
+USE_CURL=1
+endif
+
 ifndef USE_CODEC_VORBIS
 USE_CODEC_VORBIS=0
 endif
 
-ifndef USE_LOCAL_HEADERS
-USE_LOCAL_HEADERS=1
+ifndef USE_INTERNAL_JPEG
+USE_INTERNAL_JPEG=0
 endif
 
-ifndef USE_CURL
-USE_CURL=1
+ifndef USE_INTERNAL_OGG
+USE_INTERNAL_OGG=1
+endif
+
+ifndef USE_INTERNAL_VORBIS
+USE_INTERNAL_VORBIS=1
+endif
+
+ifndef USE_LOCAL_HEADERS
+USE_LOCAL_HEADERS=1
 endif
 
 ifndef USE_CURL_DLOPEN
@@ -168,15 +175,18 @@ R1DIR=$(MOUNT_DIR)/renderer
 RVDIR=$(MOUNT_DIR)/renderervk
 RVSDIR=$(MOUNT_DIR)/renderervk/shaders/spirv
 SDLDIR=$(MOUNT_DIR)/sdl
-
 CMDIR=$(MOUNT_DIR)/qcommon
 UDIR=$(MOUNT_DIR)/unix
 W32DIR=$(MOUNT_DIR)/win32
 BLIBDIR=$(MOUNT_DIR)/botlib
 UIDIR=$(MOUNT_DIR)/ui
-JPDIR=$(MOUNT_DIR)/libjpeg
-VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.6
 
+CURLDIR=$(LIB_DIR)/libcurl
+LSDLDIR=$(LIB_DIR)/libsdl
+JPDIR=$(LIB_DIR)/libjpeg
+OGGDIR=$(LIB_DIR)/libogg-1.3.0
+VORBISDIR=$(LIB_DIR)/libvorbis
+	
 bin_path=$(shell which $(1) 2> /dev/null)
 
 STRIP ?= strip
@@ -226,8 +236,8 @@ endif
 
 BASE_CFLAGS =
 
-ifeq ($(USE_SYSTEM_JPEG),1)
-  BASE_CFLAGS += -DUSE_SYSTEM_JPEG
+ifeq ($(USE_INTERNAL_JPEG),1)
+  BASE_CFLAGS += -DUSE_INTERNAL_JPEG
 endif
 
 ifneq ($(HAVE_VM_COMPILED),true)
@@ -240,11 +250,21 @@ ifneq ($(USE_RENDERER_DLOPEN),0)
 endif
 
 ifeq ($(USE_CODEC_VORBIS),1)
-  BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
+  BASE_CFLAGS += -DUSE_CODEC_VORBIS
+  ifeq ($(USE_INTERNAL_VORBIS),1)
+    BASE_CFLAGS += -I$(VORBISDIR)/include
+  else
+    BASE_LIBS += -lvorbisfile -lvorbis
+  endif
+  NEED_OGG=1
 endif
 
-ifeq ($(USE_SYSTEM_VORBIS),1)
-  BASE_CFLAGS += -DUSE_SYSTEM_VORBIS
+ifeq ($(NEED_OGG),1)
+  ifeq ($(USE_INTERNAL_OGG),1)
+    BASE_CFLAGS += -I$(OGGDIR)/include
+  else
+    BASE_LIBS += -logg
+  endif
 endif
 
 ifdef DEFAULT_BASEDIR
@@ -264,30 +284,6 @@ ifeq ($(USE_CURL),1)
       BASE_CFLAGS += -DCURL_STATICLIB
     endif
   endif
-endif
-
-ifeq ($(USE_CODEC_VORBIS),1)
-  BASE_CFLAGS += -DUSE_CODEC_VORBIS
-  ifeq ($(USE_SYSTEM_VORBIS),1)
-    BASE_CFLAGS += -I$(VORBISDIR)/include -I$(VORBISDIR)/lib
-  else
-    VORBIS_CFLAGS ?= $(shell $(PKG_CONFIG) --silence-errors --cflags vorbisfile vorbis || true)
-    VORBIS_LIBS ?= $(shell $(PKG_CONFIG) --silence-errors --libs vorbisfile vorbis || echo -lvorbisfile -lvorbis)
-  endif
-  BASE_CFLAGS += $(VORBIS_CFLAGS)
-  BASE_LIBS += $(VORBIS_LIBS)
-  NEED_OGG=1
-endif
-
-ifeq ($(NEED_OGG),1)
-  ifeq ($(USE_SYSTEM_OGG),1)
-    OGG_CFLAGS = -I$(OGGDIR)/include
-  else
-    OGG_CFLAGS ?= $(shell $(PKG_CONFIG) --silence-errors --cflags ogg || true)
-    OGG_LIBS ?= $(shell $(PKG_CONFIG) --silence-errors --libs ogg || echo -logg)
-  endif
-  BASE_CFLAGS += $(OGG_CFLAGS)
-  BASE_LIBS += $(OGG_LIBS)
 endif
 
 ifeq ($(USE_VULKAN_API),1)
@@ -382,29 +378,25 @@ ifdef MINGW
   CLIENT_LDFLAGS=$(LDFLAGS)
 
   ifeq ($(USE_SDL),1)
-    BASE_CFLAGS += -DUSE_LOCAL_HEADERS=1 -I$(MOUNT_DIR)/libsdl/windows/include/SDL2
+    BASE_CFLAGS += -DUSE_LOCAL_HEADERS=1 -I$(LSDLDIR)/windows/include/SDL2
     #CLIENT_CFLAGS += -DUSE_LOCAL_HEADERS=1
     ifeq ($(ARCH),x86)
-      CLIENT_LDFLAGS += -L$(MOUNT_DIR)/libsdl/windows/mingw/lib32
+      CLIENT_LDFLAGS += -L$(LSDLDIR)/windows/mingw/lib32
       CLIENT_LDFLAGS += -lSDL2
-      CLIENT_EXTRA_FILES += $(MOUNT_DIR)/libsdl/windows/mingw/lib32/SDL2.dll
+      CLIENT_EXTRA_FILES += $(LSDLDIR)/windows/mingw/lib32/SDL2.dll
     else
-      CLIENT_LDFLAGS += -L$(MOUNT_DIR)/libsdl/windows/mingw/lib64
+      CLIENT_LDFLAGS += -L$(LSDLDIR)/windows/mingw/lib64
       CLIENT_LDFLAGS += -lSDL264
-      CLIENT_EXTRA_FILES += $(MOUNT_DIR)/libsdl/windows/mingw/lib64/SDL264.dll
+      CLIENT_EXTRA_FILES += $(LSDLDIR)/windows/mingw/lib64/SDL264.dll
     endif
   endif
 
-  ifeq ($(USE_CODEC_VORBIS),1)
-    CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
-  endif
-
   ifeq ($(USE_CURL),1)
-    BASE_CFLAGS += -I$(MOUNT_DIR)/libcurl/windows/include
+    BASE_CFLAGS += -I$(CURLDIR)/windows/include
     ifeq ($(ARCH),x86)
-      CLIENT_LDFLAGS += -L$(MOUNT_DIR)/libcurl/windows/mingw/lib32
+      CLIENT_LDFLAGS += -L$(CURLDIR)/windows/mingw/lib32
     else
-      CLIENT_LDFLAGS += -L$(MOUNT_DIR)/libcurl/windows/mingw/lib64
+      CLIENT_LDFLAGS += -L$(CURLDIR)/windows/mingw/lib64
     endif
     CLIENT_LDFLAGS += -lcurl -lwldap32 -lcrypt32
   endif
@@ -491,7 +483,7 @@ else
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
-  ifeq ($(USE_SYSTEM_JPEG),1)
+  ifeq ($(USE_INTERNAL_JPEG),1)
     CLIENT_LDFLAGS += -ljpeg
   endif
 
@@ -639,7 +631,7 @@ endif
 # an informational message, then start building
 targets: makedirs tools
 	@echo ""
-	@echo "Building quake3 in $(B):"
+	@echo "Building $(PRODUCT_NAME) in $(B):"
 	@echo ""
 	@echo "  VERSION: $(VERSION)"
 	@echo "  PLATFORM: $(PLATFORM)"
@@ -671,6 +663,7 @@ makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
+	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
 	@if [ ! -d $(B)/rend1 ];then $(MKDIR) $(B)/rend1;fi
 	@if [ ! -d $(B)/rendv ];then $(MKDIR) $(B)/rendv;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
@@ -695,6 +688,7 @@ Q3REND1OBJ = \
   $(B)/rend1/tr_image_bmp.o \
   $(B)/rend1/tr_image_tga.o \
   $(B)/rend1/tr_image_pcx.o \
+  $(B)/rend1/tr_image_wal.o \
   $(B)/rend1/tr_init.o \
   $(B)/rend1/tr_light.o \
   $(B)/rend1/tr_main.o \
@@ -734,6 +728,7 @@ Q3RENDVOBJ = \
   $(B)/rendv/tr_image_bmp.o \
   $(B)/rendv/tr_image_tga.o \
   $(B)/rendv/tr_image_pcx.o \
+  $(B)/rendv/tr_image_wal.o \
   $(B)/rendv/tr_init.o \
   $(B)/rendv/tr_light.o \
   $(B)/rendv/tr_main.o \
@@ -935,42 +930,34 @@ Q3OBJ = \
   $(B)/client/l_script.o \
   $(B)/client/l_struct.o
 
-ifneq ($(USE_SYSTEM_JPEG),1)
+ifneq ($(USE_INTERNAL_JPEG),1)
   Q3OBJ += $(JPGOBJ)
 endif
 
-ifeq ($(NEED_OGG),1)
-ifeq ($(USE_SYSTEM_OGG),1)
-Q3OBJ += \
-  $(B)/client/bitwise.o \
-  $(B)/client/framing.o
-endif
-endif
-
 ifeq ($(USE_CODEC_VORBIS),1)
-ifeq ($(USE_SYSTEM_VORBIS),1)
+ifeq ($(USE_INTERNAL_VORBIS),1)
 Q3OBJ += \
-  $(B)/client/vorbis/analysis.o \
-  $(B)/client/vorbis/bitrate.o \
-  $(B)/client/vorbis/block.o \
-  $(B)/client/vorbis/codebook.o \
-  $(B)/client/vorbis/envelope.o \
-  $(B)/client/vorbis/floor0.o \
-  $(B)/client/vorbis/floor1.o \
-  $(B)/client/vorbis/info.o \
-  $(B)/client/vorbis/lookup.o \
-  $(B)/client/vorbis/lpc.o \
-  $(B)/client/vorbis/lsp.o \
-  $(B)/client/vorbis/mapping0.o \
-  $(B)/client/vorbis/mdct.o \
-  $(B)/client/vorbis/psy.o \
-  $(B)/client/vorbis/registry.o \
-  $(B)/client/vorbis/res0.o \
-  $(B)/client/vorbis/smallft.o \
-  $(B)/client/vorbis/sharedbook.o \
-  $(B)/client/vorbis/synthesis.o \
-  $(B)/client/vorbis/vorbisfile.o \
-  $(B)/client/vorbis/window.o
+	$(B)/client/vorbis/mdct.o \
+	$(B)/client/vorbis/smallft.o \
+	$(B)/client/vorbis/block.o \
+	$(B)/client/vorbis/envelope.o \
+	$(B)/client/vorbis/window.o \
+	$(B)/client/vorbis/lsp.o \
+	$(B)/client/vorbis/lpc.o \
+	$(B)/client/vorbis/analysis.o \
+	$(B)/client/vorbis/synthesis.o \
+	$(B)/client/vorbis/psy.o \
+	$(B)/client/vorbis/info.o \
+	$(B)/client/vorbis/floor1.o \
+	$(B)/client/vorbis/floor0.o \
+	$(B)/client/vorbis/res0.o \
+	$(B)/client/vorbis/mapping0.o \
+	$(B)/client/vorbis/registry.o \
+	$(B)/client/vorbis/codebook.o \
+	$(B)/client/vorbis/sharedbook.o \
+	$(B)/client/vorbis/lookup.o \
+	$(B)/client/vorbis/bitrate.o \
+	$(B)/client/vorbis/vorbisfile.o
 endif
 endif
 
@@ -1064,6 +1051,14 @@ ifeq ($(USE_VULKAN_API),1)
         $(B)/client/linux_qvk.o
 endif
 endif # !USE_SDL
+
+ifeq ($(NEED_OGG),1)
+ifeq ($(USE_INTERNAL_OGG),1)
+Q3OBJ += \
+  $(B)/client/bitwise.o \
+  $(B)/client/framing.o
+endif
+endif
 
 endif # !MINGW
 
@@ -1206,13 +1201,16 @@ $(B)/client/%.o: $(CMDIR)/%.c
 $(B)/client/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
-$(B)/client/%.o: $(JPDIR)/%.c
+$(B)/client/%.o: $(OGGDIR)/src/%.c
 	$(DO_CC)
 
 $(B)/client/vorbis/%.o: $(VORBISDIR)/lib/%.c
 	$(DO_CC)
 
 $(B)/client/%.o: $(SDLDIR)/%.c
+	$(DO_CC)
+
+$(B)/client/%.o: $(JPDIR)/%.c
 	$(DO_CC)
 
 $(B)/rend1/%.o: $(R1DIR)/%.c
@@ -1245,7 +1243,6 @@ $(B)/client/%.o: $(W32DIR)/%.c
 $(B)/client/%.o: $(W32DIR)/%.rc
 	$(DO_WINDRES)
 
-
 $(B)/ded/%.o: $(ADIR)/%.s
 	$(DO_AS)
 
@@ -1266,7 +1263,7 @@ $(B)/ded/%.o: $(W32DIR)/%.c
 
 $(B)/ded/%.o: $(W32DIR)/%.rc
 	$(DO_WINDRES)
-
+	
 #############################################################################
 # MISC
 #############################################################################
@@ -1325,3 +1322,4 @@ D_FILES=$(shell find . -name '*.d')
 .PHONY: all clean clean2 clean-debug clean-release copyfiles \
 	debug default dist distclean makedirs release \
 	targets tools toolsclean
+

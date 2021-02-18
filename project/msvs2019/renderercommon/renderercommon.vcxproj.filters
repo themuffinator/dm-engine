@@ -65,5 +65,8 @@
     <ClCompile Include="..\..\..\code\renderercommon\tr_noise.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_wal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

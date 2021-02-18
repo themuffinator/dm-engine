@@ -933,6 +933,7 @@ void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(const char 
 void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		QDECL Com_LPrintf( printParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		Com_Quit_f( void );
 void		Com_GameRestart( int checksumFeed, qboolean clientRestart );
 
@@ -952,7 +953,7 @@ void		Com_MD5Init( void );
 int			Com_MD5Addr( const netadr_t *addr, int timestamp );
 
 qboolean	Com_CDKeyValidate( const char *key, const char *checksum );
-qboolean	Com_EarlyParseCmdLine( char *commandLine, char *con_title, int title_size, int *vid_xpos, int *vid_ypos );
+qboolean	Com_EarlyParseCmdLine( char *commandLine, char *con_title, int title_size, int *r_window_xPos, int *r_window_yPos );
 int			Com_Split( char *in, char **out, int outsz, int delim );
 
 int			Com_Filter( const char *filter, const char *name );
@@ -969,7 +970,8 @@ void		Com_StartupVariable( const char *match );
 // only a set with the exact name.  Only used during startup.
 
 //fnq
-char *replace(const char *s, const char *old, const char *new);
+char		*Com_ReplaceSubString( const char *s, const char *old, const char *new );
+//void Com_GetDemoString(char *in, char *out);
 //-fnq
 
 void		Com_WriteConfiguration( void );
@@ -1015,7 +1017,10 @@ extern	cvar_t	*cl_packetDelay;
 extern	cvar_t	*com_cl_running;
 extern	cvar_t	*com_yieldCPU;
 #endif
-
+//dm
+extern	cvar_t *com_bspversion;
+extern	cvar_t *com_verbose;
+//-dm
 extern	cvar_t	*vm_rtChecks;
 #ifdef USE_AFFINITY_MASK
 extern	cvar_t	*com_affinityMask;

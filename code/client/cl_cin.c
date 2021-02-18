@@ -1625,7 +1625,7 @@ void CIN_DrawCinematic( int handle ) {
 		w = w * cls.scale;
 		h = h * cls.scale;
 	} else {
-		SCR_AdjustFrom640(&x, &y, &w, &h);
+		SCR_AdjustFrom640( &x, &y, &w, &h, SA_STRETCH );
 	}
 
 	if (cinTable[handle].dirty && (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY)) {

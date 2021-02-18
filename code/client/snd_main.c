@@ -342,7 +342,7 @@ static void S_Play_f( void ) {
 	c = Cmd_Argc();
 
 	if( c < 2 ) {
-		Com_Printf ("Usage: play <sound filename> [sound filename] [sound filename] ...\n");
+		PrintUsageDesc("play", "<sound filename> [sound filename] [sound filename] ...", "Play a sound or list of sounds." );
 		return;
 	}
 
@@ -375,7 +375,7 @@ static void S_Music_f( void ) {
 	} else if ( c == 3 ) {
 		si.StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(2) );
 	} else {
-		Com_Printf ("Usage: music <musicfile> [loopfile]\n");
+		PrintUsageDesc("music", "<musicfile> [loopfile]", "Play a music track.");
 		return;
 	}
 
@@ -411,15 +411,15 @@ void S_Init( void )
 	Com_Printf( "------ Initializing Sound ------\n" );
 
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
-	Cvar_SetDescription(s_volume, "Sets master volume for all game audio.");
+	/**/Cvar_SetDescription(s_volume, "Sets master volume for all game audio.");
 	s_musicVolume = Cvar_Get( "s_musicVolume", "0.25", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
-	Cvar_SetDescription(s_musicVolume, "Sets volume for in-game music.");
+	/**/Cvar_SetDescription(s_musicVolume, "Sets volume for in-game music.");
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	Cvar_SetDescription(s_doppler, "Enables doppler effect on moving projectiles.");
+	/**/Cvar_SetDescription(s_doppler, "Enables doppler effect on moving projectiles.");
 	s_muteWhenUnfocused = Cvar_Get( "s_muteWhenUnfocused", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	Cvar_SetDescription(s_muteWhenUnfocused, "Mutes all audio while game window is unfocused.");
+	/**/Cvar_SetDescription(s_muteWhenUnfocused, "Mutes all audio while game window is unfocused.");
 	s_muteWhenMinimized = Cvar_Get( "s_muteWhenMinimized", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	Cvar_SetDescription(s_muteWhenMinimized, "Mutes all audio while game is minimized.");
+	/**/Cvar_SetDescription(s_muteWhenMinimized, "Mutes all audio while game is minimized.");
 
 	cv = Cvar_Get( "s_init", "1", 0, "0", "1", CV_INTEGER );
 	if ( !cv->integer ) {
@@ -431,9 +431,9 @@ void S_Init( void )
 		Cmd_AddCommand( "play", S_Play_f );
 		Cmd_AddCommand( "music", S_Music_f );
 		Cmd_AddCommand( "stopMusic", S_StopMusic_f );
-		Cmd_AddCommand( "s_list", S_SoundList );
-		Cmd_AddCommand( "s_stop", S_StopAllSounds );
-		Cmd_AddCommand( "s_info", S_SoundInfo );
+		Cmd_AddCommand( "listSounds", S_SoundList );
+		Cmd_AddCommand( "stopAllSounds", S_StopAllSounds );
+		Cmd_AddCommand( "soundInfo", S_SoundInfo );
 
 		if ( !started ) {
 			started = S_Base_Init( &si );

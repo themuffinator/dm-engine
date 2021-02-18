@@ -32,6 +32,14 @@ These commands can only be entered from stdin or by a remote operator datagram
 */
 
 
+qboolean SV_ServerIsRunning( void ) {
+	if ( !com_sv_running->integer ) {
+		Com_Printf( S_COL_BASE "Server is not running.\n");
+		return qfalse;
+	}
+	return qtrue;
+}
+
 /*
 ==================
 SV_GetPlayerByHandle
@@ -186,7 +194,7 @@ static void SV_Map_f( void ) {
 		// may not set sv_maxClients directly, always set latched
 		Cvar_SetLatched( "sv_maxClients", "16" );
 		cmd += 2;
-		if (!Q_stricmp( cmd, "devmap" ) ) {
+		if (!Q_stricmp( cmd, "devMap" ) ) {
 			cheat = qtrue;
 		} else {
 			cheat = qfalse;
@@ -194,7 +202,7 @@ static void SV_Map_f( void ) {
 		killBots = qtrue;
 	}
 	else {
-		if ( !Q_stricmp( cmd, "devmap" ) ) {
+		if ( !Q_stricmp( cmd, "devMap" ) ) {
 			cheat = qtrue;
 			killBots = qtrue;
 		} else {
@@ -246,10 +254,7 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( sv.restartTime ) {
 		return;
@@ -376,13 +381,11 @@ static void SV_Kick_f( void ) {
 	int			i;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+		PrintUsageDesc("kick", "<player name>", "Kicks a client by player name.");
+		Com_Printf ( S_COL_BASE "kick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
 	}
 
@@ -441,13 +444,10 @@ static void SV_Ban_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: banUser <player name>\n");
+		PrintUsageDesc("banUser", "<player name>", "Bans a client by player name.");
 		return;
 	}
 
@@ -497,13 +497,10 @@ static void SV_BanNum_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: banClient <client number>\n");
+		PrintUsageDesc("banClient", "<client number>", "Bans a client by client number.");
 		return;
 	}
 
@@ -751,16 +748,13 @@ static void SV_AddBanToList(qboolean isexception)
 	serverBan_t *curban;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	argc = Cmd_Argc();
 	
 	if(argc < 2 || argc > 3)
 	{
-		Com_Printf ("Usage: %s (ip[/subnet] | clientnum [subnet])\n", Cmd_Argv(0));
+		PrintUsageDesc(Cmd_Argv(0), "(ip[/subnet] | clientnum [subnet])", "Adds a client ban to the ban list.");
 		return;
 	}
 
@@ -893,14 +887,11 @@ static void SV_DelBanFromList(qboolean isexception)
 	char *banstring;
 	
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 	
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf ("Usage: %s (ip[/subnet] | num)\n", Cmd_Argv(0));
+		PrintUsageDesc(Cmd_Argv(0), "(ip[/subnet] | clientnum [subnet])", "Removes a client ban to the ban list.");
 		return;
 	}
 
@@ -984,10 +975,7 @@ static void SV_ListBans_f(void)
 	serverBan_t *ban;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 	
 	// List all bans
 	for(index = count = 0; index < serverBansCount; index++)
@@ -1026,10 +1014,7 @@ Delete all bans and exceptions.
 static void SV_FlushBans_f(void)
 {
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	serverBansCount = 0;
 	
@@ -1072,13 +1057,10 @@ static void SV_KickNum_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kicknum <client number>\n");
+		PrintUsageDesc("kickNum", "<client number>", "Kicks a client by client number.");
 		return;
 	}
 
@@ -1132,10 +1114,7 @@ static void SV_Status_f( void ) {
 	char addrs[ MAX_CLIENTS * 48 ], *ap[ MAX_CLIENTS ], al[ MAX_CLIENTS ], *ac;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	max_namelength = 4; // strlen( "name" )
 	max_addrlength = 7; // strlen( "address" )
@@ -1245,10 +1224,7 @@ static void SV_ConSay_f( void ) {
 	char	text[1024];
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc () < 2 ) {
 		return;
@@ -1283,13 +1259,10 @@ static void SV_ConTell_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() < 3 ) {
-		Com_Printf( "Usage: tell <client number> <text>\n" );
+		PrintUsageDesc("tell", "<client number> <text>", "Sends a server message to a specific client.");
 		return;
 	}
 
@@ -1340,10 +1313,7 @@ static void SV_Serverinfo_f( void ) {
 	const char *info;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	Com_Printf ("Server info settings:\n");
 	info = sv.configstrings[ CS_SERVERINFO ];
@@ -1363,10 +1333,8 @@ Examine the systeminfo string
 static void SV_Systeminfo_f( void ) {
 	const char *info;
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
+
 	Com_Printf( "System info settings:\n" );
 	info = sv.configstrings[ CS_SYSTEMINFO ];
 	if ( info ) {
@@ -1386,13 +1354,10 @@ static void SV_DumpUser_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: dumpuser <userid>\n");
+		PrintUsageDesc("dumpUser", "<userID>", "Returns information on a user.");
 		return;
 	}
 
@@ -1425,10 +1390,7 @@ SV_Locations
 static void SV_Locations_f( void ) {
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+	if (!SV_ServerIsRunning()) return;
 
 	if ( !sv_clientTLD->integer ) {
 		Com_Printf( "Disabled on this server.\n" );
@@ -1469,7 +1431,7 @@ void SV_AddOperatorCommands( void ) {
 	}
 	initialized = qtrue;
 
-	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
+	Cmd_AddCommand ("heartBeat", SV_Heartbeat_f);
 	Cmd_AddCommand ("kick", SV_Kick_f);
 #ifndef STANDALONE
 #ifdef USE_BANS
@@ -1480,7 +1442,7 @@ void SV_AddOperatorCommands( void ) {
 	}
 #endif
 #endif
-	Cmd_AddCommand ("clientKick", SV_KickNum_f);
+	Cmd_AddCommand ("kickNum", SV_KickNum_f);
 	Cmd_AddCommand ("status", SV_Status_f);
 	Cmd_AddCommand ("dumpUser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
@@ -1488,12 +1450,12 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
 #ifndef PRE_RELEASE_DEMO
-	Cmd_AddCommand ("devmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
-	Cmd_AddCommand ("spmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
-	Cmd_AddCommand ("spdevmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
+	Cmd_AddCommand ("devMap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "devMap", SV_CompleteMapName );
+	Cmd_AddCommand ("spMap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "spMap", SV_CompleteMapName );
+	Cmd_AddCommand ("spDevMap", SV_Map_f);
+	Cmd_SetCommandCompletionFunc( "spDevMap", SV_CompleteMapName );
 #endif
 	Cmd_AddCommand ("killServer", SV_KillServer_f);
 #ifdef USE_BANS	
@@ -1518,9 +1480,9 @@ SV_RemoveOperatorCommands
 void SV_RemoveOperatorCommands( void ) {
 #if 0
 	// removing these won't let the server start again
-	Cmd_RemoveCommand ("heartbeat");
+	Cmd_RemoveCommand ("heartBeat");
 	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("clientKick");
+	Cmd_RemoveCommand ("kickNum");
 	Cmd_RemoveCommand ("banUser");
 	Cmd_RemoveCommand ("banClient");
 	Cmd_RemoveCommand ("status");

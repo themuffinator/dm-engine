@@ -100,9 +100,10 @@ cvar_t	*com_cameraMode;
 #if defined(_WIN32) && defined(_DEBUG)
 cvar_t	*com_noErrorInterrupt;
 #endif
-
+//dm
 cvar_t *com_bspVersion;
-
+cvar_t *com_verbose;
+//-dm
 // com_speeds times
 int		time_game;
 int		time_frontend;		// renderer frontend time
@@ -274,6 +275,29 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 	Com_Printf( S_COLOR_CYAN "%s", msg );
 }
 
+
+/*
+================
+Com_LPrintf
+
+Filters out messages based on com_verbose
+================
+*/
+//#if 0
+void QDECL Com_LPrintf( printParm_t level, const char *fmt, ...) {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	if ( !level ) return;
+	if ( !com_verbose || !(com_verbose->integer & (1 << (level-1))) ) return;
+
+	va_start( argptr,fmt );
+	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+	va_end( argptr );
+
+	Com_Printf( "%s", msg );
+}
+//#endif
 
 /*
 =============
@@ -504,10 +528,10 @@ char cl_title[ MAX_CVAR_VALUE_STRING ] = PRODUCT_NAME;
 ===================
 Com_EarlyParseCmdLine
 
-returns qtrue if both vid_xpos and vid_ypos was set
+returns qtrue if both r_window_xPos and r_window_yPos was set
 ===================
 */
-qboolean Com_EarlyParseCmdLine( char *commandLine, char *con_title, int title_size, int *vid_xpos, int *vid_ypos ) 
+qboolean Com_EarlyParseCmdLine( char *commandLine, char *con_title, int title_size, int *r_window_xPos, int *r_window_yPos ) 
 {
 	int		flags = 0;
 	int		i;
@@ -537,23 +561,23 @@ qboolean Com_EarlyParseCmdLine( char *commandLine, char *con_title, int title_si
 			Q_strncpyz( con_title, Cmd_ArgsFrom( 1 ), title_size );
 			continue;
 		}
-		if ( !Q_stricmpn( Cmd_Argv(0), "set", 3 ) && !Q_stricmp( Cmd_Argv(1), "vid_xpos" ) ) {
-			*vid_xpos = atoi( Cmd_Argv( 2 ) );
+		if ( !Q_stricmpn( Cmd_Argv(0), "set", 3 ) && !Q_stricmp( Cmd_Argv(1), "r_window_xPos" ) ) {
+			*r_window_xPos = atoi( Cmd_Argv( 2 ) );
 			flags |= 1;
 			continue;
 		}
-		if ( !Q_stricmp( Cmd_Argv(0), "vid_xpos" ) ) {
-			*vid_xpos = atoi( Cmd_Argv( 1 ) );
+		if ( !Q_stricmp( Cmd_Argv(0), "r_window_xPos" ) ) {
+			*r_window_xPos = atoi( Cmd_Argv( 1 ) );
 			flags |= 1;
 			continue;
 		}
-		if ( !Q_stricmpn( Cmd_Argv(0), "set", 3 ) && !Q_stricmp( Cmd_Argv(1), "vid_ypos" ) ) {
-			*vid_ypos = atoi( Cmd_Argv( 2 ) );
+		if ( !Q_stricmpn( Cmd_Argv(0), "set", 3 ) && !Q_stricmp( Cmd_Argv(1), "r_window_yPos" ) ) {
+			*r_window_yPos = atoi( Cmd_Argv( 2 ) );
 			flags |= 2;
 			continue;
 		}
-		if ( !Q_stricmp( Cmd_Argv(0), "vid_ypos" ) ) {
-			*vid_ypos = atoi( Cmd_Argv( 1 ) );
+		if ( !Q_stricmp( Cmd_Argv(0), "r_window_yPos" ) ) {
+			*r_window_yPos = atoi( Cmd_Argv( 1 ) );
 			flags |= 2;
 			continue;
 		}
@@ -2199,7 +2223,6 @@ static void Com_InitHunkMemory( void ) {
 
 	// allocate the stack based hunk allocator
 	cv = Cvar_Get( "com_hunkMegs", XSTRING( DEF_COMHUNKMEGS ), CVAR_LATCH | CVAR_ARCHIVE, XSTRING(MIN_COMHUNKMEGS), NULL, CV_INTEGER );
-	Cvar_SetDescription( cv, "The size of the hunk memory segment" );
 
 	s_hunkTotal = cv->integer * 1024 * 1024;
 
@@ -3617,13 +3640,14 @@ void Com_Init( char *commandLine ) {
 	// get the developer cvar set as early as possible
 	Com_StartupVariable( "developer" );
 	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP, "0", "1", CV_INTEGER );
-	Cvar_SetDescription(com_developer, "Enables developer mode.");
+	//Cvar_SetDescription(com_developer, "Enables developer mode.");
+	Com_StartupVariable( "verbose" );
+	com_developer = Cvar_Get( "verbose", "0", CVAR_TEMP, "0", "7", CV_INTEGER );
+	//Cvar_SetDescription( com_verbose, "Prints out additional information useful for troubleshooting, bitmask:\n 1: Client\n 2: Server\n 4: Renderer" );
 
 	Com_StartupVariable( "vm_rtChecks" );
 	vm_rtChecks = Cvar_Get( "vm_rtChecks", "15", CVAR_INIT | CVAR_PROTECTED, "0", "15", CV_INTEGER );
-	Cvar_SetDescription( vm_rtChecks, 
-		"Runtime checks in compiled vm code, bitmask:\n 1 - program stack overflow\n" \
-		" 2 - opcode stack overflow\n 4 - jump target range\n 8 - data read/write range" );
+	/**/Cvar_SetDescription( vm_rtChecks, "Runtime checks in compiled vm code, bitmask:\n 1: Program stack overflow\n 2: Opcode stack overflow\n 4: Jump target range\n 8: Data read/write range" );
 
 	Com_StartupVariable( "journal" );
 	com_journal = Cvar_Get( "journal", "0", CVAR_INIT | CVAR_PROTECTED, "0", "2", CV_INTEGER );
@@ -3645,8 +3669,8 @@ void Com_Init( char *commandLine ) {
 	com_dedicated = Cvar_Get( "dedicated", "1", CVAR_INIT, "1", "2", CV_INTEGER );
 #else
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH, "0", "2", CV_INTEGER );
-	Cvar_SetDescription(com_developer, "Enables dedicated server mode.\n 0: listen server\n 1: unlisted dedicated server \n 2: listed dedicated server");
 #endif
+	/**/Cvar_SetDescription(com_dedicated, "Enables dedicated server mode.\n 0: Listen server\n 1: Unlisted dedicated server \n 2: Listed dedicated server");
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();
 
@@ -3659,11 +3683,11 @@ void Com_Init( char *commandLine ) {
 	//
 #ifndef DEDICATED
 	com_maxFPS = Cvar_Get( "com_maxFPS", "125", 0, "1", "1000", CV_INTEGER ); // try to force that in some light way
-	Cvar_SetDescription(com_developer, "Sets maximum renderer frames per second.");
+	/**/Cvar_SetDescription(com_maxFPS, "Sets maximum renderer frames per second.");
 	com_maxFPSUnfocused = Cvar_Get( "com_maxFPSUnfocused", "60", CVAR_ARCHIVE_ND, "1", "1000", CV_INTEGER );
-	Cvar_SetDescription(com_developer, "Sets maximum renderer frames per second in unfocused game window.");
+	/**/Cvar_SetDescription(com_maxFPSUnfocused, "Sets maximum renderer frames per second in unfocused game window.");
 	com_yieldCPU = Cvar_Get( "com_yieldCPU", "1", CVAR_ARCHIVE_ND, "0", "16", CV_INTEGER );
-	Cvar_SetDescription(com_developer, "Attempt to sleep specified amout of time between rendered frames when game is active, this will greatly reduce CPU load. Use 0 only if you're experiencing some lag.");
+	/**/Cvar_SetDescription(com_yieldCPU, "Attempt to sleep specified amout of time between rendered frames when game is active, this will greatly reduce CPU load. Use 0 only if you're experiencing some lag.");
 #endif
 
 #ifdef USE_AFFINITY_MASK
@@ -3672,16 +3696,13 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( com_blood, "Tells the client game module to enable blood and gore effects." );
 
 	com_logFile = Cvar_Get( "logFile", "0", CVAR_TEMP, "0", "4", CV_INTEGER );
-	Cvar_SetDescription( com_logFile, "System console logging:\n"
-		" 0 - disabled\n"
-		" 1 - overwrite mode, buffered\n"
-		" 2 - overwrite mode, synced\n"
-		" 3 - append mode, buffered\n"
-		" 4 - append mode, synced\n" );
+	/**/Cvar_SetDescription( com_logFile, "System console logging:\n 0: Disabled\n 1: Overwrite mode, buffered\n 2: Overwrite mode, synced\n 3: Append mode, buffered\n 4: Append mode, synced" );
 
 	com_timeScale = Cvar_Get( "timeScale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO, "0", "100", CV_FLOAT );
+	/**/Cvar_SetDescription(com_timeScale, "System timing factor:\n <1: Slows the game down\n =1: Regular speed\n >1: Speeds the game up" );
 	com_fixedTime = Cvar_Get ("fixedTime", "0", CVAR_CHEAT, "0", NULL, CV_INTEGER );
 	com_showTrace = Cvar_Get ("com_showTrace", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 	com_viewLog = Cvar_Get( "viewLog", "0", 0, "0", "1", CV_INTEGER );
@@ -3696,19 +3717,24 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	sv_paused = Cvar_Get( "sv_paused", "0", CVAR_ROM, NULL, NULL, CV_NONE );
+	/**/Cvar_SetDescription(sv_paused, "Game is paused in single player.");
 	sv_packetDelay = Cvar_Get( "sv_packetDelay", "0", CVAR_CHEAT, NULL, NULL, CV_NONE );
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM, NULL, NULL, CV_NONE );
+	/**/Cvar_SetDescription(com_sv_running, "Communicates to game modules if there is a server currently running.");
 
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription(com_buildScript, "Loads all game assets, regardless whether they are required or not.");
 
 	Cvar_Get( "com_errorMessage", "", CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
 
-	Cvar_Get( "com_bspVersion", "", CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
+	com_bspVersion = Cvar_Get( "com_bspVersion", "", CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
+	/**/Cvar_SetDescription( com_bspVersion, "Communicates the current BSP header version across game modules." );
 
 #ifndef DEDICATED
 	com_introPlayed = Cvar_Get( "com_introPlayed", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription(com_introPlayed, "Skips the introduction cinematic.");
 	com_skipIdLogo  = Cvar_Get( "com_skipIdLogo", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	Cvar_SetDescription(com_skipIdLogo, "Skip playing Id Software logo cinematic at startup.");
+	/**/Cvar_SetDescription(com_skipIdLogo, "Skip playing Id Software logo cinematic at startup.");
 #endif
 
 	if ( com_dedicated->integer ) {
@@ -3741,15 +3767,15 @@ void Com_Init( char *commandLine ) {
 	Sys_Init();
 
 	// CPU detection
-	Cvar_Get( "sys_cpustring", "detect", CVAR_PROTECTED | CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
-	if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "detect" ) )
+	Cvar_Get( "sys_cpuString", "detect", CVAR_PROTECTED | CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
+	if ( !Q_stricmp( Cvar_VariableString( "sys_cpuString" ), "detect" ) )
 	{
 		static char vendor[128];
 		Com_Printf( "...detecting CPU, found " );
 		Sys_GetProcessorId( vendor );
-		Cvar_Set( "sys_cpustring", vendor );
+		Cvar_Set( "sys_cpuString", vendor );
 	}
-	Com_Printf( "%s\n", Cvar_VariableString( "sys_cpustring" ) );
+	Com_Printf( "%s\n", Cvar_VariableString( "sys_cpuString" ) );
 
 #ifdef USE_AFFINITY_MASK
 	if ( com_affinityMask->integer )
@@ -3881,7 +3907,7 @@ static void Com_WriteConfig_f( void ) {
 	const char *ext;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "Usage: writeconfig <filename>\n" );
+		PrintUsageDesc("writeConfig", "<filename>", "Writes settings to a user configuration file.");
 		return;
 	}
 
@@ -4297,7 +4323,7 @@ PrintMatches
 */
 static void PrintMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
-		Com_Printf( "    %s\n", s );
+		Com_Printf( S_COL_BASE "  %s\n", s );
 	}
 }
 
@@ -4312,7 +4338,7 @@ static void PrintCvarMatches( const char *s ) {
 
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
 		Com_TruncateLongString( value, Cvar_VariableString( s ) );
-		Com_Printf( "    %s = \"%s\"\n", s, value );
+		Com_Printf( S_COL_VAR "  %s " S_COL_VAL "%s\n", s, value );
 	}
 }
 
@@ -4729,11 +4755,11 @@ void Com_SortFileList( char **list, int nfiles, int fastSort )
 
 /*
 ==================
-replace
+Com_ReplaceSubString
 Replace substrings in a string. Source: Netocrat from bytes.com
 ==================
 */
-char *replace(const char *s, const char *old, const char *new) {
+char *Com_ReplaceSubString(const char *s, const char *old, const char *new) {
 	char *ret;
 	int 	i, count = 0;
 

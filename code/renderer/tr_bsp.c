@@ -595,7 +595,7 @@ static void ParseFace( const q3_dSurface_t *ds, const drawVert_t *verts, msurfac
 
 	numPoints = LittleLong( ds->numVerts );
 	if (numPoints > MAX_FACE_POINTS) {
-		ri.Printf( PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints);
+		ri.Printf( PRINT_WARNING, "MAX_FACE_POINTS exceeded: %i\n", numPoints);
 		numPoints = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
@@ -1575,7 +1575,7 @@ static void R_StitchAllPatches( void ) {
 		}
 	}
 	while (stitched);
-	ri.Printf( PRINT_ALL, "stitched %d LoD cracks\n", numstitches );
+	ri.Printf( PRINT_V_RENDERER, "stitched %d LoD cracks\n", numstitches );
 }
 
 
@@ -1682,7 +1682,7 @@ static void R_Q3_LoadSurfaces( const lump_t *surfs, const lump_t *verts, const l
 	R_MovePatchSurfacesToHunk();
 #endif
 
-	ri.Printf( PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", 
+	ri.Printf( PRINT_V_RENDERER, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n", 
 		numFaces, numMeshes, numTriSurfs, numFlares );
 }
 
@@ -2028,12 +2028,12 @@ static void R_Q3_LoadFogs( const lump_t *l, const lump_t *brushesLump, const lum
 	
 		VectorCopy( shader->fogParms.color, fogColor );
 
-		if ( r_mapGreyScale->value > 0 ) {
+		if ( r_fogGreyScale->value > 0 ) {
 			float luminance;
 			luminance = LUMA( fogColor[0], fogColor[1], fogColor[2] );
-			fogColor[0] = LERP( fogColor[0], luminance, r_mapGreyScale->value );
-			fogColor[1] = LERP( fogColor[1], luminance, r_mapGreyScale->value );
-			fogColor[2] = LERP( fogColor[2], luminance, r_mapGreyScale->value );
+			fogColor[0] = LERP( fogColor[0], luminance, r_fogGreyScale->value );
+			fogColor[1] = LERP( fogColor[1], luminance, r_fogGreyScale->value );
+			fogColor[2] = LERP( fogColor[2], luminance, r_fogGreyScale->value );
 		}
 
 		out->parms = shader->fogParms;
@@ -2101,7 +2101,7 @@ static void R_Q3_LoadLightGrid( const lump_t *l ) {
 	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
 
 	if ( l->filelen != numGridPoints * 8 ) {
-		ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
+		ri.Printf( PRINT_WARNING, "light grid mismatch\n" );
 		w->lightGridData = NULL;
 		return;
 	}
@@ -2228,7 +2228,7 @@ static void R_Q3_LoadEntities( const lump_t *l ) {
 		if (!Q_strncmp(keyname, s, strlen(s)) ) {
 			s = strchr(value, ';');
 			if (!s) {
-				ri.Printf( PRINT_WARNING, "WARNING: no semi colon in vertexshaderremap '%s'\n", value );
+				ri.Printf( PRINT_WARNING, "no semi colon in vertexshaderremap '%s'\n", value );
 				break;
 			}
 			*s++ = '\0';
@@ -2242,7 +2242,7 @@ static void R_Q3_LoadEntities( const lump_t *l ) {
 		if (!Q_strncmp(keyname, s, (int)strlen(s)) ) {
 			s = strchr(value, ';');
 			if (!s) {
-				ri.Printf( PRINT_WARNING, "WARNING: no semi colon in shaderremap '%s'\n", value );
+				ri.Printf( PRINT_WARNING, "no semi colon in shaderremap '%s'\n", value );
 				break;
 			}
 			*s++ = '\0';
