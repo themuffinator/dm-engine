@@ -15,7 +15,7 @@ DarkMatter is a project that ultimately aims to provide a unified platform for e
 * Detailed cvar descriptions straight from the console, min and max values for all appropriate cvars
 * A number of added cvars and commands providing more customization and control
 
-More details available in the docs directory.
+More information including features and installation available in the assets/docs directory.
 
 **Quake3e features**:
 
