@@ -324,7 +324,7 @@ void RB_RenderFlare( flare_t *f ) {
 	// calculate the flare size..
 //dm: adjust appropriately
 	//size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/640.0f + 8 / distance );
-	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value / glConfig.vidWidth + 8 / distance );
+	size = backEnd.viewParms.viewportHeight * ( r_flareSize->value / 480.0f + 8 / distance );
 //-dm
 
 /*

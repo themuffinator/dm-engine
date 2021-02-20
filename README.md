@@ -1,13 +1,23 @@
-# Quake3e
+# DarkMatter Engine
 
-[![build](https://github.com/ec-/Quake3e/workflows/build/badge.svg)](https://github.com/ec-/Quake3e/actions?query=workflow%3Abuild) * [![Discord Shield](https://discord.com/api/guilds/314456230649135105/widget.png?style=shield)](https://discord.com/channels/314456230649135105/314465055578128385)
 
-This is a modern Quake III Arena engine aimed to be fast, secure and compatible with all existing Q3A mods.
-It is based on last non-SDL source dump of ioquake3 with latest upstream fixes applied.
+## Introduction
+QUAKE communities have always been fractured as players gravitate towards a certain title. From Q1 to Q3, there are at least 1,500 quality community-made levels - many of which have either not received the acclaim they deserved or are slowly disappearing from online presence.
 
-*This repository do not contains any game content so in order to play you must copy resulting binaries into your existing Quake III Arena installation*
+DarkMatter is a project that ultimately aims to provide a unified platform for enjoying the classic QUAKE titles in specially-made mods on a robust, high-performing and stable engine. It will be split into engine and game logic modules.
+	
+**Core features**
+* A flexible filesystem for loading from multiple game bases, with automatic detection of game installation paths.
+* Supporting maps and assets from QUAKE LIVE.
+* OGG Vorbis codec
+* Aspect-correct UI and expanded field of view for widescreens
+* Entity override dumping and loading for servers to modify level items
+* Detailed cvar descriptions straight from the console, min and max values for all appropriate cvars
+* A number of added cvars and commands providing more customization and control
 
-**Key features**:
+More details available in the docs directory.
+
+**Quake3e features**:
 
 * optimized OpenGL renderer
 * optimized Vulkan renderer
@@ -22,143 +32,8 @@ It is based on last non-SDL source dump of ioquake3 with latest upstream fixes a
 * non-intrusive support for SDL2 backend (video,audio,input), selectable at compile time
 * tons of bugfixes and other improvements
 
-## Vulkan renderer
-
-Based on Quake-III-Arena-Kenny-Edition with many additions:
-
-* high-quality per-pixel dynamic lighting
-* very fast flares (**\r_flares 1**)
-* anisotropic filtering (**\r_ext_texture_filter_anisotropic**)
-* greatly reduced API overhead (call/dispatch ratio)
-* flexible vertex buffer memory management to allow loading huge maps
-* multiple command buffers to reduce processing bottlenecks
-* reversed depth buffer to eliminate z-fighting on big maps
-* merged lightmaps (atlases)
-* multitexturing optimizations
-* static world surfaces cached in VBO (**\r_vbo 1**)
-* useful debug markers for tools like RenderDoc
-* fixed framebuffer corruption on some Intel iGPUs
-* offscreen rendering, enabled with **\r_fbo 1**, all following reguires it enabled:
-* `screenMap` texture rendering - to create realistic environment reflections
-* multi-sample anti-aliasing (**\r_ext_multisample**)
-* per-window gamma-correction which is important for screen-capture tools like OBS
-* you can minimize game window any time during **\video**|**\video-pipe** recording
-* high dynamic range render targets (**\r_hdr 1**) to avoid color banding
-* bloom post-processing effect
-* arbitrary resolution rendering
-* greyscale mode
-
-In general, not counting offscreen rendering features you might expect from 10% to 200%+ FPS increase comparing to original KE's version
-
-Highly recommended to use on modern systems
-
-## OpenGL renderer
-
-Based on classic OpenGL renderers from id/ioq3/cnq3/openarena, features:
-
-* OpenGL 1.1 compatible, uses features from newer versions whenever available
-* high-quality per-pixel dynamic lighting, can be triggered by **\r_dlightMode** cvar
-* merged lightmaps (atlases)
-* static world surfaces cached in VBO (**\r_vbo 1**)
-* all set of offscreen rendering features mentioned in Vulkan renderer, plus:
-* bloom reflection post-processing effect
-* supersample anti-aliasing (**\r_ext_supersample**)
-
-Performance is usually greater or equal to other opengl1 renderers
-
-## OpenGL2 renderer
-
-Original ioquake3 renderer, performance is very poor on non-nvidia systems, unmaintained
-
-## Build Instructions
-
-### windows/msvc 
-
-Install Visual Studio Community Edition 2017 or later and compile `quake3e` project from solution
-
-`code/win32/msvc2017/quake3e.sln`
-
-Copy resulting exe from `code/win32/msvc2017/output` directory
-
-To compile with Vulkan backend - clean solution, right click on `quake3e` project, find `Project Dependencies` and select `renderervk` instead of `renderer`
-
----
-
-### windows/mingw
-
-All build dependencies (libraries, headers) are bundled-in
-
-Build with either `make ARCH=x86` or `make ARCH=x86_64` commands depending from your target system, then copy resulting binaries from created `build` directory or use command: 
-
-`make install DESTDIR=<path_to_game_files>`
-
----
-
-### linux/bsd
-
-You may need to run following commands to install packages (using fresh ubuntu-18.04 installation as example):
-
-* sudo apt install make gcc libcurl4-openssl-dev mesa-common-dev
-* sudo apt install libxxf86dga-dev libxrandr-dev libxxf86vm-dev libasound-dev
-* sudo apt install libsdl2-dev
-
-Build with: `make`
-
-Copy resulting binaries from created `build` directory or use command: 
-
-`make install DESTDIR=<path_to_game_files>`
-
----
-
-### raspberry pi os
-
-Install build dependencies:
-
-* apt install libsdl2-dev libxxf86dga-dev libcurl4-openssl-dev
-
-Build with: `make`
-
-Copy resulting binaries from created `build` directory or use command: 
-
-`make install DESTDIR=<path_to_game_files>`
-
----
-
-### macos
-
-* install official SDL2 framework to /Library/Frameworks
-* install Vulkan SDK to use MoltenVK library
-
-Build with: `make`
-
-Copy resulting binaries from created `build` directory
-
----
-
-Several make options available for linux/mingw/macos builds:
-
-`BUILD_CLIENT=1` - build unified client/server executable, enabled by default
-
-`BUILD_SERVER=1` - build dedicated server executable, enabled by default
-
-`USE_SDL=0`- use SDL2 backend for video, audio, input subsystems, disabled by default, enforced for macos
-
-`USE_VULKAN=0` - link client with vulkan renderer instead of OpenGL, disabled by default, works only with single renderer builds
-
-`USE_RENDERER_DLOPEN=1` - do not link single renderer into client binary, compile all renderers (ignoring USE_VULKAN setting) as dynamic libraries and allow to switch them on the fly via `\cl_renderer` cvar, enabled by default
-
-`USE_SYSTEM_JPEG=0` - use current system JPEG library, disabled by default
-
-Example:
-
-`make BUILD_SERVER=0 USE_RENDERER_DLOPEN=0 USE_VULKAN=1` - which means do not build dedicated binary, build client with single static vulkan renderer
-
-## Contacts
-
-Discord channel: https://discordapp.com/invite/X3Exs4C
-
 ## Links
-
+* https://github.com/ec-/Quake3e
 * https://bitbucket.org/CPMADevs/cnq3
 * https://github.com/ioquake/ioq3
 * https://github.com/kennyalive/Quake-III-Arena-Kenny-Edition
