@@ -52,7 +52,7 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, qboolean bigFont, qboolean showCursor, qboolean noColorEscape ) {
+static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, qboolean bigFont, qboolean showCursor, qboolean noColorEscape ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -61,7 +61,7 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, qboo
 	int		i;
 	int		curColor;
 
-	drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
+	drawLen = width;	// edit->widthInChars - 1; // - 1 so there is always a space for the cursor
 	len = strlen( edit->buffer );
 
 	// guarantee that cursor will be visible
@@ -113,11 +113,11 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, qboo
 	if ( !bigFont ) {
 		SCR_DrawSmallStringExt( x, y, str, g_color_table[ColorIndexFromChar( curColor )], qfalse, noColorEscape );
 		if ( len > drawLen + prestep ) {
-			SCR_DrawSmallChar( x + ( edit->widthInChars - 1 ) * cls.smallchar_width, y, '>' );
+			SCR_DrawSmallChar( x + (float)( edit->widthInChars - 1 ) * cls.smallchar_width, y, '>' );
 		}
 	} else {
 		if ( len > drawLen + prestep ) {
-			SCR_DrawStringExt( x + ( edit->widthInChars - 1 ) * cls.bigchar_width, y, cls.bigchar_width, cls.bigchar_height, ">",
+			SCR_DrawStringExt( x + (float)( edit->widthInChars - 1 ) * cls.bigchar_width, y, cls.bigchar_width, cls.bigchar_height, ">",
 				g_color_table[ColorIndex( COLOR_WHITE )], qfalse, noColorEscape, SA_NONE );
 		}
 		// draw big string with drop shadow
@@ -131,34 +131,28 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, qboo
 			return;		// off blink
 		}
 
-		if ( key_overstrikeMode ) {
-			cursorChar = 11;
-		}
-		else {
-			cursorChar = 10;
-		}
+		cursorChar = key_overstrikeMode ? 11 : 10;
 
 		i = drawLen - strlen( str );
 
 		if ( !bigFont ) {
 			SCR_DrawSmallChar( (float)((float)x + (float)( edit->cursor - prestep - i ) * cls.smallchar_width), y, cursorChar );
-			//Com_Printf( "x=%i cursor=%i prestep=%i i=%i charw=%f ---> %f\n", x, edit->cursor, prestep, i, cls.smallchar_width, (float)( (float)x + (float)( edit->cursor - prestep - i ) * cls.smallchar_width ) );
 		} else {
 			str[0] = cursorChar;
 			str[1] = '\0';
-			SCR_DrawBigString( x + (float)( edit->cursor - prestep - i ) * cls.bigchar_width, y, str, 1.0, qfalse, SA_NONE );
+			SCR_DrawBigString( x + (float)( edit->cursor - prestep - i ) * cls.bigchar_width, y, str, 1.0, qfalse );
 		}
 	}
 }
 
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape )
+void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, qfalse, showCursor, noColorEscape );
 }
 
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape )
+void Field_BigDraw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, qtrue, showCursor, noColorEscape );
 }

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRODUCT_SHORT_NAME		"DarkMatter"
 #define CONSOLE_WINDOW_TITLE	PRODUCT_NAME " Console"
 
-#define PRODUCT_VERSION			PRODUCT_NAME " 1.32e"
+#define PRODUCT_VERSION			PRODUCT_NAME " 0.5.0"
 #ifndef SVN_VERSION
   #define SVN_VERSION PRODUCT_VERSION
 #endif

@@ -638,23 +638,23 @@ Con_DrawInput
 Draw the editline after a ] prompt
 ================
 */
-void Con_DrawInput( const int scrAdjust ) {
+static void Con_DrawInput( void ) {
 	float	x, y;
 
 	if ( cls.state != CA_DISCONNECTED && !( Key_GetCatcher() & KEYCATCH_CONSOLE ) ) {
 		return;
 	}
 
-	x = con.xAdjust + 1;
-	y = con.visLines - ( cls.smallchar_height * 2 );
-	//SCR_AdjustFrom640( &x, NULL, NULL, NULL, scrAdjust );
+	x = con.xAdjust + 1.0f;
+	y = (float)con.visLines - ( cls.smallchar_height * 2.0f );
 
 	re.SetColor( con.color );
 	
 	SCR_DrawSmallChar( x + cls.smallchar_width, y, ']' );
 
-	//Field_Draw( &g_consoleField, con.xAdjust + 2 * cls.smallchar_width, ay, SCREEN_WIDTH - 3 * cls.smallchar_width, qtrue, qtrue );
-	Field_Draw( &g_consoleField, x + 2 * cls.smallchar_width, y, cls.glconfig.vidWidth - 3 * cls.smallchar_width, qtrue, qtrue );
+	//Field_Draw( &g_consoleField, con.xAdjust + 2 * cls.smallchar_width, y, SCREEN_WIDTH - 3 * cls.smallchar_width, qtrue, qtrue );
+	//Field_Draw( &g_consoleField, x + 2.0f * cls.smallchar_width, y, (int)(cls.glconfig.vidWidth - 5.0f * cls.smallchar_width)/ ceil(cls.smallchar_width), qtrue, qtrue );
+	Field_Draw( &g_consoleField, x + 2.0f * cls.smallchar_width, y, g_consoleField.widthInChars - 1, qtrue, qtrue );
 }
 
 
@@ -666,7 +666,7 @@ Draws the last few lines of output transparently over the game top
 ================
 */
 void Con_DrawNotify( const int scrAdjust ) {
-	int		x, y;
+	int		x;
 	short	*text;
 	int		i;
 	int		time;
@@ -680,10 +680,9 @@ void Con_DrawNotify( const int scrAdjust ) {
 
 	ax = con_notifyXOffset->integer + con.xAdjust;
 	ay = 0;
-	SCR_AdjustFrom640( &ax, &ay, NULL, NULL, scrAdjust );
+	SCR_AdjustFrom640( &ax, NULL, NULL, NULL, scrAdjust );
 
-	x = ax;
-	y = ay;
+	x = (int)ax;
 	for ( i = con.current - NUM_CON_TIMES + 1; i <= con.current; i++ ) {
 		if ( i < 0 )
 			continue;
@@ -708,10 +707,10 @@ void Con_DrawNotify( const int scrAdjust ) {
 				currentColorIndex = colorIndex;
 				re.SetColor( g_color_table[colorIndex] );
 			}
-			SCR_DrawSmallChar( ( x + 1 ) * cls.smallchar_width, y, text[x] & 0xff );
+			SCR_DrawSmallChar( ( (float)x + 1.0f ) * cls.smallchar_width, ay, text[x] & 0xff );
 		}
 
-		y += cls.smallchar_height;
+		ay += cls.smallchar_height;
 	}
 
 	re.SetColor( NULL );
@@ -726,12 +725,12 @@ void Con_DrawNotify( const int scrAdjust ) {
 		//y /= cls.glconfig.vidHeight / 480.0;
 		//y = ay;
 
-		SCR_DrawBigString( cls.smallchar_width, y, chatmode_text[chat_mode], 1.0f, qfalse, SA_NONE );
+		SCR_DrawBigString( cls.smallchar_width, ay, chatmode_text[chat_mode], 1.0f, qfalse );
 		skip = strlen( chatmode_text[chat_mode] );
 
-		Field_BigDraw( &chatField, skip * cls.bigchar_width, y,
-			//cls.glconfig.vidWidth - ( skip + 1 ) * cls.bigchar_width, qtrue, qtrue );
-		SCREEN_WIDTH - ( skip + 1 ) * cls.bigchar_width, qtrue, qtrue );	// , scrAdjust );
+		Field_BigDraw( &chatField, skip * cls.bigchar_width, ay,
+			(cls.glconfig.vidWidth - ( (float)skip + 20.0f ) * cls.bigchar_width)/ cls.bigchar_width, qtrue, qtrue );
+		//SCREEN_WIDTH - ( skip + 1 ) * cls.bigchar_width, qtrue, qtrue );	// , scrAdjust );
 	}
 }
 
@@ -748,7 +747,8 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	// for cvar value change tracking
 	static char  conColorString[MAX_CVAR_VALUE_STRING] = { '\0' };
 
-	int		i, x, y;
+	int		i;
+	float	x, y;
 	int		rows;
 	short	*text;
 	int		row;
@@ -849,7 +849,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 		// draw arrows to show the buffer is backscrolled
 		re.SetColor( g_color_table[ColorIndex( COLOR_RED )] );
 		for ( x = 0; x < con.lineWidth; x += 4 )
-			SCR_DrawSmallChar( con.xAdjust + ( x + 1 ) * cls.smallchar_width, y, '^' );
+			SCR_DrawSmallChar( con.xAdjust + ( x + 1.0f ) * cls.smallchar_width, y, '^' );
 		y -= cls.smallchar_height;
 		row--;
 	}
@@ -861,8 +861,8 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 
 		i = strlen( download.progress );
 		for ( x = 0; x < i; x++ ) {
-			SCR_DrawSmallChar( ( x + 1 ) * cls.smallchar_width,
-				lines - cls.smallchar_height, download.progress[x] );
+			SCR_DrawSmallChar( ( x + 1.0f ) * cls.smallchar_width,
+				lines - cls.smallchar_height, download.progress[(int)x] );
 		}
 	}
 #endif
@@ -883,16 +883,16 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 
 		for ( x = 0; x < con.lineWidth; x++ ) {
 			// skip rendering whitespace
-			if ( ( text[x] & 0xff ) == ' ' ) {
+			if ( ( text[(int)x] & 0xff ) == ' ' ) {
 				continue;
 			}
 			// track color changes
-			colorIndex = ( text[x] >> 8 ) & 63;
+			colorIndex = ( text[(int)x] >> 8 ) & 63;
 			if ( currentColorIndex != colorIndex ) {
 				currentColorIndex = colorIndex;
 				re.SetColor( g_color_table[colorIndex] );
 			}
-			SCR_DrawSmallChar( con.xAdjust + ( x + 1 ) * cls.smallchar_width, y, text[x] & 0xff );
+			SCR_DrawSmallChar( con.xAdjust + ( x + 1.0f ) * cls.smallchar_width, y, text[(int)x] & 0xff );
 		}
 	}
 
@@ -920,7 +920,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	}
 
 	// draw the input prompt, user text, and cursor if desired
-	Con_DrawInput( scrAdjust );
+	Con_DrawInput();
 
 	re.SetColor( NULL );
 }

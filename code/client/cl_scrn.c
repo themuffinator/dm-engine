@@ -144,7 +144,7 @@ void SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader
 ** SCR_DrawChar
 ** chars are drawn at 640*480 virtual screen size
 */
-static void SCR_DrawChar( int x, int y, float charWidth, float charHeight, int ch, const int scrAdjust ) {
+static void SCR_DrawChar( float x, float y, float charWidth, float charHeight, int ch, const int scrAdjust ) {
 	int row, col;
 	float frow, fcol;
 	float	ax, ay, aw, ah;
@@ -182,7 +182,7 @@ static void SCR_DrawChar( int x, int y, float charWidth, float charHeight, int c
 ** SCR_DrawSmallChar
 ** small chars are drawn at native screen resolution
 */
-void SCR_DrawSmallChar( int x, int y, int ch ) {
+void SCR_DrawSmallChar( float x, float y, int ch ) {
 	int		row, col;
 	float	frow, fcol;
 	float	size;
@@ -203,11 +203,12 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 	frow = row * 0.0625;
 	fcol = col * 0.0625;
 	size = 0.0625;
-
+#if 0
+	if ( ch == 10 )
+		Com_Printf( "x=%f y=%f w=%f h=%f --> %f\n", x, y, cls.smallchar_width, cls.smallchar_height, (x-1)/cls.smallchar_width );
+#endif
 	re.DrawStretchPic( x, y, cls.smallchar_width, cls.smallchar_height,
-		fcol, frow,
-		fcol + size, frow + size,
-		cls.charSetShader );
+		fcol, frow, fcol + size, frow + size, cls.charSetShader );
 }
 
 
@@ -215,7 +216,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 ** SCR_DrawSmallString
 ** small string are drawn at native screen resolution
 */
-void SCR_DrawSmallString( int x, int y, const char *s, int len, const int scrAdjust ) {
+void SCR_DrawSmallString( float x, float y, const char *s, int len, const int scrAdjust ) {
 	int		row, col, ch, i;
 	float	frow, fcol;
 	float	size;
@@ -257,7 +258,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt( int x, int y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust ) {
+void SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -307,12 +308,12 @@ void SCR_DrawStringExt( int x, int y, float charWidth, float charHeight, const c
 SCR_DrawBigString
 ==================
 */
-void SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape, const int scrAdjust ) {
+void SCR_DrawBigString( float x, float y, const char *s, float alpha, qboolean noColorEscape ) {
 	float	color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawStringExt( x, y, cls.bigchar_width, cls.bigchar_height, s, color, qfalse, noColorEscape, scrAdjust );
+	SCR_DrawStringExt( x, y, cls.bigchar_width, cls.bigchar_height, s, color, qfalse, noColorEscape, SA_NONE );
 }
 
 
@@ -324,7 +325,7 @@ Draws a multi-colored string with a drop shadow, optionally forcing
 to a fixed color.
 ==================
 */
-void SCR_DrawSmallStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape ) {
+void SCR_DrawSmallStringExt( float x, float y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 

@@ -501,8 +501,8 @@ void CL_WritePacket( void );
 extern  field_t     chatField;
 extern  field_t     g_consoleField;
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
+void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape );
+void Field_BigDraw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape );
 
 //
 // cl_parse.c
@@ -552,11 +552,11 @@ void	SCR_FillRect( float x, float y, float width, float height, const float *col
 void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader, const int scrAdjust );
 void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname, const int scrAdjust );
 
-void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape, const int scrAdjust );			// draws a string with embedded color control characters with fade
-void	SCR_DrawStringExt( int x, int y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust );
-void	SCR_DrawSmallStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
-void	SCR_DrawSmallChar(int x, int y, int ch);
-void	SCR_DrawSmallString( int x, int y, const char *s, int len, const int scrAdjust );
+void	SCR_DrawBigString( float x, float y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
+void	SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust );
+void	SCR_DrawSmallStringExt( float x, float y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawSmallChar( float x, float y, int ch);
+void	SCR_DrawSmallString( float x, float y, const char *s, int len, const int scrAdjust );
 
 //
 // cl_cin.c
