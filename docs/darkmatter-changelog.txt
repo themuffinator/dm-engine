@@ -56,3 +56,13 @@ CHANGELOG:
 	0: Console always assumes input as commands.
 	1: Console assumes chat command when cvars or commands are not found.
 + listDefShaders command lists all defaulted (missing/invalid) shaders
++ con_drawClock [0|1|2] : Draws current time in console.
+	0: Hidden
+	1: 24 hour clock
+	2: AM/PM clock
++ verbose <bitmask>: Enable additional system console notifications for each category:
+	& 1: Common
+	& 2: Client
+	& 4: Server
+	& 8: Renderer
+	

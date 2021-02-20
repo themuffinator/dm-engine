@@ -6,6 +6,7 @@ Based on Quake3e - 16 Jan 2021 release
 FIXME:
 ------
 - Jailbreak POW: Main menu text not drawing
+- Threewave menu aspect fixes, menu player model projection
 - Console font scaling fix on video resolution changes
 - QUAKE LIVE: shader textures/ct_1997/rock_02b drawing overly bright white... see map Fuse
 
@@ -27,7 +28,6 @@ TODO:
 - Asset base rules for QL: always check for map shaders from QL path first
 - Asset base flags for map loading, ie: map -q2 q2dm1 to search only QUAKE II path for the map
 - Asset base indicators for auto-complete map lists
-- Client and server verbose messages like renderer PRINT_V_RENDERER
 
 
 Low-priority/future TODO:

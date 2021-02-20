@@ -71,6 +71,7 @@ cvar_t *con_backColor;
 
 cvar_t *con_scrollBar;
 cvar_t *con_scrollLines;
+cvar_t *con_drawClock;
 
 int					g_console_field_width = DEFAULT_CONSOLE_WIDTH;
 
@@ -417,19 +418,21 @@ Con_Init
 ================
 */
 void Con_Init( void ) {
-	con_notifyTime = Cvar_Get( "con_notifyTime", "3", 0, "0", "10", CV_FLOAT );
+	con_notifyTime = Cvar_Get( "con_notifyTime", "3", CVAR_ARCHIVE_ND, "0", "10", CV_FLOAT );
 	/**/Cvar_SetDescription( con_notifyTime, "Time notifications are displayed for (in seconds.)" );
-	con_speed = Cvar_Get( "con_speed", "3", 0, "1", "10", CV_FLOAT );
+	con_speed = Cvar_Get( "con_speed", "3", CVAR_ARCHIVE_ND, "1", "10", CV_FLOAT );
 	/**/Cvar_SetDescription( con_speed, "Console opening/closing scroll speed." );
 
-	con_notifyXOffset = Cvar_Get( "con_notifyXOffset", "0", 0, "0", NULL, CV_INTEGER );
+	con_notifyXOffset = Cvar_Get( "con_notifyXOffset", "0", CVAR_ARCHIVE_ND, "0", NULL, CV_INTEGER );
 	/**/Cvar_SetDescription( con_notifyXOffset, "Notifications X-offset." );
-	con_backColor = Cvar_Get( "con_backColor", "", 0, NULL, NULL, CV_NONE );
+	con_backColor = Cvar_Get( "con_backColor", "", CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );
 	/**/Cvar_SetDescription( con_backColor, "Console background color, set as R G B values from 0-255." );
-	con_scrollBar = Cvar_Get( "con_scrollBar", "1", 0, "0", "1", CV_INTEGER );
+	con_scrollBar = Cvar_Get( "con_scrollBar", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	/**/Cvar_SetDescription( con_scrollBar, "Draws the console scroll bar." );
-	con_scrollLines = Cvar_Get( "con_scrollLines", "2", 0, "1", "8", CV_INTEGER );
+	con_scrollLines = Cvar_Get( "con_scrollLines", "2", CVAR_ARCHIVE_ND, "1", "8", CV_INTEGER );
 	/**/Cvar_SetDescription( con_scrollLines, "Console line scroll factor." );
+	con_drawClock = Cvar_Get( "con_drawClock", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	/**/Cvar_SetDescription( con_drawClock, "Draws current time in console.\n 0: Hidden\n 1: 24 hour clock\n 2: AM/PM clock" );
 
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
@@ -833,8 +836,26 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	//y = yf;
 
 	// draw the version number
-	SCR_DrawSmallString( cls.glconfig.vidWidth - ( ARRAY_LEN( PRODUCT_VERSION ) ) * cls.smallchar_width,
+	SCR_DrawSmallString( cls.glconfig.vidWidth - ( ARRAY_LEN( PRODUCT_VERSION ) + 1 ) * cls.smallchar_width,
 		lines - cls.smallchar_height, PRODUCT_VERSION, ARRAY_LEN( PRODUCT_VERSION ) - 1, SA_NONE );
+
+	// draw time
+	if ( con_drawClock->integer ) {
+		qtime_t		t;
+		const char	*ts;
+		int			tl;
+
+		Com_RealTime( &t );
+		
+		if ( con_drawClock->integer > 1 ) {
+			ts = va( "%d:%02d:%02d %s", t.tm_hour % 12, t.tm_min, t.tm_sec, ( t.tm_hour >= 12 ) ? "PM" : "AM" );
+		} else {
+			ts = va( "%d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec );
+		}
+		tl = strlen( ts );
+		SCR_DrawSmallString( cls.glconfig.vidWidth - (tl + 2) * cls.smallchar_width,
+			lines - cls.smallchar_height * 2, ts, tl, SA_NONE );
+	}
 
 	// draw the text
 	con.visLines = lines;
