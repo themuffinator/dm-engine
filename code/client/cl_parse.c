@@ -365,7 +365,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 	s = Info_ValueForKey( systemInfo, "fs_game" );
 
 	if ( FS_InvalidGameDir( s ) ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Server sent invalid fs_game value %s\n", s );
+		Com_WPrintf( "Server sent invalid fs_game value %s\n", s );
 	} else {
 		Cvar_Set( "fs_game", s );
 	}
@@ -445,7 +445,7 @@ void CL_SystemInfoChanged( qboolean onlyGame ) {
 				   Q_stricmp(key, "pmove_msec"))
 #endif
 				{
-					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+					Com_WPrintf( "Server is not allowed to set %s=%s\n", key, value);
 					continue;
 				}
 			}
@@ -709,7 +709,7 @@ static void CL_ParseDownload( msg_t *msg ) {
 	{
 		if ( !CL_ValidPakSignature( data, size ) ) 
 		{
-			Com_Printf( S_COLOR_YELLOW "Invalid pak signature for %s\n", clc.downloadName );
+			Com_WPrintf( "Invalid pak signature for %s\n", clc.downloadName );
 			CL_AddReliableCommand( "stopdl", qfalse );
 			CL_NextDownload();
 			return;

@@ -270,13 +270,13 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 	if ( var->validator == CV_INTEGER || var->validator == CV_FLOAT ) {
 		if ( !Q_isanumber( value ) ) {
 			if ( warn )
-				Com_Printf( "WARNING: cvar '%s' must be numeric", var->name );
+				Com_WPrintf( "Cvar '%s' must be numeric", var->name );
 			limit = var->resetString;
 		} else {
 			if ( var->validator == CV_INTEGER ) {
 				if ( !Cvar_IsIntegral( value ) ) {
 					if ( warn )
-						Com_Printf( "WARNING: cvar '%s' must be integral", var->name );
+						Com_WPrintf( "Cvar '%s' must be integral", var->name );
 					sprintf( intbuf, "%i", atoi( value ) );
 					value = intbuf; // new value
 				}
@@ -300,7 +300,7 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 					if ( value == intbuf ) { // cast to integer
 						Com_Printf( " and" ); 
 					} else {
-						Com_Printf( "WARNING: cvar '%s'", var->name );
+						Com_Printf( "WARNING: Cvar '%s'", var->name );
 					}
 					Com_Printf( " is out of range (%s '%s')", (limit == var->mins) ? "min" : "max", limit );
 				}
@@ -312,7 +312,7 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 		// check for directory traversal patterns
 		if ( FS_InvalidGameDir( value ) ) {
 			if ( warn ) {
-				Com_Printf( "WARNING: cvar '%s' contains invalid patterns", var->name );
+				Com_Printf( "WARNING: Cvar '%s' contains invalid patterns", var->name );
 			}
 			// try to use current value if it is valid
 			if ( !FS_InvalidGameDir( var->string ) ) {
@@ -790,10 +790,10 @@ void Cvar_SetSafe( const char *var_name, const char *value )
 		if ( flags & ( CVAR_PROTECTED | CVAR_PRIVATE ) )
 		{
 			if( value )
-				Com_Printf( S_COLOR_YELLOW "Restricted source tried to set "
+				Com_WPrintf( "Restricted source tried to set "
 					"\"%s\" to \"%s\"\n", var_name, value );
 			else
-				Com_Printf( S_COLOR_YELLOW "Restricted source tried to "
+				Com_WPrintf( "Restricted source tried to "
 					"modify \"%s\"\n", var_name );
 			return;
 		}
@@ -1431,7 +1431,7 @@ void Cvar_WriteVariables( fileHandle_t f )
 			// write the latched value, even if it hasn't taken effect yet
 			value = var->latchedString ? var->latchedString : var->string;
 			if ( strlen( var->name ) + strlen( value ) + 10 > sizeof( buffer ) ) {
-				Com_Printf( S_COLOR_YELLOW "WARNING: %svalue of variable \"%s\" too long to write to file\n", 
+				Com_WPrintf( "Value of %svariable \"%s\" too long to write to file\n", 
 					value == var->latchedString ? "latched " : "", var->name );
 				continue;
 			}
@@ -1865,7 +1865,7 @@ Cvar_CheckRange
 void Cvar_CheckRange( cvar_t *var, const char *mins, const char *maxs, cvarValidator_t type )
 {
 	if ( type >= CV_MAX ) {
-		Com_Printf( S_COLOR_YELLOW "Invalid validation type %i for %s\n", type, var->name );
+		Com_WPrintf( "Invalid validation type %i for %s.\n", type, var->name );
 		return;
 	}
 
@@ -2040,7 +2040,7 @@ void Cvar_Update( vmCvar_t *vmCvar ) {
 
 	len = strlen( cv->string );
 	if ( len + 1 > MAX_CVAR_VALUE_STRING ) {
-		Com_Printf( S_COLOR_YELLOW "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING - truncate\n",
+		Com_WPrintf( "Cvar_Update: src %s length %d exceeds MAX_CVAR_VALUE_STRING - truncate\n",
 			cv->string, (int)len );
 	}
 

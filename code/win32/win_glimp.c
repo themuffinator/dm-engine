@@ -137,7 +137,7 @@ static int GLW_ChoosePFD( HDC hDC, PIXELFORMATDESCRIPTOR *pPFD )
 
 	if ( maxPFD > MAX_PFDS )
 	{
-		Com_Printf( S_COLOR_YELLOW "WARNING: ...numPFDs > MAX_PFDS (%d > %d)\n", maxPFD, MAX_PFDS );
+		Com_WPrintf( "...numPFDs > MAX_PFDS (%d > %d)\n", maxPFD, MAX_PFDS );
 		maxPFD = MAX_PFDS;
 	}
 

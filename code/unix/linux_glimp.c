@@ -351,7 +351,7 @@ static char *XLateKey( XKeyEvent *ev, int *key )
     {
       if (com_developer->integer)
       {
-        Com_Printf( "Warning: XLookupString failed on KeySym %d\n", (int)keysym );
+        Com_WPrintf( "XLookupString failed on KeySym %d\n", (int)keysym );
       }
       buf[0] = '\0';
       return (char*)buf;

@@ -492,7 +492,7 @@ void COM_ParseWarning( char *format, ... )
 	Q_vsnprintf (string, sizeof(string), format, argptr);
 	va_end( argptr );
 
-	Com_Printf( "WARNING: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string );
+	Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "%s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string );
 }
 
 
@@ -1681,7 +1681,7 @@ int QDECL Com_sprintf( char *dest, int size, const char *fmt, ...)
 
 	if ( len >= size ) 
 	{
-		Com_Printf( S_COLOR_YELLOW "Com_sprintf: overflow of %i in %i\n", len, size );
+		Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "Com_sprintf: overflow of %i in %i\n", len, size );
 #if	defined(_DEBUG) && defined(_WIN32)
 		DebugBreak();
 #endif
@@ -2067,12 +2067,12 @@ qboolean Info_SetValueForKey_s( char *s, int slen, const char *key, const char *
 	len1 = (int)strlen( s );
 
 	if ( len1 >= slen ) {
-		Com_Printf( S_COLOR_YELLOW "Info_SetValueForKey(%s): oversize infostring\n", key );
+		Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "Info_SetValueForKey(%s): oversize infostring\n", key );
 		return qfalse;
 	}
 
 	if ( !key || !Info_ValidateKeyValue( key ) || *key == '\0' ) {
-		Com_Printf( S_COLOR_YELLOW "Invalid key name: '%s'\n", key );
+		Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "Invalid key name: '%s'\n", key );
 		return qfalse;
 	}
 

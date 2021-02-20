@@ -294,9 +294,10 @@ typedef enum {
 typedef enum {
 	PRINT_ALL,
 //#if 0
-	PRINT_V_CLIENT,			// only when verbose & 1
-	PRINT_V_SERVER,			// only when verbose & 2
-	PRINT_V_RENDERER,		// only when verbose & 4
+	PRINT_V_COMMON,			// only when verbose & 1
+	PRINT_V_CLIENT,			// only when verbose & 2
+	PRINT_V_SERVER,			// only when verbose & 4
+	PRINT_V_RENDERER,		// only when verbose & 8
 //#endif
 	PRINT_DEVELOPER,		// only print when "developer 1"
 	PRINT_WARNING,
@@ -977,7 +978,8 @@ void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1,
 //dm
 #define PrintUsage(x, y) Com_Printf( S_COL_BASE "Usage: " S_COL_VAR "%s " S_COL_VAL "%s\n", x, y )
 #define PrintUsageDesc(x, y, z) Com_Printf( S_COL_BASE "Usage: " S_COL_VAR "%s " S_COL_VAL "%s\n\n" S_COL_BASE "%s", x, y, z )
-#define PrintWarning(x) Com_Printf( S_COL24_YELLOW "WARNING: " S_COL24_AMBER "%s\n", x )
+//#define PrintWarning(x, ...) Com_Printf( S_COL24_YELLOW "WARNING: " S_COL24_AMBER "%s\n", x, ... )
+//#define PrintDevWarning(x) Com_DPrintf( S_COL24_YELLOW "WARNING: " S_COL24_AMBER "%s\n", x )
 //-dm
 /*
 ==========================================================

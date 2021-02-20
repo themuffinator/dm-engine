@@ -33,7 +33,7 @@ typedef struct bot_debugpoly_s
 } bot_debugpoly_t;
 
 static bot_debugpoly_t *debugpolygons;
-int bot_maxdebugpolys;
+int bot_maxDebugPolys;
 
 extern botlib_export_t	*botlib_export;
 int	bot_enable;
@@ -101,7 +101,7 @@ BotDrawDebugPolygons
 ==================
 */
 void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value) {
-	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
+	static cvar_t *bot_debug, *bot_groundOnly, *bot_reachability, *bot_highlightarea;
 	bot_debugpoly_t *poly;
 	int i, parm0;
 
@@ -114,20 +114,20 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 		//show reachabilities
 		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", 0, NULL, NULL, CV_INTEGER);
 		//show ground faces only
-		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", 0, NULL, NULL, CV_INTEGER);
+		if (!bot_groundOnly) bot_groundOnly = Cvar_Get("bot_groundOnly", "1", 0, NULL, NULL, CV_INTEGER);
 		//get the hightlight area
 		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0, NULL, NULL, CV_INTEGER);
 		//
 		parm0 = 0;
 		if (svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK) parm0 |= 1;
 		if (bot_reachability->integer) parm0 |= 2;
-		if (bot_groundonly->integer) parm0 |= 4;
+		if (bot_groundOnly->integer) parm0 |= 4;
 		botlib_export->BotLibVarSet("bot_highlightarea", bot_highlightarea->string);
 		botlib_export->Test(parm0, NULL, svs.clients[0].gentity->r.currentOrigin, 
 			svs.clients[0].gentity->r.currentAngles);
 	} //end if
 	//draw all debug polys
-	for (i = 0; i < bot_maxdebugpolys; i++) {
+	for (i = 0; i < bot_maxDebugPolys; i++) {
 		poly = &debugpolygons[i];
 		if (!poly->inuse) continue;
 		drawPoly(poly->color, poly->numPoints, (float *) poly->points);
@@ -155,7 +155,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 			break;
 		}
 		case PRT_WARNING: {
-			Com_Printf(S_COLOR_YELLOW "Warning: %s", str);
+			Com_Printf( S_COL24_YELLOW "WARNING: " S_COL24_AMBER "%s", str);
 			break;
 		}
 		case PRT_ERROR: {
@@ -330,11 +330,11 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 	if (!debugpolygons)
 		return 0;
 
-	for (i = 1; i < bot_maxdebugpolys; i++) 	{
+	for (i = 1; i < bot_maxDebugPolys; i++) 	{
 		if (!debugpolygons[i].inuse)
 			break;
 	}
-	if (i >= bot_maxdebugpolys)
+	if (i >= bot_maxDebugPolys)
 		return 0;
 	poly = &debugpolygons[i];
 	poly->inuse = qtrue;
@@ -490,33 +490,33 @@ void SV_BotInitCvars(void) {
 	Cvar_Get("bot_enable", "1", 0, NULL, NULL, CV_INTEGER);						//enable the bot
 	Cvar_Get("bot_developer", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);			//bot developer mode
 	Cvar_Get("bot_debug", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);				//enable bot debugging
-	Cvar_Get("bot_maxdebugpolys", "2", 0, NULL, NULL, CV_INTEGER);				//maximum number of debug polys
-	Cvar_Get("bot_groundonly", "1", 0, NULL, NULL, CV_INTEGER);					//only show ground faces of areas
+	Cvar_Get("bot_maxDebugPolys", "2", 0, NULL, NULL, CV_INTEGER);				//maximum number of debug polys
+	Cvar_Get("bot_groundOnly", "1", 0, NULL, NULL, CV_INTEGER);					//only show ground faces of areas
 	Cvar_Get("bot_reachability", "0", 0, NULL, NULL, CV_INTEGER);				//show all reachabilities to other areas
-	Cvar_Get("bot_visualizejumppads", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//show jumppads
-	Cvar_Get("bot_forceclustering", "0", 0, NULL, NULL, CV_INTEGER);			//force cluster calculations
-	Cvar_Get("bot_forcereachability", "0", 0, NULL, NULL, CV_INTEGER);			//force reachability calculations
-	Cvar_Get("bot_forcewrite", "0", 0, NULL, NULL, CV_INTEGER);					//force writing aas file
-	Cvar_Get("bot_aasoptimize", "0", 0, NULL, NULL, CV_INTEGER);				//no aas file optimisation
-	Cvar_Get("bot_saveroutingcache", "0", 0, NULL, NULL, CV_INTEGER);			//save routing cache
-	Cvar_Get("bot_thinktime", "100", 0, NULL, NULL, CV_INTEGER);				//msec the bots thinks
-	Cvar_Get("bot_reloadcharacters", "0", 0, NULL, NULL, CV_INTEGER);			//reload the bot characters each time
-	Cvar_Get("bot_testichat", "0", 0, NULL, NULL, CV_INTEGER);					//test ichats
-	Cvar_Get("bot_testrchat", "0", 0, NULL, NULL, CV_INTEGER);					//test rchats
-	Cvar_Get("bot_testsolid", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);			//test for solid areas
-	Cvar_Get("bot_testclusters", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);		//test the AAS clusters
-	Cvar_Get("bot_fastchat", "0", 0, NULL, NULL, CV_INTEGER);					//fast chatting bots
-	Cvar_Get("bot_nochat", "0", 0, NULL, NULL, CV_INTEGER);						//disable chats
+	Cvar_Get("bot_visualizeJumppads", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//show jumppads
+	Cvar_Get("bot_forceClustering", "0", 0, NULL, NULL, CV_INTEGER);			//force cluster calculations
+	Cvar_Get("bot_forceReachability", "0", 0, NULL, NULL, CV_INTEGER);			//force reachability calculations
+	Cvar_Get("bot_forceWrite", "0", 0, NULL, NULL, CV_INTEGER);					//force writing aas file
+	Cvar_Get("bot_aasOptimize", "0", 0, NULL, NULL, CV_INTEGER);				//no aas file optimisation
+	Cvar_Get("bot_saveRoutingCache", "0", 0, NULL, NULL, CV_INTEGER);			//save routing cache
+	Cvar_Get("bot_thinkTime", "100", 0, NULL, NULL, CV_INTEGER);				//msec the bots thinks
+	Cvar_Get("bot_reloadCharacters", "0", 0, NULL, NULL, CV_INTEGER);			//reload the bot characters each time
+	Cvar_Get("bot_testIChat", "0", 0, NULL, NULL, CV_INTEGER);					//test ichats
+	Cvar_Get("bot_testRChat", "0", 0, NULL, NULL, CV_INTEGER);					//test rchats
+	Cvar_Get("bot_testSolid", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);			//test for solid areas
+	Cvar_Get("bot_testClusters", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);		//test the AAS clusters
+	Cvar_Get("bot_fastChat", "0", 0, NULL, NULL, CV_INTEGER);					//fast chatting bots
+	Cvar_Get("bot_noChat", "0", 0, NULL, NULL, CV_INTEGER);						//disable chats
 	Cvar_Get("bot_pause", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);				//pause the bots thinking
 	Cvar_Get("bot_report", "0", CVAR_CHEAT, NULL, NULL, CV_INTEGER);			//get a full report in ctf
 	Cvar_Get("bot_grapple", "0", 0, NULL, NULL, CV_INTEGER);					//enable grapple
-	Cvar_Get("bot_rocketjump", "1", 0, NULL, NULL, CV_INTEGER);					//enable rocket jumping
+	Cvar_Get("bot_rocketJump", "1", 0, NULL, NULL, CV_INTEGER);					//enable rocket jumping
 	Cvar_Get("bot_challenge", "0", 0, NULL, NULL, CV_INTEGER);					//challenging bot
-	Cvar_Get("bot_minplayers", "0", 0, NULL, NULL, CV_INTEGER);					//minimum players in a team or the game
-	Cvar_Get("bot_interbreedchar", "", CVAR_CHEAT, NULL, NULL, CV_INTEGER);		//bot character used for interbreeding
-	Cvar_Get("bot_interbreedbots", "10", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//number of bots used for interbreeding
-	Cvar_Get("bot_interbreedcycle", "20", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//bot interbreeding cycle
-	Cvar_Get("bot_interbreedwrite", "", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//write interbreeded bots to this file
+	Cvar_Get("bot_minPlayers", "0", 0, NULL, NULL, CV_INTEGER);					//minimum players in a team or the game
+	Cvar_Get("bot_interbreedChar", "", CVAR_CHEAT, NULL, NULL, CV_NONE);		//bot character used for interbreeding
+	Cvar_Get("bot_interbreedBots", "10", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//number of bots used for interbreeding
+	Cvar_Get("bot_interbreedCycle", "20", CVAR_CHEAT, NULL, NULL, CV_INTEGER);	//bot interbreeding cycle
+	Cvar_Get("bot_interbreedWrite", "", CVAR_CHEAT, NULL, NULL, CV_NONE );	//write interbreeded bots to this file
 }
 
 /*
@@ -528,8 +528,8 @@ void SV_BotInitBotLib(void) {
 	botlib_import_t	botlib_import;
 
 	if (debugpolygons) Z_Free(debugpolygons);
-	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
-	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
+	bot_maxDebugPolys = Cvar_VariableIntegerValue("bot_maxDebugPolys");
+	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxDebugPolys);
 
 	botlib_import.Print = BotImport_Print;
 	botlib_import.Trace = BotImport_Trace;

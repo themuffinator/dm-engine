@@ -399,8 +399,6 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 		return;
 	}
 
-	if ( backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
-
 	startTime = ri.Milliseconds();
 
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
@@ -446,6 +444,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 //fnq
 	// do aspect correction for 3D HUD elements
 	else if (cgame && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
+	//else if (r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 		//Com_Printf( "RE_RenderScene() arcMode 1: x:%i y:%i w:%i h:%i\n", tr.refdef.x, tr.refdef.y, tr.refdef.width, tr.refdef.height );
 		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);

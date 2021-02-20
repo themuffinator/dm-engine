@@ -3191,58 +3191,100 @@ Dump information on all valid shaders to the console
 A second parameter will cause it to print in sorted order
 ===============
 */
-void	R_ShaderList_f (void) {
+void	R_ShaderList_f( void ) {
 	int			i;
-	int			count;
+	int			count, defCount;
 	const shader_t *sh;
 
-	//ri.Printf (PRINT_ALL, "-----------------------\n");
-	ri.Printf( PRINT_ALL, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16 );
+	ri.Printf( PRINT_ALL, "------------------\n" );
 
-	count = 0;
-	for ( i = 0 ; i < tr.numShaders ; i++ ) {
+	count = defCount = 0;
+	for ( i = 0; i < tr.numShaders; i++ ) {
 		if ( ri.Cmd_Argc() > 1 ) {
 			sh = tr.sortedShaders[i];
-		} else {
+		}
+		else {
 			sh = tr.shaders[i];
 		}
 
 		ri.Printf( PRINT_ALL, "%i ", sh->numUnfoggedPasses );
 
 		if ( sh->lightmapIndex >= 0 ) {
-			ri.Printf (PRINT_ALL, "L ");
-		} else {
-			ri.Printf (PRINT_ALL, "  ");
+			ri.Printf( PRINT_ALL, "L " );
+		}
+		else {
+			ri.Printf( PRINT_ALL, "  " );
 		}
 		if ( sh->multitextureEnv ) {
 			ri.Printf( PRINT_ALL, "MT(x) " ); // TODO: per-stage statistics?
-		} else {
+		}
+		else {
 			ri.Printf( PRINT_ALL, "      " );
 		}
 		if ( sh->explicitlyDefined ) {
 			ri.Printf( PRINT_ALL, "E " );
-		} else {
+		}
+		else {
 			ri.Printf( PRINT_ALL, "  " );
 		}
 
 		if ( sh->optimalStageIteratorFunc == RB_StageIteratorGeneric ) {
 			ri.Printf( PRINT_ALL, "gen " );
-		} else if ( sh->optimalStageIteratorFunc == RB_StageIteratorSky ) {
+		}
+		else if ( sh->optimalStageIteratorFunc == RB_StageIteratorSky ) {
 			ri.Printf( PRINT_ALL, "sky " );
-		} else {
+		}
+		else {
 			ri.Printf( PRINT_ALL, "    " );
 		}
 
 		if ( sh->defaultShader ) {
 			ri.Printf( PRINT_ALL, ": %s (DEFAULTED)\n", sh->name );
-		} else {
+			defCount++;
+		}
+		else {
 			ri.Printf( PRINT_ALL, ": %s\n", sh->name );
 		}
 		count++;
 	}
-	ri.Printf (PRINT_ALL, "%i total shaders\n", count);
-	//ri.Printf (PRINT_ALL, "------------------\n");
-	ri.Printf( PRINT_ALL, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16 );
+	ri.Printf( PRINT_ALL, "\n" S_COL_VAL "%i " S_COL_BASE "total shaders, " S_COL_VAL "%i " S_COL_BASE "defaulted\n", count, defCount );
+	ri.Printf( PRINT_ALL, "------------------\n" );
+}
+
+
+/*
+===============
+R_DefShaderList_f
+
+Dump information on all defaulted shaders to the console
+A second parameter will cause it to print in sorted order
+===============
+*/
+void	R_DefShaderList_f( void ) {
+	int			i;
+	int			count;
+	const shader_t *sh;
+
+	ri.Printf( PRINT_ALL, "------------------\n" );
+
+	count = 0;
+	for ( i = 0; i < tr.numShaders; i++ ) {
+		if ( ri.Cmd_Argc() > 1 ) {
+			sh = tr.sortedShaders[i];
+		}
+		else {
+			sh = tr.shaders[i];
+		}
+
+		if ( !sh->defaultShader ) {
+			continue;
+		}
+
+		ri.Printf( PRINT_ALL, "%s\n", sh->name );
+		count++;
+	}
+	ri.Printf( PRINT_ALL, "\n" S_COL_VAL "%i " S_COL_BASE "total defaulted shaders\n", count );
+	ri.Printf( PRINT_ALL, "------------------\n" );
 }
 
 

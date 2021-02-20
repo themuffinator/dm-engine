@@ -410,15 +410,26 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 	
 	if ( !cgame && !strstr(cmd->shader->name, "ui/assets/") ) {
 		if ( !Q_stricmp(ri.Cvar_VariableString("fs_game"), "threewave") && r_arc_threewave_menu_fix->integer ) {
+			float xScale = glConfig.vidWidth / 640.0;
+			float yScale = glConfig.vidHeight / 480.0;
+
 			switch ( r_arc_threewave_menu_fix->integer ) {
 			case 1:
 				x -= ((float)glConfig.vidWidth - ((640.0f) * ((float)glConfig.vidHeight/480.0f)))/2;
 				break;
 			default:
-				w /= ((float)glConfig.vidWidth/640.0);
-				w *= ((float)glConfig.vidHeight/480.0);
-				x /= ((float)glConfig.vidWidth/640.0);
-				x *= ((float)glConfig.vidHeight/480.0);
+				//x -= ( (float)glConfig.vidWidth - ( ( 640.0f ) * ( (float)glConfig.vidHeight / 480.0f ) ) ) / 2;
+
+				//x *= xScale;
+				//y /= yScale;
+				//w /= xScale;
+				//w *= ( 640.0f / (float)glConfig.vidWidth );
+				w /= xScale;
+				w *= yScale;
+				x += ( (float)glConfig.vidWidth - ( 640.0f * yScale ) ) * 0.5;
+				//x /= xScale;
+				//x *= yScale;
+				//h /= yScale;
 				break;
 			}
 		}

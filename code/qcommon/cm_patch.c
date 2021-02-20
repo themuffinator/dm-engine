@@ -619,7 +619,7 @@ static int	CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i,
 	}
 
 	// should never happen
-	Com_Printf( "WARNING: CM_GridPlane unresolvable\n" );
+	Com_WPrintf( "CM_GridPlane unresolvable.\n" );
 	return -1;
 }
 
@@ -765,7 +765,7 @@ static void CM_SetBorderInward( facet_t *facet, const cGrid_t *grid, int gridPla
 			facet->borderPlanes[k] = -1;
 		} else {
 			// bisecting side border
-			Com_DPrintf( "WARNING: CM_SetBorderInward: mixed plane sides\n" );
+			Com_WDPrintf( "CM_SetBorderInward: Mixed plane sides.\n" );
 			facet->borderInward[k] = qfalse;
 			if ( !debugBlock ) {
 				debugBlock = qtrue;
@@ -968,7 +968,7 @@ static void CM_AddFacetBevels( facet_t *facet ) {
 
 					for ( k = 0 ; k < facet->numBorders ; k++ ) {
 						if (facet->borderPlanes[facet->numBorders] ==
-							facet->borderPlanes[k]) Com_Printf("WARNING: bevel plane already used\n");
+							facet->borderPlanes[k]) Com_WPrintf( "Bevel plane already used.\n");
 					}
 
 					facet->borderNoAdjust[facet->numBorders] = 0;
@@ -983,7 +983,7 @@ static void CM_AddFacetBevels( facet_t *facet ) {
 					} //end if
 					ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
 					if (!w2) {
-						Com_DPrintf("WARNING: CM_AddFacetBevels... invalid bevel\n");
+						Com_WDPrintf( "CM_AddFacetBevels: Invalid bevel.\n");
 						continue;
 					}
 					else {

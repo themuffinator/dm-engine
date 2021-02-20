@@ -301,8 +301,8 @@ static qboolean SV_LoadIP4DB( const char *filename )
 	}
 
 	if ( i != num_tlds ) {
-			Com_Printf( S_COLOR_YELLOW "invalid ip4db entry #%i: range=[%08x..%08x], tld=%c%c\n", 
-				i, ipdb_range[i].from, ipdb_range[i].to, ipdb_tld[i].tld[0], ipdb_tld[i].tld[1] );
+				Com_WPrintf( "Invalid ip4db entry #%i: range=[%08x..%08x], tld=%c%c\n",
+					i, ipdb_range[i].from, ipdb_range[i].to, ipdb_tld[i].tld[0], ipdb_tld[i].tld[1] );
 			SV_FreeIP4DB();
 			return qtrue; // to not try to load it again
 	}
@@ -2212,9 +2212,9 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	} else if ( c == clc_moveNoDelta ) {
 		SV_UserMove( cl, msg, qfalse );
 	} else if ( c != clc_EOF ) {
-		Com_Printf( "WARNING: bad command byte %i for client %i\n", c, (int) (cl - svs.clients) );
+		Com_WPrintf( "Bad command byte %i for client %i.\n", c, (int) (cl - svs.clients) );
 	}
 //	if ( msg->readcount != msg->cursize ) {
-//		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );
+//		Com_WPrintf( "Junk at end of packet for client %i\n", cl - svs.clients );
 //	}
 }

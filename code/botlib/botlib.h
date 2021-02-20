@@ -491,9 +491,9 @@ name:						default:			module(s):			description:
 "forcewrite"				"0"					be_aas_main.c		force writing of aas file
 "aasoptimize"				"0"					be_aas_main.c		enable aas optimization
 "sv_mapChecksum"			"0"					be_aas_main.c		BSP file checksum
-"bot_visualizejumppads"		"0"					be_aas_reach.c		visualize jump pads
+"bot_visualizeJumppads"		"0"					be_aas_reach.c		visualize jump pads
 
-"bot_reloadcharacters"		"0"					-					reload bot character files
+"bot_reloadCharacters"		"0"					-					reload bot character files
 "ai_gametype"				"0"					be_ai_goal.c		game type
 "droppedweight"				"1000"				be_ai_goal.c		additional dropped item weight
 "weapindex_rocketlauncher"	"5"					be_ai_move.c		rl weapon index for rocket jumping

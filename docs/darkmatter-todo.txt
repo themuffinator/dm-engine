@@ -3,6 +3,12 @@ DarkMatter
 Based on Quake3e - 16 Jan 2021 release
 --------------------------------------------
 
+FIXME:
+------
+- Jailbreak POW: Main menu text not drawing
+- Console font scaling fix on video resolution changes
+- QUAKE LIVE: shader textures/ct_1997/rock_02b drawing overly bright white... see map Fuse
+
 TODO:
 -----
 - Push changes from Quake3e at next major release
@@ -18,10 +24,11 @@ TODO:
 - MDL model support
 - WAL image loading
 - Negative values for fs_%GAME%_load to enable loading only in localhost, server info to add serverlist filter for servers with certain game bases
-- Asset base rules for QL: check for assets in Q3 first to avoid shader conflicts
+- Asset base rules for QL: always check for map shaders from QL path first
 - Asset base flags for map loading, ie: map -q2 q2dm1 to search only QUAKE II path for the map
 - Asset base indicators for auto-complete map lists
-- File system check for loading DarkMatter from a game dir to override the appropriate fs_%GAME%_path (eg: check for original quake3.exe and baseq3/pak0.pk3)
+- Client and server verbose messages like renderer PRINT_V_RENDERER
+
 
 Low-priority/future TODO:
 -------------------------

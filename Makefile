@@ -28,14 +28,14 @@ USE_VULKAN_API		= 1
 USE_RENDERER_DLOPEN = 1
 
 PRODUCT_NAME	 = DarkMatter
-CNAME            = $(PRODUCT_NAME)
+CNAME            = $(PRODUCT_NAME).client
 DNAME            = $(PRODUCT_NAME).server
+RENDERER_PREFIX  = $(PRODUCT_NAME)
 
 ifndef GAME_QUAKE2
   GAME_QUAKE2     = 0
 endif
 
-RENDERER_PREFIX  = $(CNAME)
 
 ifeq ($(V),1)
 echo_cmd=@:

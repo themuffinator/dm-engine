@@ -571,12 +571,12 @@ static qboolean setup_ALSA( smode_t mode )
 		err = _snd_pcm_writei( handle, dma.buffer, period_size * 2 );
 		if ( err < 0 )
 		{
-			Com_Printf( S_COLOR_YELLOW "ALSA initial write error: %s\n", _snd_strerror( err ) );
+			Com_WPrintf( "ALSA initial write error: %s\n", _snd_strerror( err ) );
 			goto __fail;
 		}
 		if ( err != period_size * 2 )
 		{
-			Com_Printf( S_COLOR_YELLOW "ALSA initial write error: written %i expected %li\n", err,
+			Com_WPrintf( "ALSA initial write error: written %i expected %li\n", err,
 				period_size * 2 );
 			goto __fail;
 		}

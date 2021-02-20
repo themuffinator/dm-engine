@@ -151,7 +151,7 @@ static DWORD WINAPI ThreadProc( HANDLE hInited )
 			th = pAvSetMmThreadCharacteristicsW( L"Pro Audio", &taskIndex );
 			if ( th == NULL )
 			{
-				Com_Printf( S_COLOR_YELLOW "WASAPI: thread priority setup failed\n" );
+				Com_WPrintf( "WASAPI: thread priority setup failed.\n" );
 				goto err_exit;
 			}
 		}
@@ -166,7 +166,7 @@ static DWORD WINAPI ThreadProc( HANDLE hInited )
 		REFERENCE_TIME streamLatency;
 		if ( iAudioClient->lpVtbl->GetStreamLatency( iAudioClient, &streamLatency ) != S_OK )
 		{
-			Com_Printf( S_COLOR_YELLOW "WASAPI: GetStreamLatency() failed\n" );
+			Com_WPrintf( "WASAPI: GetStreamLatency() failed.\n" );
 			goto err_exit;
 		}
 		Com_Printf( S_COLOR_CYAN "WASAPI stream latency: %ims\n", (int)(streamLatency / 10000) );
@@ -178,20 +178,20 @@ static DWORD WINAPI ThreadProc( HANDLE hInited )
 
 	if ( iAudioRenderClient->lpVtbl->GetBuffer( iAudioRenderClient, numFramesAvailable, &pData ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI GetBuffer failed\n" );
+		Com_WPrintf( "WASAPI GetBuffer failed.\n" );
 		goto err_exit;
 	}
 
 	if ( iAudioRenderClient->lpVtbl->ReleaseBuffer( iAudioRenderClient, numFramesAvailable, AUDCLNT_BUFFERFLAGS_SILENT ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI ReleaseBuffer failed\n" );
+		Com_WPrintf( "WASAPI ReleaseBuffer failed.\n" );
 		goto err_exit;
 	}
 
 	// Start audio playback
 	if ( iAudioClient->lpVtbl->Start( iAudioClient ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI playback start failed\n" );
+		Com_WPrintf( "WASAPI playback start failed.\n" );
 		goto err_prio;
 	}
 
@@ -385,14 +385,14 @@ static qboolean SNDDMA_InitWASAPI( void )
 	InitializeCriticalSection( &cs );
 
 	if ( CoCreateInstance( &CLSID_MMDeviceEnumerator, 0, CLSCTX_ALL, &IID_IMMDeviceEnumerator, (void **) &pEnumerator ) != S_OK ) {
-		Com_Printf( S_COLOR_YELLOW "WASAPI: CoCreateInstance() failed\n" );
+		Com_WPrintf( "WASAPI: CoCreateInstance() failed.\n" );
 		goto error1;
 	}
 
 	pEnumerator->lpVtbl->RegisterEndpointNotificationCallback( pEnumerator, (IMMNotificationClient*) &notification_client );
 
 	if ( pEnumerator->lpVtbl->GetDefaultAudioEndpoint( pEnumerator, eRender, eMultimedia, &iMMDevice ) != S_OK ) {
-		Com_Printf( S_COLOR_YELLOW "WASAPI: GetDefaultAudioEndpoint() failed\n" );
+		Com_WPrintf( "WASAPI: GetDefaultAudioEndpoint() failed.\n" );
 		goto error2;
 	}
 
@@ -406,7 +406,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 
 	if ( iMMDevice->lpVtbl->Activate( iMMDevice, &IID_IAudioClient, CLSCTX_ALL, 0, (void **) &iAudioClient ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: audio client activation failed\n" );
+		Com_WPrintf( "WASAPI: audio client activation failed.\n" );
 		goto error3;
 	}
 
@@ -446,7 +446,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 		}
 		else
 		{
-			Com_Printf( S_COLOR_YELLOW "WASAPI: desired format is not supported\n" );
+			Com_WPrintf( "WASAPI: desired format is not supported.\n" );
 			goto error3;
 		}
 	}
@@ -454,7 +454,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 	// check if format is supported
 	if ( desiredFormat.Format.nChannels != 1 && desiredFormat.Format.nChannels != 2 )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: unsupported channel count %i\n", desiredFormat.Format.nChannels );
+		Com_WPrintf( "WASAPI: unsupported channel count %i.\n", desiredFormat.Format.nChannels );
 		goto error3;
 	}
 
@@ -464,7 +464,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 		case 16:
 			if ( !ValidFormat( &desiredFormat, WAVE_FORMAT_PCM, &PcmSubformatGuid ) )
 			{
-				Com_Printf( S_COLOR_YELLOW "WASAPI: unsupported format for %i-bit samples\n", desiredFormat.Format.wBitsPerSample );
+				Com_WPrintf( "WASAPI: unsupported format for %i-bit samples.\n", desiredFormat.Format.wBitsPerSample );
 				goto error3;
 			}
 			isfloat = qfalse;
@@ -472,13 +472,13 @@ static qboolean SNDDMA_InitWASAPI( void )
 		case 32:
 			if ( !ValidFormat( &desiredFormat, WAVE_FORMAT_IEEE_FLOAT, &FloatSubformatGuid ) )
 			{
-				Com_Printf( S_COLOR_YELLOW "WASAPI: unsupported format for %i-bit samples\n", desiredFormat.Format.wBitsPerSample );
+				Com_WPrintf( "WASAPI: unsupported format for %i-bit samples.\n", desiredFormat.Format.wBitsPerSample );
 				goto error3;
 			}
 			isfloat = qtrue;
 			break;
 		default:
-			Com_Printf( S_COLOR_YELLOW "WASAPI: unsupported sample count %i\n", desiredFormat.Format.wBitsPerSample );
+			Com_WPrintf( "WASAPI: unsupported sample count %i.\n", desiredFormat.Format.wBitsPerSample );
 			goto error3;
 	}
 
@@ -512,21 +512,21 @@ static qboolean SNDDMA_InitWASAPI( void )
 	hr = iAudioClient->lpVtbl->Initialize( iAudioClient, AUDCLNT_SHAREMODE_SHARED, dwStreamFlags, 0, 0, (WAVEFORMATEX *) &desiredFormat, 0 );
 	if ( hr != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: Initialize() failed\n" );
+		Com_WPrintf( "WASAPI: Initialize() failed.\n" );
 		goto error4;
 	}
 
 	hEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
 	if ( hEvent == NULL )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: CreateEvent( hEvent ) failed\n" );
+		Com_WPrintf( "WASAPI: CreateEvent( hEvent ) failed.\n" );
 		goto error4;
 	}
 
 	// get the actual size of the audio buffer
 	if ( iAudioClient->lpVtbl->GetBufferSize( iAudioClient, &bufferFrameCount ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: GetBufferSize() failed\n" );
+		Com_WPrintf( "WASAPI: GetBufferSize() failed.\n" );
 		goto error5;
 	}
 
@@ -544,7 +544,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 		dma.fullsamples >>= 1;
 	if ( dma.fullsamples < bufferFrameCount )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: static sound buffer is too small\n" );
+		Com_WPrintf( "Static sound buffer is too small.\n" );
 		goto error5;
 	}
 	dma.samples = dma.fullsamples * dma.channels;
@@ -554,13 +554,13 @@ static qboolean SNDDMA_InitWASAPI( void )
 
 	if ( iAudioClient->lpVtbl->SetEventHandle( iAudioClient, hEvent ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: SetEventHandle() failed\n" );
+		Com_WPrintf( "WASAPI: SetEventHandle() failed.\n" );
 		goto error5;
 	}
 
 	if ( iAudioClient->lpVtbl->GetService( iAudioClient, &IID_IAudioRenderClient, (void**)&iAudioRenderClient ) != S_OK )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: GetService() failed\n" );
+		Com_WPrintf( "WASAPI: GetService() failed.\n" );
 		iAudioRenderClient = NULL;
 		goto error5;
 	}
@@ -569,14 +569,14 @@ static qboolean SNDDMA_InitWASAPI( void )
 	hInited = CreateEvent( NULL, FALSE, FALSE, NULL );
 	if ( hInited == NULL )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: CreateEvent( hInited ) failed\n" );
+		Com_WPrintf( "WASAPI: CreateEvent( hInited ) failed.\n" );
 		goto error6;
 	}
 
 	hThread = CreateThread( NULL, 4096, (LPTHREAD_START_ROUTINE)ThreadProc, hInited, 0, &dwThreadID );
 	if ( hThread == NULL )
 	{
-		Com_Printf( S_COLOR_YELLOW "WASAPI: CreateThread() failed\n" );
+		Com_WPrintf( "WASAPI: CreateThread() failed.\n" );
 		goto error7;
 	}
 
@@ -586,7 +586,7 @@ static qboolean SNDDMA_InitWASAPI( void )
 	if ( inPlay )
 		return qtrue;
 
-	Com_Printf( S_COLOR_YELLOW "WASAPI: mixer thread startup failed\n" );
+	Com_WPrintf( "WASAPI: mixer thread startup failed.\n" );
 
 error7:
 	if ( hInited )

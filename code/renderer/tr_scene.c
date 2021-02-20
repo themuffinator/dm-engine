@@ -437,6 +437,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 //fnq
 	// do aspect correction for 3D HUD elements
 	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
+	//if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 
 		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);

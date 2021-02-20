@@ -289,7 +289,7 @@ int AAS_GetJumpPadInfo(int ent, vec3_t areastart, vec3_t absmins, vec3_t absmaxs
 //===========================================================================
 int AAS_BestReachableFromJumpPadArea(vec3_t origin, vec3_t mins, vec3_t maxs)
 {
-	int ent, bot_visualizejumppads, bestareanum;
+	int ent, bot_visualizeJumppads, bestareanum;
 	float volume, bestareavolume;
 	vec3_t areastart, cmdmove, bboxmins, bboxmaxs;
 	vec3_t absmins, absmaxs, velocity;
@@ -298,9 +298,9 @@ int AAS_BestReachableFromJumpPadArea(vec3_t origin, vec3_t mins, vec3_t maxs)
 	char classname[MAX_EPAIRKEY];
 
 #ifdef BSPC
-	bot_visualizejumppads = 0;
+	bot_visualizeJumppads = 0;
 #else
-	bot_visualizejumppads = LibVarValue("bot_visualizejumppads", "0");
+	bot_visualizeJumppads = LibVarValue("bot_visualizeJumppads", "0");
 #endif
 	VectorAdd(origin, mins, bboxmins);
 	VectorAdd(origin, maxs, bboxmaxs);
@@ -328,7 +328,7 @@ int AAS_BestReachableFromJumpPadArea(vec3_t origin, vec3_t mins, vec3_t maxs)
 		VectorSet(cmdmove, 0, 0, 0);
 		Com_Memset(&move, 0, sizeof(aas_clientmove_t));
 		AAS_ClientMovementHitBBox(&move, -1, areastart, PRESENCE_NORMAL, qfalse,
-								velocity, cmdmove, 0, 30, 0.1f, bboxmins, bboxmaxs, bot_visualizejumppads);
+								velocity, cmdmove, 0, 30, 0.1f, bboxmins, bboxmaxs, bot_visualizeJumppads);
 		if (move.frames < 30)
 		{
 			bestareanum = 0;
@@ -3493,7 +3493,7 @@ void AAS_Reachability_FuncBobbing(void)
 //===========================================================================
 void AAS_Reachability_JumpPad(void)
 {
-	int face2num, i, ret, area2num, visualize, ent, bot_visualizejumppads;
+	int face2num, i, ret, area2num, visualize, ent, bot_visualizeJumppads;
 	//int modelnum, ent2;
 	//float dist, time, height, gravity, forward;
 	float speed, zvel;
@@ -3511,9 +3511,9 @@ void AAS_Reachability_JumpPad(void)
 	char classname[MAX_EPAIRKEY];
 
 #ifdef BSPC
-	bot_visualizejumppads = 0;
+	bot_visualizeJumppads = 0;
 #else
-	bot_visualizejumppads = LibVarValue("bot_visualizejumppads", "0");
+	bot_visualizeJumppads = LibVarValue("bot_visualizeJumppads", "0");
 #endif
 	for (ent = AAS_NextBSPEntity(0); ent; ent = AAS_NextBSPEntity(ent))
 	{
@@ -3627,7 +3627,7 @@ void AAS_Reachability_JumpPad(void)
 				AAS_PredictClientMovement(&move, -1, areastart, PRESENCE_NORMAL, qfalse,
 										velocity, cmdmove, 0, 30, 0.1f,
 										SE_HITGROUND|SE_ENTERWATER|SE_ENTERSLIME|
-										SE_ENTERLAVA|SE_HITGROUNDDAMAGE|SE_TOUCHJUMPPAD|SE_TOUCHTELEPORTER, 0, bot_visualizejumppads);
+										SE_ENTERLAVA|SE_HITGROUNDDAMAGE|SE_TOUCHJUMPPAD|SE_TOUCHTELEPORTER, 0, bot_visualizeJumppads);
 				area2num = move.endarea;
 				for (link = areas; link; link = link->next_area)
 				{

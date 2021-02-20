@@ -367,7 +367,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe )
     const char *ospath;
 
     if ( !CL_ValidatePipeFormat( cl_aviPipeFormat->string ) ) {
-        Com_Printf( S_COLOR_YELLOW "Invalid pipe format: %s\n", cl_aviPipeFormat->string );
+        Com_WPrintf( "Invalid pipe format: %s\n", cl_aviPipeFormat->string );
         return qfalse;
     }
 
@@ -608,7 +608,7 @@ void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size )
 
 	if( bytesInBuffer + size > PCM_BUFFER_SIZE )
 	{
-		Com_Printf( S_COLOR_YELLOW "WARNING: Audio capture buffer overflow -- truncating\n" );
+		Com_WPrintf( "Audio capture buffer overflow -- truncating\n" );
 		size = PCM_BUFFER_SIZE - bytesInBuffer;
 	}
 

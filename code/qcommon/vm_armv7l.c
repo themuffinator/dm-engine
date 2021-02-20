@@ -2150,7 +2150,7 @@ qboolean VM_Compile( vm_t *vm, vmHeader_t *header )
 
 	if ( errMsg ) {
 		VM_FreeBuffers();
-		Com_Printf( S_COLOR_YELLOW "%s(%s) error: %s\n", __func__, vm->name, errMsg );
+		Com_WPrintf( "%s(%s) error: %s\n", __func__, vm->name, errMsg );
 		return qfalse;
 	}
 
@@ -2644,7 +2644,7 @@ __recompile:
 		vm->codeBase.ptr = mmap( NULL, compiledOfs, PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0 );
 		if ( vm->codeBase.ptr == MAP_FAILED ) {
 			VM_FreeBuffers();
-			Com_Printf( S_COLOR_YELLOW "%s(%s): mmap failed\n", __func__, vm->name );
+			Com_WPrintf( "%s(%s): mmap failed.\n", __func__, vm->name );
 			return qfalse;
 		}
 		vm->codeLength = compiledOfs;
@@ -2670,7 +2670,7 @@ __recompile:
 
 	if ( mprotect( vm->codeBase.ptr, vm->codeLength, PROT_READ | PROT_EXEC ) ) {
 		VM_Destroy_Compiled( vm );
-		Com_Printf( S_COLOR_YELLOW "%s(%s): mprotect failed\n", __func__, vm->name );
+		Com_WPrintf( "%s(%s): mprotect failed.\n", __func__, vm->name );
 		return qfalse;
 	}
 

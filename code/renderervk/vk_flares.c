@@ -401,8 +401,10 @@ void RB_RenderFlare( flare_t *f ) {
 	else
 		distance = -f->eyeZ;
 
-	// calculate the flare size..
-	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/640.0f + 8 / distance );
+//dm: adjust appropriately
+	//size = backEnd.viewParms.viewportWidth * ( r_flareSize->value/640.0f + 8 / distance );
+	size = backEnd.viewParms.viewportWidth * ( r_flareSize->value / glConfig.vidWidth + 8 / distance );
+//-dm
 
 /*
  * This is an alternative to intensity scaling. It changes the size of the flare on screen instead

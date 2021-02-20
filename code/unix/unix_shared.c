@@ -626,7 +626,7 @@ void Sys_SetAffinityMask( int mask )
 		}
 		else
 		{
-			Com_Printf( S_COLOR_YELLOW "sched_getaffinity() error.\n" );
+			Com_WPrintf( "sched_getaffinity() error.\n" );
 			return;
 		}
 	}
@@ -652,7 +652,7 @@ void Sys_SetAffinityMask( int mask )
 	if ( sched_setaffinity( getpid(), sizeof( set ), &set ) == 0 ) {
 		Com_Printf( "setting CPU affinity mask to %i\n", mask );
 	} else {
-		Com_Printf( S_COLOR_YELLOW "error setting CPU affinity mask %i\n", mask );
+		Com_WPrintf( "error setting CPU affinity mask %i\n", mask );
 	}
 }
 #endif // USE_AFFINITY_MASK

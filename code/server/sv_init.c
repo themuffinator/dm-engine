@@ -502,7 +502,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 
 	Sys_SetStatus( "Loading map %s", mapname );
 	CM_LoadMap( va( "maps/%s.bsp", mapname ), qfalse, &checksum, &version );
-	Com_Printf(S_COLOR_CYAN "Loadmap done\n");
+	//Com_Printf(S_COLOR_CYAN "Loadmap done\n");
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", mapname );
@@ -517,7 +517,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 
 	// clear physics interaction links
 	SV_ClearWorld(version);
-	Com_Printf(S_COLOR_CYAN "Clear world done\n");
+	//Com_Printf(S_COLOR_CYAN "Clear world done\n");
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -529,7 +529,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 
 	// load and spawn all other entities
 	SV_InitGameProgs();
-	Com_Printf(S_COLOR_CYAN "Initgameprogs done\n");
+	//Com_Printf(S_COLOR_CYAN "Initgameprogs done\n");
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -636,7 +636,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 		infolen = strlen( Cvar_InfoString_Big( CVAR_SYSTEMINFO, &infoTruncated ) );
 
 		if ( infoTruncated ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: truncated systeminfo!\n" );
+			Com_WPrintf( "Truncated systeminfo!\n" );
 		}
 
 		if ( pakslen > freespace || infolen + pakslen >= BIG_INFO_STRING || overflowed ) {
@@ -649,7 +649,7 @@ void SV_SpawnServer( const char *mapname, qboolean killBots ) {
 			// load pk3s also loaded at the server
 			Cvar_Set( "sv_paks", p );
 			if ( *p == '\0' ) {
-				Com_Printf( S_COLOR_YELLOW "WARNING: sv_pure set but no PK3 files loaded\n" );
+				Com_WPrintf( "sv_pure set but no PK3 files loaded.\n" );
 			}
 		}
 	}
@@ -698,7 +698,7 @@ void SV_Init( void )
 	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO, NULL, NULL, CV_INTEGER);
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO, NULL, NULL, CV_INTEGER);
 	sv_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, NULL, NULL, CV_INTEGER);
-	Cvar_Get ("sv_keywords", "", CVAR_SERVERINFO, NULL, NULL, CV_INTEGER);
+	Cvar_Get ("sv_keywords", "", CVAR_SERVERINFO, NULL, NULL, CV_NONE);
 	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM, NULL, NULL, CV_INTEGER);
 	sv_mapname = Cvar_Get ("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM, NULL, NULL, CV_NONE);
 	sv_privateClients = Cvar_Get( "sv_privateClients", "0", CVAR_SERVERINFO, "0", va("%i", MAX_CLIENTS - 1), CV_INTEGER);

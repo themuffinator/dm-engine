@@ -1180,12 +1180,6 @@ Create solid color texture from following input formats (hex):
 #rrggbb
 ==================
 */
-static byte notex[4][4] = {
-	{0, 0, 0, 0},
-	{0, 0, 1, 1},
-	{0, 1, 1, 1},
-	{0, 1, 1, 1}
-};
 
 #define	DEFAULT_SIZE 16
 static qboolean R_BuildDefaultImage( const char *format ) {
@@ -1263,40 +1257,83 @@ static void R_CreateDefaultImage( void ) {
 			return;
 	}
 
-	if (r_defaultImageStyle->integer == 1) {	// q2 style
-		int y;
-		for (x = 0; x < size; x++) {
-			for (y = 0; y < size; y++) {
-				data[y][x][0] = notex[x & 3][y & 3] * 255;
-				data[y][x][1] = 0;
-				data[y][x][2] = 0;
-				data[y][x][3] = 255;
+	switch ( r_defaultImageStyle->integer ) {
+	case 1:	// QUAKE
+		{
+			int			y;
+			qboolean	alt_x = qfalse, alt_y = qfalse;
+			const int	block_size = size / 2;
+
+			Com_Memset( data, 32, sizeof( data ) );
+
+			for ( y = 0; y < size; y++ ) {
+				if ( !( y % block_size ) ) alt_y ^= qtrue;
+
+				for ( x = 0; x < size; x++ ) {
+					if ( !x ) {
+
+						alt_x = qfalse;
+						if ( alt_y ) alt_x ^= qtrue;
+
+						//alt_x ^= qtrue;
+					}
+					if ( !( x % block_size ) ) alt_x ^= qtrue;
+
+					if ( alt_x ) {
+						data[x][y][0] = data[x][y][1] = data[x][y][2] = 160;
+						data[x][y][3] = 255;
+					}
+
+				}
 			}
+			break;
 		}
-	}
-	else {
-		// the default image will be a box, to allow you to see the mapping coordinates
-		Com_Memset(data, 32, sizeof(data));
-		for (x = 0; x < size; x++) {
-			data[0][x][0] =
-				data[0][x][1] =
-				data[0][x][2] =
-				data[0][x][3] = 255;
+	case 2: // QUAKE II
+		{
+			int y;
+			static byte notex[4][4] = {
+				{0, 0, 0, 0},
+				{0, 0, 1, 1},
+				{0, 1, 1, 1},
+				{0, 1, 1, 1}
+			};
 
-			data[x][0][0] =
-				data[x][0][1] =
-				data[x][0][2] =
-				data[x][0][3] = 255;
+			for ( x = 0; x < size; x++ ) {
+				for ( y = 0; y < size; y++ ) {
+					data[y][x][0] = notex[x & 3][y & 3] * 0xff;
+					data[y][x][1] = 0x00;
+					data[y][x][2] = 0x00;
+					data[y][x][3] = 0xff;
+				}
+			}
+			break;
+		}
+	default: // QUAKE III
+		{
+			// the default image will be a box, to allow you to see the mapping coordinates
+			Com_Memset( data, 32, sizeof( data ) );
+			for ( x = 0; x < size; x++ ) {
+				data[0][x][0] =
+					data[0][x][1] =
+					data[0][x][2] =
+					data[0][x][3] = 255;
 
-			data[size - 1][x][0] =
-				data[size - 1][x][1] =
-				data[size - 1][x][2] =
-				data[size - 1][x][3] = 255;
+				data[x][0][0] =
+					data[x][0][1] =
+					data[x][0][2] =
+					data[x][0][3] = 255;
 
-			data[x][size - 1][0] =
-				data[x][size - 1][1] =
-				data[x][size - 1][2] =
-				data[x][size - 1][3] = 255;
+				data[size - 1][x][0] =
+					data[size - 1][x][1] =
+					data[size - 1][x][2] =
+					data[size - 1][x][3] = 255;
+
+				data[x][size - 1][0] =
+					data[x][size - 1][1] =
+					data[x][size - 1][2] =
+					data[x][size - 1][3] = 255;
+			}
+			break;
 		}
 	}
 

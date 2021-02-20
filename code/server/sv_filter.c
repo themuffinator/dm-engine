@@ -1004,7 +1004,7 @@ void SV_AddFilter_f( void )
 		{
 			if ( i >= Cmd_Argc() - 1 )
 			{
-				Com_Printf( S_COLOR_YELLOW "missing reason value\n" );
+				Com_WPrintf( "Missing reason value\n" );
 				return;
 			}
 			reason = Cmd_Argv( i + 1 );
@@ -1017,7 +1017,7 @@ void SV_AddFilter_f( void )
 		{
 			if ( i >= Cmd_Argc() - 1 )
 			{
-				Com_Printf( S_COLOR_YELLOW "missing date value\n" );
+				Com_WPrintf( "Missing date value\n" );
 				return;
 			}
 			i++;
@@ -1041,7 +1041,7 @@ void SV_AddFilter_f( void )
 					case 'W': case 'w': Q_AddTime( &t, n * 24 * 7 * 60 ); break;
 					case 'M': case 'm': Q_AddDate( &t, n ); break;
 					default:
-						Com_Printf( S_COLOR_YELLOW "unsupported date suffix '%c'\n", *v );
+						Com_WPrintf( "Unsupported date suffix '%c'\n", *v );
 						return;
 				}
 				Com_sprintf( date, sizeof( date ), " date \"%04i-%02i-%02i %02i:%02i\"", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min );
@@ -1091,7 +1091,7 @@ void SV_AddFilter_f( void )
 
 	if ( node && node->fop == FOP_DROP )
 	{
-		Com_Printf( S_COLOR_YELLOW "Standalone \"drop\" nodes is not allowed!\n" );
+		Com_WPrintf( "Standalone \"drop\" nodes is not allowed!\n" );
 		free_nodes( node );
 		return;
 	}
@@ -1142,7 +1142,7 @@ void SV_AddFilterCmd_f( void )
 
 	if ( node && node->fop == FOP_DROP )
 	{
-		Com_Printf( S_COLOR_YELLOW "Standalone \"drop\" nodes is not allowed!\n" );
+		Com_WPrintf( "Standalone \"drop\" nodes is not allowed!\n" );
 		free_nodes( node );
 		return;
 	}

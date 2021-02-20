@@ -343,7 +343,7 @@ static void IN_ActivateRawMouse( void )
 	cnt = GRRID( &Rid, &num, sizeof( Rid ) );
 	if ( cnt < 0 || !g_wv.hWnd ) 
 	{
-		Com_Printf( S_COLOR_YELLOW "Error getting registered raw input devices\n" );
+		Com_WPrintf( "Error getting registered raw input devices\n" );
 		return; // error getting registered raw input devices
 	}
 
@@ -362,7 +362,7 @@ static void IN_ActivateRawMouse( void )
 
 		if( !RRID( &Rid, 1, sizeof( Rid ) ) )
 		{
-			Com_Printf( S_COLOR_YELLOW "Error registering raw input device\n" );
+			Com_WPrintf( "Error registering raw input device\n" );
 			return;
 		}
 	}
@@ -402,7 +402,7 @@ static void IN_DeactivateRawMouse( void )
 		Rid.hwndTarget = NULL;
 		if ( !RRID( &Rid, 1, sizeof( Rid ) ) )
 		{
-			Com_Printf( S_COLOR_YELLOW "Error removing raw input device\n" );
+			Com_WPrintf( "Error removing raw input device\n" );
 			return;
 		}
 	}
@@ -1612,7 +1612,7 @@ static void IN_StartupMIDI( void )
 					 ( unsigned long ) NULL,
 					 CALLBACK_FUNCTION ) != MMSYSERR_NOERROR )
 	{
-		Com_DPrintf( "WARNING: could not open MIDI device %d: '%s'\n",
+		Com_WDPrintf( "Could not open MIDI device %d: '%s'\n",
 								in_mididevice->integer , s_midiInfo.caps[( int ) in_mididevice->value].szPname );
 		return;
 	}

@@ -2903,7 +2903,7 @@ qboolean VM_Compile( vm_t *vm, vmHeader_t *header )
 
 	if ( errMsg ) {
 		VM_FreeBuffers();
-		Com_Printf( S_COLOR_YELLOW "%s(%s) error: %s\n", __func__, vm->name, errMsg );
+		Com_WPrintf( "%s(%s) error: %s\n", __func__, vm->name, errMsg );
 		return qfalse;
 	}
 
@@ -3399,14 +3399,14 @@ savedOffset[ FUNC_ENTR ] = compiledOfs; // offset to vmMain() entry point
 		vm->codeBase.ptr = VirtualAlloc( NULL, allocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 		if ( !vm->codeBase.ptr ) {
 			VM_FreeBuffers();
-			Com_Printf( S_COLOR_YELLOW "%s(%s): VirtualAlloc failed\n", __func__, vm->name );
+			Com_WPrintf( "%s(%s): VirtualAlloc failed.\n", __func__, vm->name );
 			return qfalse;
 		}
 #else
 		vm->codeBase.ptr = mmap( NULL, allocSize, PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0 );
 		if ( vm->codeBase.ptr == MAP_FAILED ) {
 			VM_FreeBuffers();
-			Com_Printf( S_COLOR_YELLOW "%s(%s): mmap failed\n", __func__, vm->name );
+			Com_WPrintf( "%s(%s): mmap failed.\n", __func__, vm->name );
 			return qfalse;
 		}
 #endif
@@ -3449,14 +3449,14 @@ savedOffset[ FUNC_ENTR ] = compiledOfs; // offset to vmMain() entry point
 		// remove write permissions
 		if ( !VirtualProtect( vm->codeBase.ptr, vm->codeLength, PAGE_EXECUTE_READ, &oldProtect ) ) {
 			VM_Destroy_Compiled( vm );
-			Com_Printf( S_COLOR_YELLOW "%s(%s): VirtualProtect failed\n", __func__, vm->name );
+			Com_WPrintf( "%s(%s): VirtualProtect failed.\n", __func__, vm->name );
 			return qfalse;
 		}
 	}
 #else
 	if ( mprotect( vm->codeBase.ptr, vm->codeLength, PROT_READ | PROT_EXEC ) ) {
 		VM_Destroy_Compiled( vm );
-		Com_Printf( S_COLOR_YELLOW "%s(%s): mprotect failed\n", __func__, vm->name );
+		Com_WPrintf( "%s(%s): mprotect failed.\n", __func__, vm->name );
 		return qfalse;
 	}
 

@@ -2227,7 +2227,7 @@ int BotLoadChatFile(int chatstate, char *chatfile, char *chatname)
 	if (!cs) return BLERR_CANNOTLOADICHAT;
 	BotFreeChatFile(chatstate);
 
-	if (!LibVarGetValue("bot_reloadcharacters"))
+	if (!LibVarGetValue("bot_reloadCharacters"))
 	{
 		avail = -1;
 		for( n = 0; n < MAX_CLIENTS; n++ ) {
@@ -2260,7 +2260,7 @@ int BotLoadChatFile(int chatstate, char *chatfile, char *chatname)
 		botimport.Print(PRT_FATAL, "couldn't load chat %s from %s\n", chatname, chatfile);
 		return BLERR_CANNOTLOADICHAT;
 	} //end if
-	if (!LibVarGetValue("bot_reloadcharacters"))
+	if (!LibVarGetValue("bot_reloadCharacters"))
 	{
 		ichatdata[avail] = GetClearedMemory( sizeof(bot_ichatdata_t) );
 		ichatdata[avail]->chat = cs->chat;
@@ -2495,7 +2495,7 @@ int BotNumInitialChats(int chatstate, char *type)
 	{
 		if (!Q_stricmp(t->name, type))
 		{
-			if (LibVarGetValue("bot_testichat")) {
+			if (LibVarGetValue("bot_testIChat")) {
 				botimport.Print(PRT_MESSAGE, "%s has %d chat lines\n", type, t->numchatmessages);
 				botimport.Print(PRT_MESSAGE, "-------------------\n");
 			}
@@ -2763,7 +2763,7 @@ int BotReplyChat(int chatstate, char *message, int mcontext, int vcontext, char 
 			bestmatch.variables[7].offset = index;
 			bestmatch.variables[7].length = strlen(var7);
 		}
-		if (LibVarGetValue("bot_testrchat"))
+		if (LibVarGetValue("bot_testRChat"))
 		{
 			for (m = bestrchat->firstchatmessage; m; m = m->next)
 			{
@@ -2811,7 +2811,7 @@ void BotEnterChat(int chatstate, int clientto, int sendto)
 	if (strlen(cs->chatmessage))
 	{
 		BotRemoveTildes(cs->chatmessage);
-		if (LibVarGetValue("bot_testichat")) {
+		if (LibVarGetValue("bot_testIChat")) {
 			botimport.Print(PRT_MESSAGE, "%s\n", cs->chatmessage);
 		}
 		else {
@@ -2943,7 +2943,7 @@ void BotFreeChatState(int handle)
 		botimport.Print(PRT_FATAL, "invalid chat state %d\n", handle);
 		return;
 	} //end if
-	if (LibVarGetValue("bot_reloadcharacters"))
+	if (LibVarGetValue("bot_reloadCharacters"))
 	{
 		BotFreeChatFile(handle);
 	} //end if

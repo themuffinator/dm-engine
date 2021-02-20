@@ -2840,7 +2840,7 @@ __compile:
 #ifdef VM_X86_MMAP
 	if ( mprotect( vm->codeBase.ptr, vm->codeSize, PROT_READ|PROT_EXEC ) ) {
 		VM_Destroy_Compiled( vm );
-		Com_Printf( S_COLOR_YELLOW "VM_CompileX86: mprotect failed\n" );
+		Com_WPrintf( "VM_CompileX86: mprotect failed.\n" );
 		return qfalse;
 	}
 #elif _WIN32
@@ -2850,7 +2850,7 @@ __compile:
 		// remove write permissions.
 		if ( !VirtualProtect( vm->codeBase.ptr, vm->codeSize, PAGE_EXECUTE_READ, &oldProtect ) ) {
 			VM_Destroy_Compiled( vm );
-			Com_Printf( S_COLOR_YELLOW "VM_CompileX86: VirtualProtect failed\n" );
+			Com_WPrintf( "VM_CompileX86: VirtualProtect failed.\n" );
 			return qfalse;
 		}
 	}

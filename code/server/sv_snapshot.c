@@ -728,7 +728,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 
 	// check for overflow
 	if ( msg.overflowed ) {
-		Com_Printf( "WARNING: msg overflowed for %s\n", client->name );
+		Com_WPrintf( "Msg overflowed for %s.\n", client->name );
 		MSG_Clear( &msg );
 	}
 

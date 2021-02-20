@@ -1007,12 +1007,15 @@ typedef struct videoFrameCommand_s {
 	qboolean			motionJpeg;
 } videoFrameCommand_t;
 
+//void RE_SavePNG( const char *filename, int width, int height, byte *data, int padding );
+
 enum {
-	SCREENSHOT_TGA = 1<<0,
-	SCREENSHOT_JPG = 1<<1,
-	SCREENSHOT_BMP = 1<<2,
-	SCREENSHOT_BMP_CLIPBOARD = 1<<3,
-	SCREENSHOT_AVI = 1<<4 // take video frame
+	SCREENSHOT_TGA = 1 << 0,
+	//SCREENSHOT_PNG = 1 << 1,
+	SCREENSHOT_JPG = 1 << 2,
+	SCREENSHOT_BMP = 1 << 3,
+	SCREENSHOT_BMP_CLIPBOARD = 1 << 4,
+	SCREENSHOT_AVI = 1 << 5 // take video frame
 };
 
 // all state modified by the back end is seperated
@@ -1032,11 +1035,13 @@ typedef struct {
 	qboolean	doneSurfaces;   // done any 3d surfaces already
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 
-	int		screenshotMask;		// tga | jpg | bmp
+	int		screenshotMask;		// tga | png | jpg | bmp
 	char	screenshotTGA[ MAX_OSPATH ];
+	//char	screenshotPNG[ MAX_OSPATH ];
 	char	screenshotJPG[ MAX_OSPATH ];
 	char	screenshotBMP[ MAX_OSPATH ];
 	qboolean screenShotTGAsilent;
+	//qboolean screenShotPNGsilent;
 	qboolean screenShotJPGsilent;
 	qboolean screenShotBMPsilent;
 	videoFrameCommand_t	vcmd;	// avi capture
@@ -1447,6 +1452,7 @@ shader_t	*R_GetShaderByState( int index, long *cycleTime );
 shader_t	*R_FindShaderByName( const char *name );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
+void		R_DefShaderList_f( void );
 void		RE_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
 

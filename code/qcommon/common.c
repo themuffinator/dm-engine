@@ -297,6 +297,48 @@ void QDECL Com_LPrintf( printParm_t level, const char *fmt, ...) {
 
 	Com_Printf( "%s", msg );
 }
+
+
+/*
+================
+Com_WPrintf
+
+A Com_Printf for warning messages only in developer mode
+================
+*/
+void QDECL Com_WPrintf( const char *fmt, ... ) {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	if ( !com_developer || !com_developer->integer ) {
+		return;			// don't confuse non-developers with techie stuff...
+	}
+
+	va_start( argptr, fmt );
+	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+	va_end( argptr );
+
+	Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "%s", msg );
+}
+
+
+/*
+================
+Com_WDPrintf
+
+A Com_Printf for warning messages
+================
+*/
+void QDECL Com_WDPrintf( const char *fmt, ... ) {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	va_start( argptr, fmt );
+	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
+	va_end( argptr );
+
+	Com_Printf( S_COLOR_YELLOW "WARNING: " S_COL24_AMBER "%s", msg );
+}
 //#endif
 
 /*
@@ -2814,7 +2856,7 @@ static void Com_PushEvent( const sysEvent_t *event ) {
 		// don't print the warning constantly, or it can give time for more...
 		if ( !printedWarning ) {
 			printedWarning = qtrue;
-			Com_Printf( "WARNING: Com_PushEvent overflow\n" );
+			Com_WPrintf( "Com_PushEvent overflow.\n" );
 		}
 
 		if ( ev->evPtr ) {
@@ -3604,7 +3646,8 @@ void Com_Init( char *commandLine ) {
 	const char *s;
 	int	qport;
 
-	Com_Printf( "%s %s %s\n", SVN_VERSION, PLATFORM_STRING, __DATE__ );
+	Com_Printf( S_COL_VAR "%s " S_COL_VAL "%s " S_COL_VALB "%s\n", SVN_VERSION, PLATFORM_STRING, __DATE__ );
+	Com_Printf( S_COL_VALB "\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n" );
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
@@ -3642,7 +3685,7 @@ void Com_Init( char *commandLine ) {
 	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP, "0", "1", CV_INTEGER );
 	//Cvar_SetDescription(com_developer, "Enables developer mode.");
 	Com_StartupVariable( "verbose" );
-	com_developer = Cvar_Get( "verbose", "0", CVAR_TEMP, "0", "7", CV_INTEGER );
+	com_verbose = Cvar_Get( "verbose", "0", CVAR_TEMP, "0", "15", CV_INTEGER );
 	//Cvar_SetDescription( com_verbose, "Prints out additional information useful for troubleshooting, bitmask:\n 1: Client\n 2: Server\n 4: Renderer" );
 
 	Com_StartupVariable( "vm_rtChecks" );
@@ -3771,11 +3814,11 @@ void Com_Init( char *commandLine ) {
 	if ( !Q_stricmp( Cvar_VariableString( "sys_cpuString" ), "detect" ) )
 	{
 		static char vendor[128];
-		Com_Printf( "...detecting CPU, found " );
+		Com_LPrintf( PRINT_V_COMMON, "...detecting CPU, found " );
 		Sys_GetProcessorId( vendor );
 		Cvar_Set( "sys_cpuString", vendor );
 	}
-	Com_Printf( "%s\n", Cvar_VariableString( "sys_cpuString" ) );
+	Com_LPrintf( PRINT_V_COMMON, "%s\n", Cvar_VariableString( "sys_cpuString" ) );
 
 #ifdef USE_AFFINITY_MASK
 	if ( com_affinityMask->integer )
@@ -4663,7 +4706,7 @@ void Com_RandomBytes( byte *string, int len )
 	if ( Sys_RandomBytes( string, len ) )
 		return;
 
-	Com_Printf( S_COLOR_YELLOW "Com_RandomBytes: using weak randomization\n" );
+	Com_Printf( S_COLOR_YELLOW "Com_RandomBytes: Using weak randomization.\n" );
 	srand( time( NULL ) );
 	for( i = 0; i < len; i++ )
 		string[i] = (unsigned char)( rand() % 256 );

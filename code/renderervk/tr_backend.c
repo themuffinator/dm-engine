@@ -1771,6 +1771,14 @@ static const void *RB_SwapBuffers( const void *data ) {
 				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotTGA );
 			}
 		}
+#if 0
+		if ( backEnd.screenshotMask & SCREENSHOT_PNG && backEnd.screenshotPNG[0] ) {
+			RB_TakeScreenshot( 0, 0, captureWidth, captureHeight, backEnd.screenshotPNG );
+			if ( !backEnd.screenShotPNGsilent ) {
+				ri.Printf( PRINT_ALL, S_COL_BASE "Wrote " S_COL_VAL "%s\n", backEnd.screenshotPNG );
+			}
+		}
+#endif
 		if ( backEnd.screenshotMask & SCREENSHOT_JPG && backEnd.screenshotJPG[0] ) {
 			RB_TakeScreenshotJPEG( 0, 0, captureWidth, captureHeight, backEnd.screenshotJPG );
 			if ( !backEnd.screenShotJPGsilent ) {
@@ -1789,6 +1797,7 @@ static const void *RB_SwapBuffers( const void *data ) {
 
 		backEnd.screenshotJPG[0] = '\0';
 		backEnd.screenshotTGA[0] = '\0';
+		//backEnd.screenshotPNG[0] = '\0';
 		backEnd.screenshotBMP[0] = '\0';
 		backEnd.screenshotMask = 0;
 	}

@@ -467,14 +467,14 @@ void VM_LoadSymbols( vm_t *vm ) {
 
 		token = COM_Parse( &text_p );
 		if ( !token[0] ) {
-			Com_Printf( "WARNING: incomplete line at end of file\n" );
+			Com_WPrintf( "Incomplete line at end of file.\n" );
 			break;
 		}
 		value = ParseHex( token );
 
 		token = COM_Parse( &text_p );
 		if ( !token[0] ) {
-			Com_Printf( "WARNING: incomplete line at end of file\n" );
+			Com_WPrintf( "Incomplete line at end of file.\n" );
 			break;
 		}
 		chars = strlen( token );
@@ -820,8 +820,7 @@ static vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 		if ( vm->dataAlloc != dataAlloc ) {
 			VM_Free( vm );
 			FS_FreeFile( header );
-			Com_Printf( S_COLOR_YELLOW "Warning: Data region size of %s not matching after"
-					"VM_Restart()\n", filename );
+			Com_WPrintf( "Data region size of %s not matching after VM_Restart().\n", filename );
 			return NULL;
 		}
 		Com_Memset( vm->dataBase, 0, vm->dataAlloc );
@@ -848,8 +847,7 @@ static vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 				VM_Free( vm );
 				FS_FreeFile( header );
 
-				Com_Printf( S_COLOR_YELLOW "Warning: Jump table size of %s not matching after "
-					"VM_Restart()\n", filename );
+				Com_WPrintf( "Jump table size of %s not matching after VM_Restart().\n", filename );
 				return NULL;
 			}
 
@@ -866,12 +864,12 @@ static vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 	if ( tryjts == qtrue && (length = Load_JTS( vm, crc32sum, NULL, vmPakIndex )) >= 0 ) {
 		// we are trying to load newer file?
 		if ( vm->jumpTableTargets && vm->numJumpTableTargets != length >> 2 ) {
-			Com_Printf( S_COLOR_YELLOW "Reload jts file\n" );
+			Com_WPrintf( "Reload jts file.\n" );
 			vm->jumpTableTargets = NULL;
 			alloc = qtrue;
 		}
 		vm->numJumpTableTargets = length >> 2;
-		Com_Printf( "Loading %d external jump table targets\n", vm->numJumpTableTargets );
+		Com_WPrintf( "Loading %d external jump table targets.\n", vm->numJumpTableTargets );
 		if ( alloc == qtrue ) {
 			vm->jumpTableTargets = Hunk_Alloc( length, h_high );
 		} else {
@@ -1423,12 +1421,12 @@ const char *VM_CheckInstructions( instruction_t *buf,
 		for( i = 0; i < numJumpTableTargets; i++ ) {
 			n = *(int *)(jumpTableTargets + ( i * sizeof( int ) ) );
 			if ( n < 0 || n >= instructionCount ) {
-				Com_Printf( S_COLOR_YELLOW "jump target %i set on instruction %i that is out of range [0..%i]",
+				Com_WPrintf( "Jump target %i set on instruction %i that is out of range [0..%i]",
 					i, n, instructionCount - 1 );
 				break;
 			}
 			if ( buf[n].opStack != 0 ) {
-				Com_Printf( S_COLOR_YELLOW "jump target %i set on instruction %i (%s) with bad opStack %i\n",
+				Com_WPrintf( "Jump target %i set on instruction %i (%s) with bad opStack %i\n",
 					i, n, opname[ buf[n].op ], buf[n].opStack );
 				break;
 			}

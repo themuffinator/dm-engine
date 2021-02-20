@@ -765,7 +765,7 @@ void Sys_SetAffinityMask( int mask )
 		Sleep( 0 );
 		Com_Printf( "setting CPU affinity mask to %i\n", mask );
 	} else {
-		Com_Printf( S_COLOR_YELLOW "error setting CPU affinity mask %i\n", mask );
+		Com_WPrintf( "Error setting CPU affinity mask %i\n", mask );
 	}
 }
 #endif // USE_AFFINITY_MASK

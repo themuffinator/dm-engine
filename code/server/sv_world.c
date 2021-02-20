@@ -191,7 +191,7 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 		}
 	}
 
-	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
+	Com_WPrintf( "SV_UnlinkEntity: Not found in worldSector.\n" );
 }
 
 

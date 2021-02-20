@@ -126,7 +126,7 @@ static int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) 
 				Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
 				/*
 				if ( client->netchan.remoteAddress.type != NA_BOT ) {
-					Com_Printf( "WARNING: client %i removed double pending config string %i: %s\n", client-svs.clients, csnum1, cmd );
+					Com_WPrintf( "client %i removed double pending config string %i: %s\n", client-svs.clients, csnum1, cmd );
 				}
 				*/
 				return qtrue;

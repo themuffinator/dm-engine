@@ -130,7 +130,7 @@ void GLimp_InitGamma( glconfig_t *config )
 			 ( HIBYTE( s_oldHardwareGamma[2][255] ) <= HIBYTE( s_oldHardwareGamma[2][0] ) ) )
 		{
 			config->deviceSupportsGamma = qfalse;
-			Com_Printf( S_COLOR_YELLOW "WARNING: device has broken gamma support\n" );
+			Com_WPrintf( "Device has broken gamma support.\n" );
 		}
 
 		//
@@ -141,7 +141,7 @@ void GLimp_InitGamma( glconfig_t *config )
 		{
 			int g;
 
-			Com_Printf( S_COLOR_YELLOW "WARNING: suspicious gamma tables, using linear ramp for restoration\n" );
+			Com_WPrintf( "Suspicious gamma tables, using linear ramp for restoration.\n" );
 
 			for ( g = 0; g < 256; g++ )
 			{
@@ -239,7 +239,7 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 	if ( !ret ) {
-		Com_Printf( S_COLOR_YELLOW "SetDeviceGammaRamp failed.\n" );
+		Com_WPrintf( "SetDeviceGammaRamp failed.\n" );
 	} else {
 		glw_state.gammaSet = qtrue;
 	}

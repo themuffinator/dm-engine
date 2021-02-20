@@ -238,17 +238,17 @@ static sfx_t *S_FindName( const char *name ) {
 	}
 
 	if ( !name[0] ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is empty\n" );
+		Com_WPrintf( "Sound name is empty.\n" );
 		return NULL;
 	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n", name );
+		Com_WPrintf( "Sound name is too long: %s\n", name );
 		return NULL;
 	}
 
 	if ( name[0] == '*' ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Tried to load player sound directly: %s\n", name );
+		Com_WPrintf( "Tried to load player sound directly: %s\n", name );
 		return NULL;
 	}
 
@@ -330,7 +330,7 @@ static sfxHandle_t S_Base_RegisterSound( const char *name, qboolean compressed )
 	
 	if ( sfx->soundData ) {
 		if ( sfx->defaultSound ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: Could not find %s - using default\n", sfx->soundName );
+			Com_WPrintf( "Could not find %s - using default.\n", sfx->soundName );
 			return 0;
 		}
 		return sfx - s_knownSfx;
@@ -342,7 +342,7 @@ static sfxHandle_t S_Base_RegisterSound( const char *name, qboolean compressed )
 	S_memoryLoad( sfx );
 
 	if ( sfx->defaultSound ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default!\n", sfx->soundName );
+		Com_WPrintf( "Could not find %s - using default.\n", sfx->soundName );
 		return 0;
 	}
 
@@ -376,7 +376,7 @@ void S_memoryLoad( sfx_t *sfx ) {
 	if ( !S_LoadSound ( sfx ) ) {
 		Q_strncpyz( sfx->soundName, va( "sound/%s", sfx->soundName ), sizeof( sfx->soundName ) );
 		if ( !S_LoadSound( sfx ) ) {
-			Com_DPrintf( S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n", sfx->soundName );
+			Com_DPrintf( S_COLOR_YELLOW "WARNING: Couldn't load sound: " S_COL_VAL "%s\n", sfx->soundName );
 			sfx->defaultSound = qtrue;
 		}
 	}
@@ -474,7 +474,7 @@ static void S_Base_StartSound( const vec3_t origin, int entityNum, int entchanne
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_Printf( S_COLOR_YELLOW "S_StartSound: handle %i out of range\n", sfxHandle );
+		Com_WPrintf( "S_StartSound: Handle %i out of range.\n", sfxHandle );
 		return;
 	}
 
@@ -611,7 +611,7 @@ static void S_Base_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_Printf( S_COLOR_YELLOW "S_StartLocalSound: handle %i out of range\n", sfxHandle );
+		Com_WPrintf( "S_StartLocalSound: Handle %i out of range.\n", sfxHandle );
 		return;
 	}
 
@@ -720,7 +720,7 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_Printf( S_COLOR_YELLOW "S_AddLoopingSound: handle %i out of range\n", sfxHandle );
+		Com_WPrintf( "S_AddLoopingSound: Handle %i out of range.\n", sfxHandle );
 		return;
 	}
 
@@ -784,7 +784,7 @@ void S_Base_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_Printf( S_COLOR_YELLOW "S_AddRealLoopingSound: handle %i out of range\n", sfxHandle );
+		Com_WPrintf( "S_AddRealLoopingSound: Handle %i out of range.\n", sfxHandle );
 		return;
 	}
 
@@ -1286,12 +1286,12 @@ static void S_OpenBackgroundStream( const char *filename ) {
 	// Open stream
 	s_backgroundStream = S_CodecOpenStream( filename );
 	if( !s_backgroundStream ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", filename );
+		Com_WPrintf( "Couldn't open music file: %s\n", filename );
 		return;
 	}
 
 	if( s_backgroundStream->info.channels != 2 || s_backgroundStream->info.rate != 22050 ) {
-		Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", filename );
+		Com_WPrintf( "Music file %s is not 22k stereo\n", filename );
 	}
 }
 
@@ -1486,7 +1486,7 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 			break;
 		default:
 			// anything else is illegal
-			Com_Printf( "WARNING: cvar 's_kHz' must be one of (11, 22, 44, 48), setting to '%s'\n", s_kHz->resetString );
+			Com_WPrintf( "Cvar 's_kHz' must be one of (11, 22, 44, 48), setting to '%s'\n", s_kHz->resetString );
 			Cvar_ForceReset( "s_kHz" );
 			break;
 	}

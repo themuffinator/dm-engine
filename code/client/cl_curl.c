@@ -741,7 +741,7 @@ static size_t Com_DL_CallbackWrite( void *ptr, size_t size, size_t nmemb, void *
 	{
 		if ( !CL_ValidPakSignature( ptr, size*nmemb ) ) 
 		{
-			Com_Printf( S_COLOR_YELLOW "Com_DL_CallbackWrite(): invalid pak signature for %s.\n", 
+			Com_WPrintf( "Com_DL_CallbackWrite(): Invalid pak signature for %s.\n",
 				dl->Name );
 			return (size_t)-1;
 		}
@@ -863,7 +863,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 
 	if ( Com_DL_InProgress( dl ) )
 	{
-		Com_Printf( S_COLOR_YELLOW " already downloading %s\n", dl->Name );
+		Com_WPrintf( "Already downloading %s\n", dl->Name );
 		return qfalse;
 	}
 
@@ -873,7 +873,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 
 	if ( !Com_DL_Init( dl ) ) 
 	{
-		Com_Printf( S_COLOR_YELLOW "Error initializing cURL library\n" );		
+		Com_WPrintf( "Error initializing cURL library.\n" );
 		return qfalse;
 	}
 
@@ -904,7 +904,7 @@ qboolean Com_DL_Begin( download_t *dl, const char *localName, const char *remote
 	FS_StripExt( dl->Name, ".pk3" );
 	if ( !dl->Name[0] )
 	{
-		Com_Printf( S_COLOR_YELLOW " empty filename after extension strip.\n" );
+		Com_WPrintf( "Empty filename after extension strip.\n" );
 		return qfalse;
 	}
 

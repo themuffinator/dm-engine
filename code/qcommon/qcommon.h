@@ -936,6 +936,10 @@ void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_LPrintf( printParm_t level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+void		QDECL Com_WPrintf( const char *fmt, ... );
+void		QDECL Com_WDPrintf( const char *fmt, ... );
+//dp TODO: merge the above print functions into something more versatile and filterable
+
 void 		Com_Quit_f( void );
 void		Com_GameRestart( int checksumFeed, qboolean clientRestart );
 

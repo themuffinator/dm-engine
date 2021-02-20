@@ -407,7 +407,7 @@ static qboolean FS_PakIsPure( const pack_t *pack ) {
 			// NOTE TTimo: a pk3 with same checksum but different name would be validated too
 			//   I don't see this as allowing for any exploit, it would only happen if the client does manips of its file names 'not a bug'
 			if ( pack->checksum == fs_serverPaks[i] ) {
-				return qtrue;		// on the aproved list
+				return qtrue;		// on the approved list
 			}
 		}
 		return qfalse;	// not on the pure server pak list
@@ -620,7 +620,7 @@ static qboolean FS_CreatePath( const char *OSPath ) {
 	// make absolutely sure that it can't back up the path
 	// FIXME: is c: allowed???
 	if ( FS_CheckDirTraversal( OSPath ) ) {
-		Com_Printf( "WARNING: refusing to create relative path \"%s\"\n", OSPath );
+		Com_WPrintf( "Refusing to create relative path: " S_COL_VAL "\"%s\"\n", OSPath );
 		return qtrue;
 	}
 
@@ -3082,7 +3082,7 @@ static pack_t *FS_LoadZipFile( const char *zipfile )
 			break;
 		}
 		if ( file_info.compression_method != 0 && file_info.compression_method != 8 /*Z_DEFLATED*/ ) {
-			Com_Printf( S_COLOR_YELLOW "%s|%s: unsupported compression method %i\n", basename, filename_inzip, (int)file_info.compression_method );
+			Com_WPrintf( "%s|%s: unsupported compression method %i\n", basename, filename_inzip, (int)file_info.compression_method );
 			unzGoToNextFile( uf );
 			continue;
 		} 
@@ -4399,7 +4399,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 
 		// Make sure the server cannot make us write to non-quake3 directories.
 		if ( FS_CheckDirTraversal( fs_serverReferencedPakNames[i] ) ) {
-			Com_Printf( "WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i] );
+			Com_WPrintf( "Invalid download name:" S_COL_VAL " %s\n", fs_serverReferencedPakNames[i] );
 			continue;
 		}
 
@@ -4676,7 +4676,7 @@ static void FS_LoadedPakPureChecksums( void )
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		if ( search->pack ) {
 			if ( fs_numPureChecksums >= ARRAY_LEN( fs_pureChecksum ) ) {
-				Com_DPrintf( "WARNING: pure checksums overflowed\n" );
+				Com_WDPrintf( "Pure checksums overflowed.\n" );
 				fs_numPureChecksums = 0;
 				return;
 			}
@@ -5179,7 +5179,7 @@ const char *FS_ReferencedPakPureChecksums( int maxlen ) {
 	s = Q_stradd( s, va( "%i ", checksum ) );
 	if ( s > max ) { 
 		// client-side overflow
-		Com_Printf( S_COLOR_YELLOW "WARNING: pure checksum list is too long (%i), you might be not able to play on remote server!\n", (int)(s - info) );
+		Com_WPrintf( "Pure checksum list is too long (%i), you might be not able to play on remote server!\n", (int)(s - info) );
 		*max = '\0';
 	}
 	
@@ -5724,7 +5724,7 @@ void FS_VM_CloseFiles( handleOwner_t owner )
 	{
 		if ( fsh[i].owner != owner )
 			continue;
-		Com_Printf( S_COLOR_YELLOW"%s:%i:%s leaked filehandle\n", 
+		Com_WPrintf( "%s:%i:%s leaked filehandle\n",
 			FS_OwnerName( owner ), i, fsh[i].name );
 		FS_FCloseFile( i );
 	}

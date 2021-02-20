@@ -797,6 +797,28 @@ void RB_TakeScreenshot( int x, int y, int width, int height, const char *fileNam
 	ri.Hunk_FreeTempMemory( allbuf );
 }
 
+#if 0
+/*
+==================
+RB_TakeScreenshotPNG
+==================
+*/
+void RB_TakeScreenshotPNG( int x, int y, int width, int height, char *fileName ) {
+	byte *buffer;
+	size_t offset = 0, memcount;
+	int padlen;
+
+	buffer = RB_ReadPixels( x, y, width, height, &offset, &padlen, 0 );
+	memcount = ( width * 3 + padlen ) * height;
+
+	// gamma correct
+	if ( glConfig.deviceSupportsGamma )
+		R_GammaCorrect( buffer + offset, memcount );
+
+	RE_SavePNG( fileName, width, height, buffer + offset, padlen );
+	ri.Hunk_FreeTempMemory( buffer );
+}
+#endif
 
 /* 
 ================== 
@@ -1187,6 +1209,11 @@ static void R_ScreenShot_f( void ) {
 	} else if ( Q_stricmp( ri.Cmd_Argv(0), "screenshotBMP" ) == 0 ) {
 		typeMask = SCREENSHOT_BMP;
 		ext = "bmp";
+#if 0
+	} else if ( Q_stricmp( ri.Cmd_Argv(0), "screenshotPNG" ) == 0 ) {
+		typeMask = SCREENSHOT_PNG;
+		ext = "png";
+#endif
 	} else {
 		typeMask = SCREENSHOT_TGA;
 		ext = "tga";
@@ -1226,6 +1253,11 @@ static void R_ScreenShot_f( void ) {
 	} else if ( typeMask == SCREENSHOT_BMP ) {
 		backEnd.screenShotBMPsilent = silent;
 		Q_strncpyz( backEnd.screenshotBMP, checkname, sizeof( backEnd.screenshotBMP ) );
+#if 0
+	} else if ( typeMask == SCREENSHOT_PNG ) {
+		backEnd.screenShotPNGsilent = silent;
+		Q_strncpyz( backEnd.screenshotPNG, checkname, sizeof( backEnd.screenshotPNG ) );
+#endif
 	} else {
 		backEnd.screenShotTGAsilent = silent;
 		Q_strncpyz( backEnd.screenshotTGA, checkname, sizeof( backEnd.screenshotTGA ) );
@@ -1421,7 +1453,7 @@ Prints persistent rendering configuration
 ================
 */
 static void GfxInfo( const qboolean force ) {
-	const int level = PRINT_ALL;	// force ? PRINT_ALL : PRINT_V_RENDERER;
+	const int level = force ? PRINT_ALL : PRINT_V_RENDERER;
 	const char *fsstrings[] = { "windowed", "fullscreen" };
 	const char *fs;
 	int mode;
@@ -1503,7 +1535,7 @@ Prints info that may change every R_Init() call
 */
 static void VarInfo( const qboolean force )
 {
-	const int level = PRINT_ALL;	// force ? PRINT_ALL : PRINT_V_RENDERER;
+	const int level = force ? PRINT_ALL : PRINT_V_RENDERER;
 	if ( glConfig.deviceSupportsGamma ) {
 		ri.Printf( level, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
 	} else {
@@ -1587,9 +1619,12 @@ static void R_Register( void )
 	// make sure all the commands added here are also removed in R_Shutdown
 	ri.Cmd_AddCommand( "listImages", R_ImageList_f );
 	ri.Cmd_AddCommand( "listShaders", R_ShaderList_f );
+	ri.Cmd_AddCommand( "listDefShaders", R_DefShaderList_f );
 	ri.Cmd_AddCommand( "listSkins", R_SkinList_f );
 	ri.Cmd_AddCommand( "listModels", R_Modellist_f );
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
+	//ri.Cmd_AddCommand( "screenshotPNG", R_ScreenShot_f );
+	ri.Cmd_AddCommand( "screenshotTGA", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotBMP", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "gfxInfo", GfxInfo_f );
@@ -1681,7 +1716,7 @@ static void R_Register( void )
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
-	ri.Cvar_SetDescription(r_textureMode, "Texture interpolation mode:\n GL_NEAREST:		Nearest neighbor interpolation and will therefore appear similar to Quake II except with the added colored lighting\n GL_LINEAR:			Linear interpolation and will appear to blend in objects that are closer than the resolution that the textures are set as\n GL_NEAREST_MIPMAP_NEAREST:	Nearest neighbor interpolation with mipmapping for bilinear hardware, mipmapping will blend objects that are farther away than the resolution that they are set as\n GL_LINEAR_MIPMAP_NEAREST:	Linear interpolation with mipmapping for bilinear hardware\n GL_NEAREST_MIPMAP_LINEAR:	Nearest neighbor interpolation with mipmapping for trilinear hardware\n GL_LINEAR_MIPMAP_LINEAR:	Linear interpolation with mipmapping for trilinear hardware" );
+	ri.Cvar_SetDescription(r_textureMode, "Texture interpolation mode:\n GL_NEAREST: Nearest neighbor interpolation and will therefore appear similar to Quake II except with the added colored lighting\n GL_LINEAR: Linear interpolation and will appear to blend in objects that are closer than the resolution that the textures are set as\n GL_NEAREST_MIPMAP_NEAREST: Nearest neighbor interpolation with mipmapping for bilinear hardware, mipmapping will blend objects that are farther away than the resolution that they are set as\n GL_LINEAR_MIPMAP_NEAREST: Linear interpolation with mipmapping for bilinear hardware\n GL_NEAREST_MIPMAP_LINEAR: Nearest neighbor interpolation with mipmapping for trilinear hardware\n GL_LINEAR_MIPMAP_LINEAR: Linear interpolation with mipmapping for trilinear hardware" );
 	ri.Cvar_SetGroup( r_textureMode, CVG_RENDERER );
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE_ND, "0.5", "3", CV_FLOAT );
 	ri.Cvar_SetDescription( r_gamma, "Gamma correction factor." );
@@ -1798,8 +1833,8 @@ static void R_Register( void )
 	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
 	ri.Cvar_SetDescription( r_clearColor, "Set color to clear buffer to in hex RGB format. Requires \\r_clear 1." );
 
-	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription( r_defaultImageStyle, "Default image style for missing or invalid shaders/textures:\n 0: Quake III grey with white outlines\n 1: Quake II small red and black tiles" );
+	r_defaultImageStyle = ri.Cvar_Get( "r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_defaultImageStyle, "Default image style for missing or invalid shaders/textures:\n 0: QUAKE III grey with white outlines\n 1: QUAKE checkerboard\n 2: QUAKE II small red and black tiles" );
 	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH, "16", "128", CV_INTEGER );
 	ri.Cvar_SetDescription( r_defaultImageSize, "Set image size for default images." );
 
@@ -1987,11 +2022,14 @@ static void RE_Shutdown( refShutdownCode_t code ) {
 	ri.Printf( PRINT_V_RENDERER, "RE_Shutdown( %i )\n", code );
 
 	ri.Cmd_RemoveCommand( "listModels" );
+	ri.Cmd_RemoveCommand( "screenshotTGA" );
+	//ri.Cmd_RemoveCommand( "screenshotPNG" );
 	ri.Cmd_RemoveCommand( "screenshotBMP" );
 	ri.Cmd_RemoveCommand( "screenshotJPEG" );
 	ri.Cmd_RemoveCommand( "screenshot" );
 	ri.Cmd_RemoveCommand( "listImages" );
 	ri.Cmd_RemoveCommand( "listShaders" );
+	ri.Cmd_RemoveCommand( "listDefShaders" );
 	ri.Cmd_RemoveCommand( "listSkins" );
 	ri.Cmd_RemoveCommand( "gfxInfo" );
 #ifdef USE_VULKAN

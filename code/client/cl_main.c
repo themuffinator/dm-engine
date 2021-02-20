@@ -276,11 +276,7 @@ void CL_StopRecord_f( void ) {
 		FS_Rename( tempName, finalName );
 	}
 
-	if ( !clc.demorecording ) {
-		Com_Printf( "Not recording a demo.\n" );
-	} else {
-		Com_Printf( "Stopped demo recording.\n" );
-	}
+	Com_Printf( clc.demorecording ? "Stopped demo recording.\n" : "Not recording a demo.\n" );
 
 	clc.demorecording = qfalse;
 	clc.spDemoRecording = qfalse;
@@ -550,9 +546,9 @@ static void CL_Record_f( void ) {
 	char		demoExt[16];
 	const char	*ext;
 	qtime_t		t;
-
+	
 	if ( Cmd_Argc() > 2 ) {
-		Com_Printf( "record <demoname>\n" );
+		PrintUsageDesc( "record", "<demoname>", "Start recording a demo." );
 		return;
 	}
 
@@ -570,7 +566,7 @@ static void CL_Record_f( void ) {
 
 	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
 	if ( NET_IsLocalAddress( &clc.serverAddress ) && !Cvar_VariableIntegerValue( "g_synchronousClients" ) ) {
-		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
+		Com_WPrintf( "You should set 'g_synchronousClients 1' for smoother demo recording." );
 	}
 
 	if ( Cmd_Argc() == 2 ) {
@@ -605,7 +601,7 @@ static void CL_Record_f( void ) {
 	// save desired filename without extension
 	Q_strncpyz( clc.recordName, name, sizeof( clc.recordName ) );
 
-	Com_Printf( "recording to %s.\n", name );
+	Com_Printf( "Recording to: %s.\n", name );
 
 	// start new record with temporary extension
 	Q_strcat( name, sizeof( name ), ".tmp" );
@@ -613,7 +609,7 @@ static void CL_Record_f( void ) {
 	// open the demo file
 	clc.recordfile = FS_FOpenFileWrite( name );
 	if ( clc.recordfile == FS_INVALID_HANDLE ) {
-		Com_Printf( "ERROR: couldn't open.\n" );
+		Com_Printf( "ERROR: Couldn't open demo file: %s\n", name );
 		clc.recordName[0] = '\0';
 		return;
 	}
@@ -730,7 +726,7 @@ void CL_ReadDemoMessage( void ) {
 	}
 	r = FS_Read( buf.data, buf.cursize, clc.demofile );
 	if ( r != buf.cursize ) {
-		Com_Printf( "Demo file was truncated.\n");
+		Com_Printf( "Demo file is truncated.\n");
 		CL_DemoCompleted();
 		return;
 	}
@@ -838,7 +834,7 @@ static void CL_PlayDemo_f( void ) {
 	fileHandle_t hFile;
 
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "demo <demoname>\n" );
+		PrintUsageDesc( "demo", "<demoname>", "Play back a demo." );
 		return;
 	}
 
@@ -869,7 +865,7 @@ static void CL_PlayDemo_f( void ) {
 		{
 			size_t len;
 
-			Com_Printf("Protocol %d not supported for demos\n", protocol );
+			Com_Printf( "Protocol %d not supported for demos.\n", protocol );
 			len = ext_test - arg;
 
 			if(len >= ARRAY_LEN(retry))
@@ -884,7 +880,7 @@ static void CL_PlayDemo_f( void ) {
 		protocol = CL_WalkDemoExt( arg, name, &hFile );
 	
 	if ( hFile == FS_INVALID_HANDLE ) {
-		Com_Printf( S_COLOR_YELLOW "couldn't open %s\n", name );
+		Com_WPrintf( "Couldn't open demo file: %s\n", name );
 		return;
 	}
 
@@ -901,7 +897,7 @@ static void CL_PlayDemo_f( void ) {
 	if ( FS_FOpenFileRead( name, &clc.demofile, qtrue ) == -1 ) 
 	{
 		// drop this time
-		Com_Error( ERR_DROP, "couldn't open %s\n", name );
+		Com_Error( ERR_DROP, "Couldn't open demo file: %s\n", name );
 		return;
 	}
 
@@ -1413,7 +1409,7 @@ static void CL_RequestAuthorization( void ) {
 	if ( !cls.authorizeServer.port ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer, NA_IP ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
+			Com_Printf( "Couldn't resolve address.\n" );
 			return;
 		}
 
@@ -1466,7 +1462,7 @@ CL_ForwardToServer_f
 */
 static void CL_ForwardToServer_f( void ) {
 	if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
-		Com_Printf ("Not connected to a server.\n");
+		Com_Printf( "Not connected to a server.\n" );
 		return;
 	}
 
@@ -1494,9 +1490,9 @@ void CL_Disconnect_f( void ) {
 			clc.serverMessage[0] = '\0';
 			if ( com_sv_running && com_sv_running->integer ) {
 				// if running a local server, kill it
-				SV_Shutdown( "Disconnected from server" );
+				SV_Shutdown( "Disconnected from server." );
 			} else {
-				Com_Printf( "Disconnected from %s\n", cls.servername );
+				Com_Printf( "Disconnected from %s.\n", cls.servername );
 			}
 			Cvar_Set( "com_errorMessage", "" );
 			if ( !CL_Disconnect( qfalse ) ) { // restart client if not done already
@@ -1555,9 +1551,9 @@ static void CL_Connect_f( void ) {
 		else if( !strcmp( Cmd_Argv(1), "-6" ) )
 			family = NA_IP6;
 		else
-			Com_Printf( S_COLOR_YELLOW "warning: only -4 or -6 as address type understood.\n" );
+			Com_WPrintf( "Only -4 or -6 as address type understood.\n" );
 #else
-			Com_Printf( S_COLOR_YELLOW "warning: only -4 as address type understood.\n" );
+		Com_WPrintf( "Only -4 as address type understood.\n" );
 #endif
 		server = Cmd_Argv(2);
 	}
@@ -1591,7 +1587,7 @@ static void CL_Connect_f( void ) {
 
 	// try resolve remote server first
 	if ( !NET_StringToAdr( server, &addr, family ) ) {
-		Com_Printf( S_COLOR_YELLOW "Bad server address - %s\n", server );
+		Com_WPrintf( "Bad server address - %s\n", server );
 		return;
 	}
 
@@ -1884,7 +1880,7 @@ CL_PK3List_f
 ==================
 */
 void CL_OpenedPK3List_f( void ) {
-	Com_Printf("Opened PK3 Names: %s\n", FS_LoadedPakNames());
+	Com_Printf( "Opened PK3 Names: %s\n", FS_LoadedPakNames() );
 }
 
 
@@ -1929,7 +1925,7 @@ CL_Clientinfo_f
 */
 static void CL_Clientinfo_f( void ) {
 	Com_Printf( "--------- Client Information ---------\n" );
-	Com_Printf( "state: %i\n", cls.state );
+	Com_Printf( "State: %i\n", cls.state );
 	Com_Printf( "Server: %s\n", cls.servername );
 	Com_Printf ("User info settings:\n");
 	Info_Print( Cvar_InfoString( CVAR_USERINFO, NULL ) );
@@ -2145,19 +2141,14 @@ void CL_NextDownload( void )
 #ifdef USE_CURL
 		if(!(cl_allowDownload->integer & DLF_NO_REDIRECT)) {
 			if(clc.sv_allowDownload & DLF_NO_REDIRECT) {
-				Com_Printf("WARNING: server does not "
-					"allow download redirection "
-					"(sv_allowDownload is %d)\n",
+				Com_WPrintf( "Server does not allow download redirection (sv_allowDownload is %d)\n",
 					clc.sv_allowDownload);
 			}
 			else if(!*clc.sv_dlURL) {
-				Com_Printf("WARNING: server allows "
-					"download redirection, but does not "
-					"have sv_dlURL set\n");
+				Com_WPrintf( "Server allows download redirection, but does not have sv_dlURL set.\n");
 			}
 			else if(!CL_cURL_Init()) {
-				Com_Printf("WARNING: could not load "
-					"cURL library\n");
+				Com_WPrintf( "Could not load cURL library.\n");
 			}
 			else {
 				CL_cURL_BeginDownload(localName, va("%s/%s",
@@ -2166,18 +2157,14 @@ void CL_NextDownload( void )
 			}
 		}
 		else if(!(clc.sv_allowDownload & DLF_NO_REDIRECT)) {
-			Com_Printf("WARNING: server allows download "
-				"redirection, but it disabled by client "
-				"configuration (cl_allowDownload is %d)\n",
+			Com_WPrintf( "Server allows download redirection, but it disabled by client configuration (cl_allowDownload is %d)\n",
 				cl_allowDownload->integer);
 		}
 #endif /* USE_CURL */
 
 		if( !useCURL ) {
 		if( (cl_allowDownload->integer & DLF_NO_UDP) ) {
-				Com_Error(ERR_DROP, "UDP Downloads are "
-					"disabled on your client. "
-					"(cl_allowDownload is %d)",
+				Com_Error(ERR_DROP, "UDP Downloads are disabled on your client (cl_allowDownload is %d)",
 					cl_allowDownload->integer);
 				return;	
 			}
@@ -2217,9 +2204,9 @@ void CL_InitDownloads( void ) {
 		{
 			// NOTE TTimo I would rather have that printed as a modal message box
 			// but at this point while joining the game we don't know wether we will successfully join or not
-			Com_Printf( "\nWARNING: You are missing some files referenced by the server:\n%s"
-				"You might not be able to join the game\n"
-				"Go to the setting menu to turn on autodownload, or get the file elsewhere\n\n", missingfiles );
+			Com_WPrintf( "You are missing some files referenced by the server:\n %s"
+				"You might not be able to join the game.\n"
+				"Go to the setting menu to turn on autodownload, or get the file elsewhere.\n\n", missingfiles );
 		}
 	}
 	else if ( FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ) , qtrue ) ) {
@@ -2340,7 +2327,7 @@ static void CL_CheckForResend( void ) {
 		Info_SetValueForKey_s( info, MAX_USERINFO_LENGTH, "client", PRODUCT_VERSION );
 
 		if ( !notOverflowed ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: oversize userinfo, you might be not able to join remote server!\n" );
+			Com_WPrintf( "Oversized userinfo, you might not be able to join remote server!" );
 		}
 
 		len = Com_sprintf( data, sizeof( data ), "connect \"%s\"", info );
@@ -2660,7 +2647,7 @@ static qboolean CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 				if ( ver == NEW_PROTOCOL_VERSION ) {
 					clc.compat = qfalse;
 				} else {
-					Com_Printf( S_COLOR_YELLOW "Warning: Server reports protocol version %d, "
+					Com_WPrintf( "Server reports protocol version %d, "
 						   "we have %d. Trying legacy protocol %d.\n",
 						   ver, NEW_PROTOCOL_VERSION, PROTOCOL_VERSION );
 				}
@@ -2954,7 +2941,7 @@ static void CL_CheckUserinfo( void ) {
 
 		info = Cvar_InfoString( CVAR_USERINFO, &infoTruncated );
 		if ( strlen( info ) > MAX_USERINFO_LENGTH || infoTruncated ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: oversize userinfo, you might be not able to play on remote server!\n" );
+			Com_WPrintf( "Oversized userinfo, you might not be able to join remote server!" );
 		}
 
 		CL_AddReliableCommand( va( "userinfo \"%s\"", info ), qfalse );
@@ -3987,7 +3974,7 @@ void CL_Shutdown( const char *finalmsg, qboolean quit ) {
 	Com_Printf( "----- Client Shutdown (%s) -----\n", finalmsg );
 
 	if ( recursive ) {
-		Com_Printf( "WARNING: Recursive CL_Shutdown()\n" );
+		Com_WPrintf( "Recursive CL_Shutdown()" );
 		return;
 	}
 	recursive = qtrue;
@@ -4728,10 +4715,10 @@ static void CL_Ping_f( void ) {
 		else if( !strcmp( Cmd_Argv(1), "-6" ) )
 			family = NA_IP6;
 		else
-			Com_Printf( "warning: only -4 or -6 as address type understood.\n" );
+			Com_WPrintf( "Only -4 or -6 as address type understood.\n" );
 #else
 		else
-			Com_Printf( "warning: only -4 as address type understood.\n" );
+			Com_WPrintf( "Only -4 as address type understood.\n" );
 #endif
 		
 		server = Cmd_Argv(2);
@@ -4904,10 +4891,10 @@ static void CL_ServerStatus_f( void ) {
 			else if ( !strcmp( Cmd_Argv(1), "-6" ) )
 				family = NA_IP6;
 			else
-				Com_Printf( "warning: only -4 or -6 as address type understood.\n" );
+				Com_WPrintf( "Only -4 or -6 as address type understood.\n" );
 #else
 			else
-				Com_Printf( "warning: only -4 as address type understood.\n" );
+				Com_WPrintf( "Only -4 as address type understood.\n" );
 #endif
 		
 			server = Cmd_Argv(2);
@@ -4948,7 +4935,7 @@ qboolean CL_Download( const char *cmd, const char *pakname, qboolean autoDownloa
 
 	if ( cl_dlURL->string[0] == '\0' )
 	{
-		Com_Printf( S_COLOR_YELLOW "cl_dlURL cvar is not set\n" );
+		Com_WPrintf( "cl_dlURL cvar is not set.\n" );
 		return qfalse;
 	}
 
@@ -4963,7 +4950,7 @@ qboolean CL_Download( const char *cmd, const char *pakname, qboolean autoDownloa
 
 	if ( !Com_DL_ValidFileName( pakname ) )
 	{
-		Com_Printf( S_COLOR_YELLOW "invalid file name: '%s'.\n", pakname );
+		Com_WPrintf( "Invalid file name: '%s'.\n", pakname );
 		return qfalse;
 	}
 
@@ -4976,7 +4963,7 @@ qboolean CL_Download( const char *cmd, const char *pakname, qboolean autoDownloa
 		s = va( "maps/%s.bsp", name );
 		if ( FS_FileIsInPAK( s, NULL, url ) )
 		{
-			Com_Printf( S_COLOR_YELLOW " map %s already exists in %s.pk3\n", name, url );
+			Com_WPrintf( "Map %s already exists in %s.pk3\n", name, url );
 			return qfalse;
 		}
 	}
