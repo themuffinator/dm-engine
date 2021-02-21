@@ -1844,13 +1844,13 @@ static void R_Register( void )
 	ri.Cvar_SetDescription( r_arc_region_left_x2, "Left-side adjusted region for UI screen correction. Bottom-right X coordinate." );
 	r_arc_region_left_y2 = ri.Cvar_Get( "r_arc_region_left_y2", "432", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_left_y2, "Left-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
-	r_arc_region_right_x1 = ri.Cvar_Get( "r_arc_region_right_x1", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_right_x1 = ri.Cvar_Get( "r_arc_region_right_x1", "400", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_right_x1, "Right-side adjusted region for UI screen correction. Top-left X coordinate." );
 	r_arc_region_right_y1 = ri.Cvar_Get( "r_arc_region_right_y1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_right_y1, "Right-side adjusted region for UI screen correction. Top-left Y coordinate." );
 	r_arc_region_right_x2 = ri.Cvar_Get( "r_arc_region_right_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_right_x2, "Right-side adjusted region for UI screen correction. Bottom-right X coordinate." );
-	r_arc_region_right_y2 = ri.Cvar_Get( "r_arc_region_right_y2", "430", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_right_y2 = ri.Cvar_Get( "r_arc_region_right_y2", "64", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_right_y2, "Right-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
 
 	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );

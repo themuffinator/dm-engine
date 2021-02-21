@@ -716,7 +716,7 @@ endif
 
 Q3RENDVOBJ = \
   $(B)/rendv/tr_animation.o \
-  $(B)/rend1/tr_arc.o \
+  $(B)/rendv/tr_arc.o \
   $(B)/rendv/tr_backend.o \
   $(B)/rendv/tr_bsp.o \
   $(B)/rendv/tr_cmds.o \
