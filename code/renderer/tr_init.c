@@ -172,6 +172,15 @@ cvar_t	*r_arc_uiMode;
 cvar_t	*r_arc_crosshairs;
 cvar_t	*r_arc_threewave_menu_fix;
 
+cvar_t *r_arc_region_left_x1;
+cvar_t *r_arc_region_left_y1;
+cvar_t *r_arc_region_left_x2;
+cvar_t *r_arc_region_left_y2;
+cvar_t *r_arc_region_right_x1;
+cvar_t *r_arc_region_right_y1;
+cvar_t *r_arc_region_right_x2;
+cvar_t *r_arc_region_right_y2;
+
 cvar_t	*r_teleporterFlash;
 
 cvar_t	*r_clearColor;
@@ -1721,32 +1730,49 @@ static void R_Register(void)
 			ri.Cvar_Set("cg_fovAdjust", "0");
 		}
 	}
+
 	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
+	r_arc_region_left_x1 = ri.Cvar_Get( "r_arc_region_left_x1", "8", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_left_x1, "Left-side adjusted region for UI screen correction. Top-left X coordinate." );
+	r_arc_region_left_y1 = ri.Cvar_Get( "r_arc_region_left_y1", "384", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_left_y1, "Left-side adjusted region for UI screen correction. Top-left Y coordinate." );
+	r_arc_region_left_x2 = ri.Cvar_Get( "r_arc_region_left_x2", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_left_x2, "Left-side adjusted region for UI screen correction. Bottom-right X coordinate." );
+	r_arc_region_left_y2 = ri.Cvar_Get( "r_arc_region_left_y2", "432", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_left_y2, "Left-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
+	r_arc_region_right_x1 = ri.Cvar_Get( "r_arc_region_right_x1", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_right_x1, "Right-side adjusted region for UI screen correction. Top-left X coordinate." );
+	r_arc_region_right_y1 = ri.Cvar_Get( "r_arc_region_right_y1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_right_y1, "Right-side adjusted region for UI screen correction. Top-left Y coordinate." );
+	r_arc_region_right_x2 = ri.Cvar_Get( "r_arc_region_right_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_right_x2, "Right-side adjusted region for UI screen correction. Bottom-right X coordinate." );
+	r_arc_region_right_y2 = ri.Cvar_Get( "r_arc_region_right_y2", "430", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_region_right_y2, "Right-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
 
-	r_arc_uiMode = ri.Cvar_Get( "r_arc_uiMode", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
+	r_arc_uiMode = ri.Cvar_Get( "r_arc_uiMode", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of UI elements in wide screen aspect ratios:\n 0: Disabled\n 1: Adjust aspect and coordinates\n 2: Adjust aspect, preserve coordinates\n");
-	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	ri.Cvar_SetDescription(r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
-	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 
-	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
+	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 	ri.Cvar_SetDescription( r_teleporterFlash, "Screen flash effect when teleporting:\n 0: Disabled\n 1: Black\n 2: White" );
 
-	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	r_clearColor = ri.Cvar_Get("r_clearColor", "0x101010", CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );
 	ri.Cvar_SetDescription( r_clearColor, "Set color to clear buffer to in hex RGB format. Requires \\r_clear 1." );
 
-	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE | CVAR_LATCH, "0", "2", CV_INTEGER );
+	r_defaultImageStyle = ri.Cvar_Get("r_defaultImageStyle", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "2", CV_INTEGER );
 	ri.Cvar_SetDescription( r_defaultImageStyle, "Default image style for missing or invalid shaders/textures:\n 0: QUAKE III grey with white outlines\n 1: QUAKE checkerboard\n 2: QUAKE II small red and black tiles" );
-	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE | CVAR_LATCH, "16", "128", CV_INTEGER );
+	r_defaultImageSize = ri.Cvar_Get("r_defaultImageSize", "64", CVAR_ARCHIVE_ND | CVAR_LATCH, "16", "128", CV_INTEGER );
 	ri.Cvar_SetDescription( r_defaultImageSize, "Set image size for default images." );
 
-	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	r_drawSkyFloor = ri.Cvar_Get("r_drawSkyFloor", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	ri.Cvar_SetDescription( r_drawSkyFloor, "Draw the bottom plane of scrolling sky boxes." );
 
-	r_screenshotNameFormat = ri.Cvar_Get( "r_screenshotNameFormat", "#l", CVAR_ARCHIVE, "", "", CV_NONE );
+	r_screenshotNameFormat = ri.Cvar_Get( "r_screenshotNameFormat", "#l", CVAR_ARCHIVE_ND, "", "", CV_NONE );
 	ri.Cvar_SetDescription( r_screenshotNameFormat, "Set naming convention for screenshots. Valid hashtag tokens to use:\n [#02/#04]y: year, [#02/#]m = month, [#02/#]d = day, [#02/#]h = hour, [#02/#]n = minute, [#02/#]s = second, #l = mapname, #g = gametype" );
 
-	r_dlightDesaturate = ri.Cvar_Get("r_dlightDesaturate", "0.1", CVAR_ARCHIVE, "0", "1", CV_FLOAT);
+	r_dlightDesaturate = ri.Cvar_Get("r_dlightDesaturate", "0.1", CVAR_ARCHIVE_ND, "0", "1", CV_FLOAT);
 	ri.Cvar_SetDescription(r_dlightDesaturate, "Colour desaturation for dynamic lights. Set to 0 to revert to original colour values.");
 
 	r_fogGreyScale = ri.Cvar_Get("r_fogGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_FLOAT);

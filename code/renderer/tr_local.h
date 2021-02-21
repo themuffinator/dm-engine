@@ -1297,6 +1297,15 @@ extern	cvar_t	*r_arc_uiMode;
 extern	cvar_t	*r_arc_crosshairs;
 extern	cvar_t	*r_arc_threewave_menu_fix;
 
+extern	cvar_t *r_arc_region_left_x1;
+extern	cvar_t *r_arc_region_left_y1;
+extern	cvar_t *r_arc_region_left_x2;
+extern	cvar_t *r_arc_region_left_y2;
+extern	cvar_t *r_arc_region_right_x1;
+extern	cvar_t *r_arc_region_right_y1;
+extern	cvar_t *r_arc_region_right_x2;
+extern	cvar_t *r_arc_region_right_y2;
+
 extern	cvar_t	*r_teleporterFlash;
 
 extern	cvar_t	*r_clearColor;

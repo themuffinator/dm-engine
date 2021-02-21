@@ -4,20 +4,20 @@
 ## Introduction
 QUAKE communities have always been fractured as players gravitate towards a certain title. From Q1 to Q3, there are at least 1,500 quality community-made levels - many of which have either not received the acclaim they deserved or are slowly disappearing from online presence.
 
-DarkMatter is a project that ultimately aims to provide a unified platform for enjoying the classic QUAKE titles in specially-made mods on a robust, high-performing and stable engine. It will be split into engine and game logic modules.
+DarkMatter is a project that will ultimately provide a unified platform for enjoying the classic QUAKE titles in specially-made mods on a robust, high-performing and stable engine. It will be split into engine and game logic modules, and focus on recreating and refining classic QUAKE gameplay experiences for a wider audience. Hundreds of custom-made levels will be given a new lease of life with high-def levelshots, author tags, entity and clipping fixes and detailed map variables to use in filterable map browsers and map cycles.
 	
-**Core features**
+**Current core engine features**
 * A flexible filesystem for loading from multiple game bases, with automatic detection of game installation paths.
 * Supporting maps and assets from QUAKE LIVE.
 * OGG Vorbis codec
-* Aspect-correct UI and expanded field of view for widescreens
+* Aspect-correct UI and expanded field of view (including weapon FOV) for widescreens
 * Entity override dumping and loading for servers to modify level items
 * Detailed cvar descriptions straight from the console, min and max values for all appropriate cvars
 * A number of added cvars and commands providing more customization and control
 
 More information including features and installation available in the assets/docs directory.
 
-**Quake3e features**:
+**Quake3e engine features**:
 
 * optimized OpenGL renderer
 * optimized Vulkan renderer
@@ -31,6 +31,18 @@ More information including features and installation available in the assets/doc
 * reworked Zone memory allocator, no more out-of-memory errors
 * non-intrusive support for SDL2 backend (video,audio,input), selectable at compile time
 * tons of bugfixes and other improvements
+
+## Planned fixes and features for upcoming releases
+* Check for map shaders and textures in BSP path first
+* QUAKE II (IBSP 38) Support
+* WAL image loading
+* PAK file support
+* MD2 model loading
+* Screen regions for additional widescreen HUD alignment
+* Flexible window controls (resizing, WinKey screen alignment)
+* Tall screen aspect ratio support
+* Update console font scaling when toggling r_fullscreen
+* Threewave and Jailbreak:POW menu fixes
 
 ## Links
 * https://github.com/ec-/Quake3e
