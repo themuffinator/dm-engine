@@ -3926,8 +3926,8 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("ping", CL_Ping_f );
 	Cmd_AddCommand ("serverStatus", CL_ServerStatus_f );
 	Cmd_AddCommand ("showIP", CL_ShowIP_f );
-	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
-	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
+	Cmd_AddCommand ("listOpenedPaks", CL_OpenedPK3List_f );
+	Cmd_AddCommand ("listReferencedPaks", CL_ReferencedPK3List_f );
 	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("video-pipe", CL_Video_f );
@@ -4009,8 +4009,8 @@ void CL_Shutdown( const char *finalmsg, qboolean quit ) {
 	Cmd_RemoveCommand ("ping");
 	Cmd_RemoveCommand ("serverStatus");
 	Cmd_RemoveCommand ("showIP");
-	Cmd_RemoveCommand ("fs_openedList");
-	Cmd_RemoveCommand ("fs_referencedList");
+	Cmd_RemoveCommand ("listOpenedPaks");
+	Cmd_RemoveCommand ("listReferencedPaks");
 	Cmd_RemoveCommand ("model");
 	Cmd_RemoveCommand ("video");
 	Cmd_RemoveCommand ("stopVideo");
