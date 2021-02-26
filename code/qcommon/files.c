@@ -199,6 +199,7 @@ or configs will never get loaded from disk!
 // every time a new demo pk3 file is built, this checksum must be updated.
 // the easiest way to get it is to just run the game and see what it spits out
 #define	DEMO_PAK0_CHECKSUM	2985612116u
+#define QL_PAK00_CHECKSUM	363034675u
 static const unsigned pak_checksums[] = {
 	1566731103u,
 	298122907u,
@@ -227,6 +228,10 @@ static const unsigned pak_checksums[] = {
 
 #define MAX_ZPATH			256
 #define MAX_FILEHASH_SIZE	4096
+
+static char *assetBaseNames[] = {
+	"", "q1", "q2", "q3", "q4", "ql", "dm"
+};
 
 typedef struct fileInPack_s {
 	char					*name;		// name of the file
@@ -270,11 +275,14 @@ typedef struct pack_s {
 	int				*headerLongs;
 	int				numHeaderLongs;
 #endif
+
+	assetBase_t	assetBase;	// dm: asset loading base for appropriate maps
 } pack_t;
 
 typedef struct {
 	char		*path;		// c:\quake3
 	char		*gamedir;	// baseq3
+	assetBase_t	assetBase;	// dm: asset loading base for appropriate maps
 } directory_t;
 
 typedef enum {
@@ -381,7 +389,7 @@ void Com_ReadCDKey( const char *filename );
 static int FS_GetModList( char *listbuf, int bufsize );
 static void FS_CheckIdPaks( void );
 void FS_Reload( void );
-
+void FS_ListReferencedPaks( void );
 
 /*
 ==============
@@ -3390,7 +3398,7 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-char **FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, int *numfiles, int flags ) {
+char **FS_ListFilteredFiles( assetBase_t assetBase, const char *path, const char *extension, const char *filter, int *numfiles, int flags ) {
 	int				nfiles;
 	char			**listCopy;
 	char			*list[MAX_FOUND_FILES];
@@ -3555,7 +3563,7 @@ FS_ListFiles
 */
 char **FS_ListFiles( const char *path, const char *extension, int *numfiles ) 
 {
-	return FS_ListFilteredFiles( path, extension, NULL, numfiles, FS_MATCH_ANY );
+	return FS_ListFilteredFiles( TITLE_NONE, path, extension, NULL, numfiles, FS_MATCH_ANY );
 }
 
 
@@ -3975,7 +3983,7 @@ static void FS_FDir_f( void ) {
 
 	Com_Printf( "---------------\n" );
 
-	dirnames = FS_ListFilteredFiles( "", "", filter, &ndirs, FS_MATCH_ANY );
+	dirnames = FS_ListFilteredFiles( TITLE_NONE, "", "", filter, &ndirs, FS_MATCH_ANY );
 
 	if ( ndirs >= 2 )
 		FS_SortFileList( dirnames, ndirs - 1 );
@@ -4146,7 +4154,7 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads the zip headers
 ================
 */
-static void FS_AddGameDirectory( const char *path, const char *dir ) {
+static void FS_AddGameDirectory( const char *path, const char *dir, const assetBase_t assetBase ) {
 	const searchpath_t *sp;
 	int				len;
 	searchpath_t	*search;
@@ -4257,6 +4265,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 			pak->index = fs_packCount;
 			pak->referenced = 0;
 			pak->exclude = qfalse;
+			pak->assetBase = assetBase;
 
 			fs_packFiles += pak->numfiles;
 			fs_packCount++;
@@ -4293,6 +4302,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 			search->dir->path = (char*)( search->dir + 1 );
 			search->dir->gamedir = (char*)( search->dir->path + path_len );
 			search->policy = DIR_ALLOW;
+			search->dir->assetBase = assetBase;
 
 			strcpy( search->dir->path, curpath );				// c:\quake3\baseq3
 			strcpy( search->dir->gamedir, pakdirs[ pakdirsi ] );// mypak.pk3dir
@@ -4316,8 +4326,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 FS_idPak
 ================
 */
-qboolean FS_idPak(const char *pak, const char *base, int numPaks)
-{
+qboolean FS_idPak( const char *pak, const char *base, int numPaks ) {
 	int i;
 
 	for (i = 0; i < NUM_Q3_PAKS; i++) {
@@ -4543,6 +4552,7 @@ void FS_Shutdown( qboolean closemfp )
 	Cmd_RemoveCommand( "which" );
 	Cmd_RemoveCommand( "lsof" );
 	Cmd_RemoveCommand( "fs_restart" );
+	Cmd_RemoveCommand( "listReferencedPaks" );
 }
 
 
@@ -4814,41 +4824,41 @@ static void FS_Startup( void ) {
 
 	// add search path elements in reverse priority order
 	if ( fs_q_path->string[0] ) {
-		FS_AddGameDirectory( fs_q_path->string, BASEQ1 );
+		FS_AddGameDirectory( fs_q_path->string, BASEQ1, TITLE_QUAKE1 );
 	}
 
 	if ( fs_q2_path->string[0] ) {
-		FS_AddGameDirectory( fs_q2_path->string, BASEQ2 );
+		FS_AddGameDirectory( fs_q2_path->string, BASEQ2, TITLE_QUAKE2 );
 	}
 
 	if ( fs_ql_path->string[0] ) {
-		FS_AddGameDirectory( fs_ql_path->string, BASEQL );
+		FS_AddGameDirectory( fs_ql_path->string, BASEQL, TITLE_QUAKELIVE );
 	}
 
 	if ( fs_q3_path->string[0] ) {
-		FS_AddGameDirectory( fs_q3_path->string, BASEQ3 );
+		FS_AddGameDirectory( fs_q3_path->string, BASEQ3, TITLE_QUAKE3 );
 	}
 
 	if ( fs_basePath->string[0] ) {
-		FS_AddGameDirectory( fs_basePath->string, fs_baseGame->string );
+		FS_AddGameDirectory( fs_basePath->string, fs_baseGame->string, TITLE_DARKMATTER );
 	}
 
 	// fs_homePath is somewhat particular to *nix systems, only add if relevant
 	// NOTE: same filtering below for mods and basegame
 	if ( fs_homePath->string[0] && Q_stricmp( fs_homePath->string, fs_basePath->string ) ) {
-		FS_AddGameDirectory( fs_homePath->string, fs_baseGame->string );
+		FS_AddGameDirectory( fs_homePath->string, fs_baseGame->string, TITLE_NONE );
 	}
 
 	// check for additional game folder for mods
 	if ( fs_game->string[0] && Q_stricmp( fs_game->string, fs_baseGame->string ) ) {
 		if ( fs_q3_path->string[0] ) {
-			FS_AddGameDirectory( fs_q3_path->string, fs_game->string );
+			FS_AddGameDirectory( fs_q3_path->string, fs_game->string, TITLE_QUAKE3 );
 		}
 		if ( fs_basePath->string[0] ) {
-			FS_AddGameDirectory( fs_basePath->string, fs_game->string );
+			FS_AddGameDirectory( fs_basePath->string, fs_game->string, TITLE_DARKMATTER );
 		}
 		if ( fs_homePath->string[0] && Q_stricmp( fs_homePath->string, fs_basePath->string ) ) {
-			FS_AddGameDirectory( fs_homePath->string, fs_game->string );
+			FS_AddGameDirectory( fs_homePath->string, fs_game->string, TITLE_NONE );
 		}
 	}
 
@@ -4879,6 +4889,7 @@ static void FS_Startup( void ) {
  	Cmd_AddCommand( "which", FS_Which_f );
 	Cmd_SetCommandCompletionFunc( "which", FS_CompleteFileName );
 	Cmd_AddCommand( "fs_restart", FS_Reload );
+	Cmd_AddCommand( "listReferencedPaks", FS_ListReferencedPaks );
 
 	// print the current search paths
 	//FS_Path_f();
@@ -5227,6 +5238,44 @@ qboolean FS_ExcludeReference( void ) {
 
 /*
 =====================
+FS_ListReferencedPaks
+
+=====================
+*/
+void FS_ListReferencedPaks( void ) {
+	static char	info[BIG_INFO_STRING];
+	const searchpath_t *search;
+	const char *pakName;
+
+	info[0] = '\0';
+
+	// we want to return ALL pk3's from the fs_game path
+	// and referenced one's from baseq3
+	for ( search = fs_searchpaths; search; search = search->next ) {
+		// is the element a pak file?
+		if ( search->pack ) {
+			if ( search->pack->exclude ) {
+				continue;
+			}
+			if ( search->pack->referenced || Q_stricmp( search->pack->pakGamename, fs_baseGame->string ) ) {
+				const char *abname;
+				if ( search->pack->assetBase != TITLE_NONE ) abname = va( "%s:", assetBaseNames[search->pack->assetBase] );
+				else abname = "";
+				pakName = va( "%s%s/%s [%lu]\n", abname, search->pack->pakGamename, search->pack->pakBasename, (unsigned long)search->pack->checksum );
+				if ( *info != '\0' ) {
+					Q_strcat( info, sizeof( info ), " " );
+				}
+				Q_strcat( info, sizeof( info ), pakName );
+			}
+		}
+	}
+
+	Com_Printf( S_COL_BASE "Referenced PAK List: " S_COL_VAL "\n %s", info );
+}
+
+
+/*
+=====================
 FS_ReferencedPakNames
 
 Returns a space separated string containing the names of all referenced pk3 files.
@@ -5237,6 +5286,7 @@ const char *FS_ReferencedPakNames( void ) {
 	static char	info[BIG_INFO_STRING];
 	const searchpath_t *search;
 	const char *pakName;
+
 	info[0] = '\0';
 
 	// we want to return ALL pk3's from the fs_game path
@@ -5625,13 +5675,13 @@ void FS_Flush( fileHandle_t f )
 
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
-		qboolean stripExt, void(*callback)(const char *s), int flags ) {
+			qboolean stripExt, void(*callback)(const char *s), int flags ) {
 	char	filename[ MAX_STRING_CHARS ];
 	char	**filenames;
 	int		nfiles;
 	int		i;
 
-	filenames = FS_ListFilteredFiles( dir, ext, NULL, &nfiles, flags );
+	filenames = FS_ListFilteredFiles( TITLE_NONE, dir, ext, NULL, &nfiles, flags );
 
 	if ( nfiles >= 2 )
 		FS_SortFileList( filenames, nfiles-1 );

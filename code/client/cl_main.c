@@ -1886,16 +1886,6 @@ void CL_OpenedPK3List_f( void ) {
 
 /*
 ==================
-CL_PureList_f
-==================
-*/
-static void CL_ReferencedPK3List_f( void ) {
-	Com_Printf( "Referenced PK3 Names: %s\n", FS_ReferencedPakNames() );
-}
-
-
-/*
-==================
 CL_Configstrings_f
 ==================
 */
@@ -3735,7 +3725,7 @@ static void CL_InitGLimp_Cvars( void ) {
 	r_glDriver = Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
 	/**/Cvar_SetDescription( r_glDriver, "Specifies the OpenGL driver to use, will revert back to default if driver name set is invalid." );
 	
-	r_displayRefresh = Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH, "0", "250", CV_INTEGER );
+	r_displayRefresh = Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH, "0", "1000", CV_INTEGER );
 	/**/Cvar_SetDescription( r_displayRefresh, "Specify a display refresh rate in Hz, leave as 0 to let the hardware drivers decide." );
 
 	r_window_xPos = Cvar_Get( "r_window_xPos", "3", CVAR_ARCHIVE, "0", NULL, CV_INTEGER );
@@ -3927,7 +3917,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("serverStatus", CL_ServerStatus_f );
 	Cmd_AddCommand ("showIP", CL_ShowIP_f );
 	Cmd_AddCommand ("listOpenedPaks", CL_OpenedPK3List_f );
-	Cmd_AddCommand ("listReferencedPaks", CL_ReferencedPK3List_f );
 	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("video-pipe", CL_Video_f );
@@ -4010,7 +3999,6 @@ void CL_Shutdown( const char *finalmsg, qboolean quit ) {
 	Cmd_RemoveCommand ("serverStatus");
 	Cmd_RemoveCommand ("showIP");
 	Cmd_RemoveCommand ("listOpenedPaks");
-	Cmd_RemoveCommand ("listReferencedPaks");
 	Cmd_RemoveCommand ("model");
 	Cmd_RemoveCommand ("video");
 	Cmd_RemoveCommand ("stopVideo");
