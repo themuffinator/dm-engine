@@ -4834,6 +4834,21 @@ char *Com_ReplaceSubString(const char *s, const char *old, const char *new) {
 	return ret;
 }
 
+
+/*
+==================
+Com_AssetBaseString
+==================
+*/
+int Com_AssetBaseString( char *str ) {
+	char *s;
+
+	s = strstr( str, ":" );
+	if ( !s ) return TITLE_NONE;
+
+
+}
+
 #if 0
 /*
 ==================
