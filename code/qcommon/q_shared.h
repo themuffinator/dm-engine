@@ -72,14 +72,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEMOEXT	"dm_"			// standard demo extension
 
 typedef enum {
-	TITLE_DARKMATTER,
+	TITLE_NONE,
 	TITLE_QUAKE1,
 	TITLE_QUAKE2,
 	TITLE_QUAKE3,
 	TITLE_QUAKE4,
 	TITLE_QUAKELIVE,
+	TITLE_DARKMATTER,
 	TITLE_NUM_TITLES
-} gameTitle_enum_t;
+} assetBase_t;
 
 #ifdef _MSC_VER
 
