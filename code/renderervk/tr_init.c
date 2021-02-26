@@ -179,6 +179,14 @@ cvar_t *r_arc_region_right_x1;
 cvar_t *r_arc_region_right_y1;
 cvar_t *r_arc_region_right_x2;
 cvar_t *r_arc_region_right_y2;
+cvar_t *r_arc_region_top_x1;
+cvar_t *r_arc_region_top_y1;
+cvar_t *r_arc_region_top_x2;
+cvar_t *r_arc_region_top_y2;
+cvar_t *r_arc_region_bottom_x1;
+cvar_t *r_arc_region_bottom_y1;
+cvar_t *r_arc_region_bottom_x2;
+cvar_t *r_arc_region_bottom_y2;
 
 cvar_t *r_teleporterFlash;
 
@@ -1852,6 +1860,15 @@ static void R_Register( void )
 	ri.Cvar_SetDescription( r_arc_region_right_x2, "Right-side adjusted region for UI screen correction. Bottom-right X coordinate." );
 	r_arc_region_right_y2 = ri.Cvar_Get( "r_arc_region_right_y2", "64", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 	ri.Cvar_SetDescription( r_arc_region_right_y2, "Right-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
+
+	r_arc_region_top_x1 = ri.Cvar_Get( "r_arc_region_top_x1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_top_y1 = ri.Cvar_Get( "r_arc_region_top_y1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_top_x2 = ri.Cvar_Get( "r_arc_region_top_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_top_y2 = ri.Cvar_Get( "r_arc_region_top_y2", "100", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_bottom_x1 = ri.Cvar_Get( "r_arc_region_bottom_x1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_bottom_y1 = ri.Cvar_Get( "r_arc_region_bottom_y1", "432", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_bottom_x2 = ri.Cvar_Get( "r_arc_region_bottom_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
+	r_arc_region_bottom_y2 = ri.Cvar_Get( "r_arc_region_bottom_y2", "480", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
 
 	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
 	ri.Cvar_SetDescription( r_teleporterFlash, "Screen flash effect when teleporting:\n 0: Disabled\n 1: Black\n 2: White" );

@@ -14,9 +14,14 @@
 #define PARM_UNAVAILABLE	-999
 
 #define SCR_NONE 0
+
 #define SCR_LEFT 1
 #define SCR_MID 2
 #define SCR_RIGHT 3
+
+#define SCR_V_TOP 4
+#define SCR_V_MID 5
+#define SCR_V_BOTTOM 6
 
 
 /*
@@ -26,7 +31,28 @@ RE_ScrCoordToAlign
 Check coordinates to check if left/right screen space should be applied. Uses 640x480.
 =============
 */
-static int RE_ScrCoordToAlign( const int x1, const int y1, const int x2, const int y2 ) {
+static int RE_ScrCoordToAlign( const qboolean vertical, const int x1, const int y1, const int x2, const int y2 ) {
+	if ( vertical ) {
+		if ( r_arc_region_top_x1->integer || r_arc_region_top_x2->integer ||
+			r_arc_region_top_y1->integer || r_arc_region_top_y2->integer ) {
+			if ( x2 <= r_arc_region_top_x2->integer && y2 <= r_arc_region_top_y2->integer
+				&& x1 >= r_arc_region_top_x1->integer && y1 >= r_arc_region_top_y1->integer ) {
+				//Com_Printf( "x1=%i y1=%i x2=%i y2=%i --> TOP\n", x1, y1, x2, y2 );
+				return SCR_V_TOP;
+			}
+		}
+
+		if ( r_arc_region_bottom_x1->integer || r_arc_region_bottom_x2->integer ||
+			r_arc_region_bottom_y1->integer || r_arc_region_bottom_y2->integer ) {
+			if ( x2 <= r_arc_region_bottom_x2->integer && y2 <= r_arc_region_bottom_y2->integer
+				&& x1 >= r_arc_region_bottom_x1->integer && y1 >= r_arc_region_bottom_y1->integer ) {
+				//Com_Printf( "x1=%i y1=%i x2=%i y2=%i --> BOTTOM\n", x1, y1, x2, y2 );
+				return SCR_V_BOTTOM;
+			}
+		}
+
+		return SCR_V_MID;
+	}
 
 	if ( r_arc_region_left_x1->integer || r_arc_region_left_x2->integer ||
 			r_arc_region_left_y1->integer || r_arc_region_left_y2->integer ) {
@@ -58,15 +84,12 @@ Correct scaling and positioning for elements
 =============
 */
 void RE_ScaleCorrection( float *x, float *y, float *w, float *h, char *shaderName, const qboolean adjust, const int forceMode ) {
-	int mode = (forceMode >= 0) ? forceMode : r_arc_uiMode->integer;
+	const int mode = ( forceMode >= 0 ) ? forceMode : r_arc_uiMode->integer;
 
 	//Com_Printf( "RE_ScaleCorrection() x:%f y:%f w:%f h:%f\n", *x, *y, *w, *h );
 	if ( !mode || backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
 	else {
-		const float aratio = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
 		float xScale, yScale;
-		//const qboolean widescreen = (aratio > 1.3334) ? qtrue : qfalse;
-		//const qboolean tallscreen = (aratio < 0.75) ? qtrue : qfalse;
 		float mx, my, mw, mh;
 
 		mx = (float)*x;
@@ -77,106 +100,100 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, char *shaderNam
 		xScale = ( (float)glConfig.vidWidth / 640.0 );
 		yScale = ( (float)glConfig.vidHeight / 480.0 );
 
+		// no adjustments needed for 4:3
+		if ( xScale == yScale ) return;
+
 		//Com_Printf( "RE_ScaleCorrection(): mx:%f my:%f mw:%f mh:%f\n", mx, my, mw, mh );
 
 		switch ( mode ) {
-		case 1:	// uniform fit to shorter side
+		case 1:	// uniform fit to screen
 			{
-				if ( aratio >= (640.0f / 480.0f) ) {
-					mw /= xScale;
-					mw *= yScale;
-					mx /= xScale;
-					mx *= yScale;
-					mx += ( glConfig.vidWidth - (480.0 * xScale) ) / 2;
-				} else {
-					mh /= yScale;
-					mh *= xScale;
-					my /= ((float)glConfig.vidWidth/480.0);
-					my *= xScale;
-					my += ( glConfig.vidHeight - (480.0 * xScale) ) / 2;
+				if ( xScale > yScale ) {	// wide aspect - scale x w to height
+					if ( mx ) {
+						mx /= xScale;
+						mx *= yScale;
+						mx += ( glConfig.vidWidth - ( 640.0 * yScale ) ) * 0.5;
+					}
+					if ( mw ) {
+						mw /= xScale;
+						mw *= yScale;
+					}
+				} else {	// narrow/tall aspect - scale h to width
+					if ( my ) {
+						my /= yScale;
+						my *= xScale;
+						my += ( glConfig.vidHeight - ( 480.0 * xScale ) ) * 0.5;
+					}
+					if ( mh ) {
+						mh /= yScale;
+						mh *= xScale;
+					}
 				}
+				break;
 			}
-			break;
 		case 2:	// screen adjusted uniform scale
 			{
-				int salign;
+				if ( xScale > yScale ) {	// wide aspect
+					int sAlign;
 
-				// revert to 640x480
-				mx /= xScale;
-				my /= yScale;
-				mw /= xScale;
-				mh /= yScale;
+					// revert to 640x480
+					if ( mx ) mx /= xScale;
+					if ( mw ) mw /= xScale;
 
-				salign = RE_ScrCoordToAlign( mx, my, mx+mw, my+mh );
+					// determine horizontal screen space alignment
+					sAlign = RE_ScrCoordToAlign( qfalse, mx, my, mx + mw, my + mh );
 
-				// scale back up uniformly
-				mx *= yScale;
-				my *= yScale;
-				mw *= yScale;
-				mh *= yScale;
+					// scale back up uniformly
+					mx *= yScale;
+					mw *= yScale;
 
-				// adjust horizontal position
-				switch ( salign ) {
-				case SCR_MID:
-					mx += (glConfig.vidWidth - (640.0f * yScale)) * 0.5f;
-					break;
-				case SCR_RIGHT:
-					mx += glConfig.vidWidth - ( 640.0f * yScale );
-					break;
-				default: //SCR_LEFT
-					break;
+					// adjust horizontal position
+					switch ( sAlign ) {
+					case SCR_MID:
+						mx += ( glConfig.vidWidth - ( 640.0f * yScale ) ) * 0.5f;
+						break;
+					case SCR_RIGHT:
+						mx += glConfig.vidWidth - ( 640.0f * yScale );
+						break;
+					default: //SCR_LEFT
+						break;
+					}
+				} else {	//narrow/tall aspect
+					int sAlign;
+
+					// revert to 640x480
+					if ( my ) my /= yScale;
+					if ( mh ) mh /= yScale;
+
+					// determine horizontal screen space alignment
+					sAlign = RE_ScrCoordToAlign( qtrue, mx, my, mx + mw, my + mh );
+
+					// scale back up uniformly
+					if ( my ) my *= xScale;
+					if ( mh ) mh *= xScale;
+
+					// adjust horizontal position
+					switch ( sAlign ) {
+					case SCR_V_MID:
+						my += ( glConfig.vidHeight - ( 480.0f * xScale ) ) * 0.5f;
+						break;
+					case SCR_V_BOTTOM:
+						my += glConfig.vidHeight - ( 480.0f * xScale );
+						break;
+					default: //SCR_V_TOP
+						break;
+					}
 				}
-#if 0
-				//not correct atm, just for testing...
-				if ( aratio > 1.0 ) {
-					float oldW = mw;
-					
-					mw /= ((float)glConfig.vidWidth/640.0);
-					mw *= ((float)glConfig.vidHeight/480.0);
-					
-					mx += ( oldW - mw ) / 2;
-				} else {
-					float oldH = mh;
-
-					mh /= ((float)glConfig.vidHeight/480.0);
-					mh *= ((float)glConfig.vidWidth/640.0);
-					
-					my += ( oldH - mh ) / 2;
-				}
-#endif
-
+				break;
 			}
-			break;
-		default:	// screen-adjusted uniform scaling
-			{
-				//not correct atm, just for testing...
-				if ( aratio > 1.0 ) {
-					float oldW = mw;
-					
-					mw /= ((float)glConfig.vidWidth/640.0);
-					mw *= ((float)glConfig.vidHeight/480.0);
-					
-					mx += ( oldW - mw ) / 2;
-				} else {
-					float oldH = mh;
 
-					mh /= ((float)glConfig.vidHeight/480.0);
-					mh *= ((float)glConfig.vidWidth/640.0);
-					
-					my += ( oldH - mh ) / 2;
-				}
-#if 0
-				RE_RegisterElement(*x, *y, *w, *h, *shaderName);
-#endif
-			}
-			break;
+		default: break;
 		}
-		
+
 		*x = mx;
 		*y = my;
 		*w = mw;
 		*h = mh;
-		
 	}
 }
 

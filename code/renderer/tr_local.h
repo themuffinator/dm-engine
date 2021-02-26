@@ -1305,6 +1305,14 @@ extern	cvar_t *r_arc_region_right_x1;
 extern	cvar_t *r_arc_region_right_y1;
 extern	cvar_t *r_arc_region_right_x2;
 extern	cvar_t *r_arc_region_right_y2;
+extern	cvar_t *r_arc_region_top_x1;
+extern	cvar_t *r_arc_region_top_y1;
+extern	cvar_t *r_arc_region_top_x2;
+extern	cvar_t *r_arc_region_top_y2;
+extern	cvar_t *r_arc_region_bottom_x1;
+extern	cvar_t *r_arc_region_bottom_y1;
+extern	cvar_t *r_arc_region_bottom_x2;
+extern	cvar_t *r_arc_region_bottom_y2;
 
 extern	cvar_t	*r_teleporterFlash;
 
