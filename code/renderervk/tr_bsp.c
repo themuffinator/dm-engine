@@ -1618,7 +1618,7 @@ static void R_StitchAllPatches(void) {
 			numstitches += R_TryStitchingPatch(i);
 		}
 	} while (stitched);
-	ri.Printf(PRINT_ALL, "stitched %d LoD cracks\n", numstitches);
+	ri.Printf(PRINT_V_RENDERER, "Stitched %d LoD cracks.\n", numstitches);
 }
 
 
@@ -1725,7 +1725,7 @@ static void R_Q3_LoadSurfaces(const lump_t *surfs, const lump_t *verts, const lu
 	R_MovePatchSurfacesToHunk();
 #endif
 
-	ri.Printf(PRINT_ALL, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
+	ri.Printf( PRINT_V_RENDERER, "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
 		numFaces, numMeshes, numTriSurfs, numFlares);
 }
 
@@ -2316,7 +2316,7 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 	}
 
 	ri.Printf( PRINT_ALL, QSEP );
-	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n\n", ln ? longName : w->baseName );
+	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n", ln ? longName : w->baseName );
 }
 
 

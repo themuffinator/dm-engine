@@ -1575,7 +1575,7 @@ static void R_StitchAllPatches( void ) {
 		}
 	}
 	while (stitched);
-	ri.Printf( PRINT_V_RENDERER, "stitched %d LoD cracks\n", numstitches );
+	ri.Printf( PRINT_V_RENDERER, "Stitched %d LoD cracks.\n", numstitches );
 }
 
 
@@ -2271,7 +2271,7 @@ static void R_Q3_LoadEntities( const lump_t *l ) {
 	}
 
 	ri.Printf( PRINT_ALL, QSEP );
-	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n\n", ln ? longName : w->baseName );
+	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n", ln ? longName : w->baseName );
 }
 
 

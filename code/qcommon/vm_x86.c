@@ -2858,7 +2858,7 @@ __compile:
 
 	vm->destroy = VM_Destroy_Compiled;
 
-	Com_Printf( "VM file %s compiled to %i bytes of code\n", vm->name, compiledOfs );
+	Com_LPrintf( PRINT_V_COMMON, "VM file %s compiled to %i bytes of code\n", vm->name, compiledOfs );
 
 	return qtrue;
 }

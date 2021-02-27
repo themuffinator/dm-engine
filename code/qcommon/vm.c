@@ -756,10 +756,10 @@ static vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 
 	// load the image
 	Com_sprintf( filename, sizeof(filename), "vm/%s.qvm", vm->name );
-	Com_Printf( "Loading vm file %s...\n", filename );
+	Com_LPrintf( PRINT_V_COMMON, "Loading vm file %s...\n", filename );
 	length = FS_ReadFile( filename, (void **)&header );
 	if ( !header ) {
-		Com_Printf( "Failed.\n" );
+		Com_LPrintf( PRINT_V_COMMON, "Failed.\n" );
 		VM_Free( vm );
 		return NULL;
 	}
@@ -1742,7 +1742,7 @@ vm_t *VM_Create( vmIndex_t index, syscall_t systemCalls, dllSyscall_t dllSyscall
 	// load the map file
 	VM_LoadSymbols( vm );
 
-	Com_Printf( "%s loaded in %d bytes on the hunk\n", vm->name, remaining - Hunk_MemoryRemaining() );
+	Com_LPrintf( PRINT_V_COMMON, "%s loaded in %d bytes on the hunk\n", vm->name, remaining - Hunk_MemoryRemaining() );
 
 	return vm;
 }
