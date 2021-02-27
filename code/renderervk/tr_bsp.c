@@ -2232,6 +2232,8 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS], *v[3];
 	world_t *w;
+	const char *longName = "";
+	qboolean ln = qfalse;
 
 	w = &s_worldData;
 	w->lightGridSize[0] = 64;
@@ -2267,6 +2269,14 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 			break;
 		}
 		Q_strncpyz(value, token, sizeof(value));
+
+		// check for long map name
+		s = "message";
+		if ( !Q_strncmp( keyname, s, (int)strlen( s ) ) && !ln ) {
+			longName = va( "%s", value );
+			ln = qtrue;
+			continue;
+		}
 
 		// check for remapping of shaders for vertex lighting
 		s = "vertexremapshader";
@@ -2304,6 +2314,9 @@ static void R_Q3_LoadEntities(const lump_t *l) {
 			continue;
 		}
 	}
+
+	ri.Printf( PRINT_ALL, QSEP );
+	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n\n", ln ? longName : w->baseName );
 }
 
 
@@ -2935,6 +2948,9 @@ void RE_LoadWorldMap(const char *name) {
 		ri.Error(ERR_DROP, "%s: %s has unsupported version number (%i)", __func__, name, version);
 		break;
 	}
+
+	//Com_Printf( "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n" );
+	//ri.Printf( PRINT_ALL, S_COL_VAR "%s\n", s_worldData.longName[0] ? s_worldData.longName : s_worldData.name );
 
 #ifdef USE_VBO
 	R_BuildWorldVBO(s_worldData.surfaces, s_worldData.numsurfaces);
