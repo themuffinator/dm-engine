@@ -743,7 +743,7 @@ void SV_Init( void )
 	//sv_master[2] = Cvar_Get( "sv_master3", "master.maverickservers.com", CVAR_INIT | CVAR_ARCHIVE_ND );
 
 	for ( index = 0; index < MAX_MASTER_SERVERS; index++ )
-		sv_master[index] = Cvar_Get( va( "sv_master%d", index + 1 ), "", CVAR_ARCHIVE_ND );
+		sv_master[index] = Cvar_Get( va( "sv_master%d", index + 1 ), "", CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );
 
 	sv_reconnectLimit = Cvar_Get( "sv_reconnectLimit", "3", 0, "0", "12", CV_INTEGER );
 
