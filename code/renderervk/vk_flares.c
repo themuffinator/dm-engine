@@ -535,6 +535,9 @@ void RB_RenderFlares( void ) {
 	if ( !r_flares->integer ) {
 		return;
 	}
+	if ( backEnd.isHyperspace ) {
+		return;
+	}
 
 	if ( vk.renderPassIndex == RENDER_PASS_SCREENMAP ) {
 		return;
