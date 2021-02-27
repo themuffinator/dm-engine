@@ -43,7 +43,7 @@ const int demo_protocols[] = { 66, 67, PROTOCOL_VERSION, NEW_PROTOCOL_VERSION, 0
 #define DEF_COMHUNKMEGS		56
 #else
 #define MIN_COMHUNKMEGS		64
-#define DEF_COMHUNKMEGS		128
+#define DEF_COMHUNKMEGS		256
 #endif
 
 #ifdef USE_MULTI_SEGMENT
@@ -229,7 +229,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			
 			if ( logFile != FS_INVALID_HANDLE )
 			{
-				Com_Printf( "Logfile " CONSOLE_LOG_FILE "opened on %s\n", asctime( newtime ) );
+				Com_Printf( S_COL_BASE "Logfile " S_COL_VAL CONSOLE_LOG_FILE S_COL_BASE " opened on " S_COL_VAL "%s\n", asctime( newtime ) );
 
 				if ( mode & 1 )
 				{
