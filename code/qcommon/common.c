@@ -3647,7 +3647,7 @@ void Com_Init( char *commandLine ) {
 	int	qport;
 
 	Com_Printf( S_COL_VAR "%s " S_COL_VAL "%s " S_COL_VALB "%s\n", SVN_VERSION, PLATFORM_STRING, __DATE__ );
-	Com_Printf( S_COL_VALB "\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n" );
+	Com_Printf( QSEP );
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
