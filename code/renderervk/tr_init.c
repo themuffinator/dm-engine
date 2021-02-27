@@ -1698,7 +1698,8 @@ static void R_Register( void )
 	//
 	// archived variables that can change at any time
 	//
-	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE_ND | CVAR_CHEAT, NULL, NULL, CV_INTEGER );
+	r_lodCurveError = ri.Cvar_Get( "r_lodCurveError", "250", CVAR_ARCHIVE_ND, "-1", "8192", CV_INTEGER );
+	ri.Cvar_SetDescription( r_lodCurveError, "Level of detail error on curved surface grids." );
 	r_lodBias = ri.Cvar_Get( "r_lodBias", "0", CVAR_ARCHIVE_ND, "0", "3", CV_INTEGER );
 	ri.Cvar_SetDescription( r_lodBias, "Sets the level of detail of in-game models:\n 0: High\n 1: Medium\n 2: Low" );
 	r_flares = ri.Cvar_Get( "r_flares", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
