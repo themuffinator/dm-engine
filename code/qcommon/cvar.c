@@ -1428,6 +1428,7 @@ void Cvar_WriteVariables( fileHandle_t f )
 			continue;
 
 		if ( var->flags & CVAR_ARCHIVE ) {
+			int len;
 			// write the latched value, even if it hasn't taken effect yet
 			value = var->latchedString ? var->latchedString : var->string;
 			if ( strlen( var->name ) + strlen( value ) + 10 > sizeof( buffer ) ) {
@@ -1438,9 +1439,9 @@ void Cvar_WriteVariables( fileHandle_t f )
 			if ( (var->flags & CVAR_NODEFAULT) && !strcmp( value, var->resetString ) ) {
 				continue;
 			}
-			Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"" Q_NEWLINE, var->name, value );
+			len = Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"" Q_NEWLINE, var->name, value );
 
-			FS_Write( buffer, strlen( buffer ), f );
+			FS_Write( buffer, len, f );
 		}
 	}
 }

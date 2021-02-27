@@ -737,12 +737,13 @@ void SV_Init( void )
 	sv_allowDownload = Cvar_Get( "sv_allowDownload", "1", CVAR_SERVERINFO, "0", "1", CV_INTEGER );
 	Cvar_Get( "sv_dlURL", "", CVAR_SERVERINFO | CVAR_ARCHIVE, NULL, NULL, CV_NONE );
 
-	sv_master[0] = Cvar_Get( "sv_master1", MASTER_SERVER_NAME, CVAR_INIT, NULL, NULL, CV_NONE );
-	sv_master[1] = Cvar_Get( "sv_master2", "master.ioquake3.org", CVAR_INIT, NULL, NULL, CV_NONE );
-	sv_master[2] = Cvar_Get( "sv_master3", "master.maverickservers.com", CVAR_INIT, NULL, NULL, CV_NONE );
+	// moved to Com_Init()
+	//sv_master[0] = Cvar_Get( "sv_master1", MASTER_SERVER_NAME, CVAR_INIT | CVAR_ARCHIVE_ND );
+	//sv_master[1] = Cvar_Get( "sv_master2", "master.ioquake3.org", CVAR_INIT | CVAR_ARCHIVE_ND );
+	//sv_master[2] = Cvar_Get( "sv_master3", "master.maverickservers.com", CVAR_INIT | CVAR_ARCHIVE_ND );
 
-	for ( index = 3; index < MAX_MASTER_SERVERS; index++ )
-		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE, NULL, NULL, CV_NONE );
+	for ( index = 0; index < MAX_MASTER_SERVERS; index++ )
+		sv_master[index] = Cvar_Get( va( "sv_master%d", index + 1 ), "", CVAR_ARCHIVE_ND );
 
 	sv_reconnectLimit = Cvar_Get( "sv_reconnectLimit", "3", 0, "0", "12", CV_INTEGER );
 
