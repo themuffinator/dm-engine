@@ -1535,6 +1535,8 @@ static const void *RB_SwapBuffers( const void *data ) {
 	if ( backEnd.screenshotMask && tr.frameCount > 1 ) {
 
 		if ( superSampled ) {
+			qglScissor( 0, 0, captureWidth, captureHeight );
+			qglViewport( 0, 0, captureWidth, captureHeight );
 			FBO_BlitSS();
 		}
 
