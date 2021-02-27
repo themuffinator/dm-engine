@@ -449,6 +449,7 @@ extern	cvar_t	*cl_drawBuffer;
 //dm
 extern	cvar_t *cl_cinematics_arc;
 extern	cvar_t *cl_allowConsoleChat;
+extern	cvar_t *cl_loadScreenStyle;
 //-dm
 //=================================================
 

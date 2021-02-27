@@ -248,7 +248,7 @@ static void Con_Dump_f( void ) {
 	f = FS_FOpenFileWrite( filename );
 	if ( f == FS_INVALID_HANDLE )
 	{
-		Com_Printf( "ERROR: couldn't open %s.\n", filename );
+		Com_WPrintf( "Couldn't open file for writing: " S_COL_VAL "%s\n", filename );
 		return;
 	}
 
@@ -958,9 +958,10 @@ void Con_DrawConsole( void ) {
 	Con_CheckResize();
 
 	// if disconnected, render console full screen
-	if ( cls.state == CA_DISCONNECTED ) {
+	//TODO: save buffer contents to draw under console when cl_loadScreenStyle = 0
+	if ( cls.state == CA_DISCONNECTED || ( !cl_loadScreenStyle->integer && (cls.state == CA_LOADING || cls.state == CA_PRIMED || cls.state == CA_CONNECTED) ) ) {
 		if ( !( Key_GetCatcher() & ( KEYCATCH_UI | KEYCATCH_CGAME ) ) ) {
-			Con_DrawSolidConsole( 1.0, scrAdjust );
+			Con_DrawSolidConsole( ( cls.state == CA_DISCONNECTED ) ? 1.0 : 0.5, scrAdjust );
 			return;
 		}
 	}

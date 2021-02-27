@@ -533,6 +533,7 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
+	qboolean draw = cl_loadScreenStyle->integer;
 
 	re.BeginFrame( stereoFrame );
 
@@ -540,7 +541,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// non-4:3 aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
-	if ( uiFullscreen || cls.state < CA_LOADING ) {
+	//TODO: don't clear while loading and cl_loadScreenStyle = 0, save buffer to print under console
+	if ( uiFullscreen || cls.state < CA_ACTIVE ) {	//LOADING ) {
 		if ( cls.glconfig.vidWidth * 480 != cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[ColorIndex( COLOR_BLACK )] );
 			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
@@ -568,20 +570,19 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_CONNECTED:
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
-			VM_Call( uivm, 1, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, 1, UI_DRAW_CONNECT_SCREEN, qfalse );
+			if ( draw ) VM_Call( uivm, 1, UI_REFRESH, cls.realtime );
+			if ( draw ) VM_Call( uivm, 1, UI_DRAW_CONNECT_SCREEN, qfalse );
 			break;
 		case CA_LOADING:
 		case CA_PRIMED:
 			// draw the game information screen and loading progress
-			if ( cgvm ) {
-				CL_CGameRendering( stereoFrame );
-			}
+			if ( draw && cgvm ) CL_CGameRendering( stereoFrame );
+
 			// also draw the connection information, so it doesn't
 			// flash away too briefly on local or lan games
 			// refresh to update the time
-			VM_Call( uivm, 1, UI_REFRESH, cls.realtime );
-			VM_Call( uivm, 1, UI_DRAW_CONNECT_SCREEN, qtrue );
+			if ( draw ) VM_Call( uivm, 1, UI_REFRESH, cls.realtime );
+			if ( draw ) VM_Call( uivm, 1, UI_DRAW_CONNECT_SCREEN, qtrue );
 			break;
 		case CA_ACTIVE:
 			// always supply STEREO_CENTER as vieworg offset is now done by the engine.

@@ -91,6 +91,7 @@ cvar_t *cl_drawBuffer;
 //dm
 cvar_t *cl_cinematics_arc;
 cvar_t *cl_allowConsoleChat;
+cvar_t *cl_loadScreenStyle;
 //-dm
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -3763,8 +3764,10 @@ static void CL_InitGLimp_Cvars( void ) {
 //dm
 	cl_cinematics_arc = Cvar_Get( "cl_cinematics_arc", "1", 0, "0", "1", CV_INTEGER );
 	/**/Cvar_SetDescription( cl_cinematics_arc, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Use source aspect ratio." );
-	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", 0, "0", "1", CV_INTEGER );
+	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	/**/Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
+	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", 0, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style (WIP):\n 0: idTech2 loading bar + console\n 1: idTech3/idTech4 connecting and info screens" );
 //-dm
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get( "cl_renderer", "vulkan", CVAR_ARCHIVE | CVAR_LATCH, NULL, NULL, CV_NONE );
