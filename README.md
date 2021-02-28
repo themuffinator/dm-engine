@@ -4,18 +4,18 @@
 ## Introduction
 QUAKE communities have always been fractured as players gravitate towards a certain title. From Q1 to Q3, there are at least 1,500 quality community-made levels - many of which have either not received the acclaim they deserved or are slowly disappearing from online presence.
 
-DarkMatter is a project that will ultimately provide a unified platform for enjoying the classic QUAKE titles in specially-made mods on a robust, high-performing and stable engine. It will be split into engine and game logic modules, and focus on recreating and refining classic QUAKE gameplay experiences for a wider audience. Hundreds of custom-made levels will be given a new lease of life with high-def levelshots, author tags, entity and clipping fixes and detailed map variables to use in filterable map browsers and map cycles.
+DarkMatter is a project that will ultimately provide a unified platform for enjoying the classic QUAKE maps and titles in specially-made mods on a robust, high-performing and stable engine. It will be split into engine and game logic modules, and focus on recreating and refining classic QUAKE gameplay experiences for a wider audience. Hundreds of custom-made levels will be given a new lease of life with high-def levelshots, author tags, entity and clipping fixes as well as detailed map variables to use in filterable map browsers and map cycles.
 	
 **Current core engine features**
 * A flexible filesystem for loading from multiple game bases, with automatic detection of game installation paths.
 * Supporting maps and assets from QUAKE LIVE.
-* OGG Vorbis codec
+* Ogg Vorbis codec
 * Aspect-correct UI and expanded field of view (including weapon FOV) for widescreens
 * Entity override dumping and loading for servers to modify level items
 * Detailed cvar descriptions straight from the console, min and max values for all appropriate cvars
 * A number of added cvars and commands providing more customization and control
 
-More information including features and installation available in the assets/docs directory.
+More information including features and installation instructions available in the assets/docs directory.
 
 **Quake3e engine features**:
 
