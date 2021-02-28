@@ -5,6 +5,17 @@ Based on Quake3e - 16 Jan 2021 release
 
 CHANGELOG:
 ----------
+
+v1.5.1 (WIP):
++ cl_loadScreenStyle[0|1]: Sets loading screen display style:
+	0: Show console (idTech2 style)
+	1: idTech3/idTech4 connecting and info screens
++ Long map name + level authors printed to console ala-idTech2
++ Ported some changes from Q3E
++ Verbose message tweaks
++ Some tallscreen UI adjustments
+
+v1.5.0:
 + Windows: Automatic game installation path detection for CD, Steam and GOG installations of QUAKE, QUAKE II, QUAKE III: ARENA and QUAKE LIVE.
 	DarkMatter can be installed anywhere.
 	Paths are stored in (and can be overridden in command line) fs_%GAME%_path where %GAME% is q, q2, q3 or ql for the appropriate game.
@@ -65,4 +76,3 @@ CHANGELOG:
 	& 2: Client
 	& 4: Server
 	& 8: Renderer
-	
