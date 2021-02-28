@@ -3766,8 +3766,8 @@ static void CL_InitGLimp_Cvars( void ) {
 	/**/Cvar_SetDescription( cl_cinematics_arc, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Use source aspect ratio." );
 	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	/**/Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
-	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", 0, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style (WIP):\n 0: idTech2 loading bar + console\n 1: idTech3/idTech4 connecting and info screens" );
+	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+	/**/Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style:\n 0: Show console (idTech2 style)\n 1: idTech3/idTech4 connecting and info screens" );
 //-dm
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get( "cl_renderer", "vulkan", CVAR_ARCHIVE | CVAR_LATCH, NULL, NULL, CV_NONE );
