@@ -2226,97 +2226,118 @@ void R_Q3_LoadAdvertisements(const lump_t *l)
 R_Q3_LoadEntities
 ================
 */
-static void R_Q3_LoadEntities(const lump_t *l) {
-	const char *p, *token;
-	char *s;
-	char keyname[MAX_TOKEN_CHARS];
-	char value[MAX_TOKEN_CHARS], *v[3];
-	world_t *w;
-	const char *longName = "";
-	qboolean ln = qfalse;
+static void R_Q3_LoadEntities( const lump_t *l ) {
+	const char	*p, *token;
+	char		*s;
+	char		keyName[MAX_TOKEN_CHARS];
+	char		value[MAX_TOKEN_CHARS], *v[3];
+	world_t		*w;
+	char		klm[MAX_TOKEN_CHARS], ka1[MAX_TOKEN_CHARS], ka2[MAX_TOKEN_CHARS];
+	qboolean	ln, a1, a2;
+
+	ln = a1 = a2 = qfalse;
+	klm[0] = ka1[0] = ka2[0] = '\0';
 
 	w = &s_worldData;
 	w->lightGridSize[0] = 64;
 	w->lightGridSize[1] = 64;
 	w->lightGridSize[2] = 128;
 
-	p = (const char *)(fileBase + l->fileofs);
+	p = (const char *)( fileBase + l->fileofs );
 
 	// store for reference by the cgame
-	w->entityString = ri.Hunk_Alloc(l->filelen + 1, h_low);
-	strcpy(w->entityString, p);
+	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
+	strcpy( w->entityString, p );
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt(&p, qtrue);
-	if (*token != '{') {
+	token = COM_ParseExt( &p, qtrue );
+	if ( *token != '{' ) {
 		return;
 	}
 
 	// only parse the world spawn
-	while (1) {
+	while ( 1 ) {
 		// parse key
-		token = COM_ParseExt(&p, qtrue);
+		token = COM_ParseExt( &p, qtrue );
 
-		if (!*token || *token == '}') {
+		if ( !*token || *token == '}' ) {
 			break;
 		}
-		Q_strncpyz(keyname, token, sizeof(keyname));
+		Q_strncpyz( keyName, token, sizeof( keyName ) );
 
 		// parse value
-		token = COM_ParseExt(&p, qtrue);
+		token = COM_ParseExt( &p, qtrue );
 
-		if (!*token || *token == '}') {
+		if ( !*token || *token == '}' ) {
 			break;
 		}
-		Q_strncpyz(value, token, sizeof(value));
+		Q_strncpyz( value, token, sizeof( value ) );
 
 		// check for long map name
-		s = "message";
-		if ( !Q_strncmp( keyname, s, (int)strlen( s ) ) && !ln ) {
-			longName = va( "%s", value );
-			ln = qtrue;
-			continue;
+		if ( !ln ) {
+			s = "message";
+			if ( !Q_strncmp( keyName, s, (int)strlen( s ) ) ) {
+				Q_strncpyz( klm, value, sizeof( klm ) );
+				ln = qtrue;
+				continue;
+			}
+		}
+		// check for map author(s)
+		if ( !a1 ) {
+			s = "author";
+			if ( !Q_stricmp( keyName, s ) ) {
+				Q_strncpyz( ka1, value, sizeof( ka1 ) );
+				a1 = qtrue;
+				continue;
+			}
+		}
+		if ( !a2 ) {
+			s = "author2";
+			if ( !Q_stricmp( keyName, s ) ) {
+				Q_strncpyz( ka2, value, sizeof( ka2 ) );
+				a2 = qtrue;
+				continue;
+			}
 		}
 
 		// check for remapping of shaders for vertex lighting
 		s = "vertexremapshader";
-		if (!Q_strncmp(keyname, s, strlen(s))) {
-			s = strchr(value, ';');
-			if (!s) {
-				ri.Printf(PRINT_WARNING, "no semi colon in vertexshaderremap '%s'\n", value);
+		if ( !Q_strncmp( keyName, s, strlen( s ) ) ) {
+			s = strchr( value, ';' );
+			if ( !s ) {
+				ri.Printf( PRINT_WARNING, "No semicolon in vertexShaderRemap: " S_COL_VAL "%s\n", value );
 				break;
 			}
 			*s++ = '\0';
-			if (r_vertexLight->integer && tr.vertexLightingAllowed) {
-				RE_RemapShader(value, s, "0");
+			if ( r_vertexLight->integer && tr.vertexLightingAllowed ) {
+				RE_RemapShader( value, s, "0" );
 			}
 			continue;
 		}
 		// check for remapping of shaders
 		s = "remapshader";
-		if (!Q_strncmp(keyname, s, (int)strlen(s))) {
-			s = strchr(value, ';');
-			if (!s) {
-				ri.Printf(PRINT_WARNING, "no semi colon in shaderremap '%s'\n", value);
+		if ( !Q_strncmp( keyName, s, (int)strlen( s ) ) ) {
+			s = strchr( value, ';' );
+			if ( !s ) {
+				ri.Printf( PRINT_WARNING, "No semicolon in shaderRemap: " S_COL_VAL "%s\n", value );
 				break;
 			}
 			*s++ = '\0';
-			RE_RemapShader(value, s, "0");
+			RE_RemapShader( value, s, "0" );
 			continue;
 		}
 		// check for a different grid size
-		if (!Q_stricmp(keyname, "gridsize")) {
-			//sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
-			Com_Split(value, v, 3, ' ');
-			w->lightGridSize[0] = Q_atof(v[0]);
-			w->lightGridSize[1] = Q_atof(v[1]);
-			w->lightGridSize[2] = Q_atof(v[2]);
+		if ( !Q_stricmp( keyName, "gridsize" ) ) {
+			Com_Split( value, v, 3, ' ' );
+			w->lightGridSize[0] = Q_atof( v[0] );
+			w->lightGridSize[1] = Q_atof( v[1] );
+			w->lightGridSize[2] = Q_atof( v[2] );
 			continue;
 		}
 	}
 
 	ri.Printf( PRINT_ALL, QSEP );
-	ri.Printf( PRINT_ALL, S_COL_VAR "%s\n", ln ? longName : w->baseName );
+	ri.Printf( PRINT_ALL, S_COL_VAR "%s%s\n", ln ? klm : w->baseName, ( a1 || a2 ) ? va( " %c%c[%s%c%c%s%s]", Q_COLOR_ESCAPE, COL_VALB, ka1, Q_COLOR_ESCAPE, COL_VALB, ( a1 && a2 ) ? " | " : "", ka2 ) : "" );
 }
 
 
