@@ -14,6 +14,8 @@ v1.5.1 (WIP):
 + Ported some changes from Q3E
 + Verbose message tweaks
 + Some tallscreen UI adjustments
++ fs_useBaseHome [0|1]: Sets fs_homePath to fs_basePath (avoids using %APPDATA%/DarkMatter in Windows)
++ s_announcerScale <0.0-2.0>: Scales volume of the in-game announcer.
 
 v1.5.0:
 + Windows: Automatic game installation path detection for CD, Steam and GOG installations of QUAKE, QUAKE II, QUAKE III: ARENA and QUAKE LIVE.

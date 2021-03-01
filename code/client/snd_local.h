@@ -189,6 +189,7 @@ extern	dma_t	dma;
 extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
 extern cvar_t *s_volume;
+extern cvar_t *s_announcerScale;
 extern cvar_t *s_musicVolume;
 extern cvar_t *s_doppler;
 extern cvar_t *s_muteWhenUnfocused;

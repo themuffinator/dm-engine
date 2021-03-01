@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_public.h"
 
 cvar_t *s_volume;
+cvar_t *s_announcerScale;
 cvar_t *s_musicVolume;
 cvar_t *s_doppler;
 cvar_t *s_muteWhenMinimized;
@@ -412,6 +413,8 @@ void S_Init( void )
 
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
 	/**/Cvar_SetDescription(s_volume, "Sets master volume for all game audio.");
+	s_announcerScale = Cvar_Get( "s_announcerScale", "1.0", CVAR_ARCHIVE, "0", "2", CV_FLOAT );
+	/**/Cvar_SetDescription( s_announcerScale, "Scales volume of the in-game announcer.");
 	s_musicVolume = Cvar_Get( "s_musicVolume", "0.25", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
 	/**/Cvar_SetDescription(s_musicVolume, "Sets volume for in-game music.");
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );

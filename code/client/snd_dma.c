@@ -594,6 +594,7 @@ static void S_Base_StartSound( const vec3_t origin, int entityNum, int entchanne
 	ch->thesfx = sfx;
 	ch->startSample = START_SAMPLE_IMMEDIATE;
 	ch->entchannel = entchannel;
+	if ( ch->entchannel == CHAN_ANNOUNCER ) ch->master_vol *= s_announcerScale->value;
 	ch->leftvol = ch->master_vol;		// these will get calced at next spatialize
 	ch->rightvol = ch->master_vol;		// unless the game isn't running
 	ch->doppler = qfalse;
@@ -759,7 +760,7 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 		loopSounds[entityNum].dopplerScale = lenb/(lena*100);
 		if (loopSounds[entityNum].dopplerScale<=1.0) {
 			loopSounds[entityNum].doppler = qfalse;			// don't bother doing the math
-		} else if (loopSounds[entityNum].dopplerScale>MAX_DOPPLER_SCALE) {
+		} else if (loopSounds[entityNum].dopplerScale > MAX_DOPPLER_SCALE) {
 			loopSounds[entityNum].dopplerScale = MAX_DOPPLER_SCALE;
 		}
 	}
