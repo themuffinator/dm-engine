@@ -1040,9 +1040,15 @@ static qboolean SV_EntityFile_Read( void ) {
 	fname = SV_EntityFile_Path( sv_ent_load_path->string, sv_mapname->string );
 	if ( !FS_FileExists( fname ) ) return qfalse;
 
-	len = FS_ReadFile(fname, &f.v);
+	len = FS_ReadFile( fname, &f.v );
 	if ( f.c ) {
 		text = f.c;
+
+		if ( !Q_stristr( text, "{" ) || !Q_stristr( text, "}" ) ) {
+			Com_WPrintf( "Entity file with missing brace, discarded: " S_COL_VAL "%s\n", fname );
+			FS_FreeFile( f.v );
+			return qfalse;
+		}
 
 		// start the entity parsing at the beginning
 		CMod_OverrideEntityString( text, len );
@@ -1083,7 +1089,7 @@ static void SV_EntityFile_Write(const qboolean entor) {
 
 	if ( fw ) {
 		FS_Write( sv.entityParsePoint, strlen(sv.entityParsePoint), fw );
-		Com_Printf( S_COL_BASE "Exported entities to file: %s.\n", fname );
+		Com_Printf( S_COL_BASE "Exported entities to file: " S_COL_VAL "%s" S_COL_BASE ".\n", fname );
 		FS_FCloseFile( fw );
 	}
 }
