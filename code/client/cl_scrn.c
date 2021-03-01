@@ -57,18 +57,16 @@ Adjusted for resolution and screen aspect ratio
 ================
 */
 void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdjustEnum_t scrAlign ) {
-	float		xScale, yScale;
-	qboolean	wide;
+	float xScale, yScale;
 
 	if ( scrAlign == SA_NONE ) return;
 
-	wide = ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) ? qtrue : qfalse;
-
 	// scale for screen sizes
-	xScale = cls.glconfig.vidWidth / 640.0;
-	yScale = cls.glconfig.vidHeight / 480.0;
+	xScale = (float)cls.glconfig.vidWidth / 640.0;
+	yScale = (float)cls.glconfig.vidHeight / 480.0;
 
-	if ( !wide ) {
+	// simply scale to screen boundaries if 4:3
+	if ( xScale == yScale ) {
 		if ( x ) *x *= xScale;
 		if ( y ) *y *= yScale;
 		if ( w ) *w *= xScale;
