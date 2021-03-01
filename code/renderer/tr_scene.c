@@ -434,24 +434,19 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 		}
 	}
 
-//fnq
+//dm
 	// do aspect correction for 3D HUD elements
 	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
-	//if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && r_arc_uiMode->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 
-		RE_ScaleCorrection(&x, &y, &w, &h, NULL, 1, -1);
-
-		//ri.Printf(PRINT_ALL, "RE_RenderScene() arcMode 1: x:%i->%f y:%i->%f w:%i->%f h:%i->%f\n", tr.refdef.x, x, tr.refdef.y, y, tr.refdef.width, w, tr.refdef.height, h);
+		RE_ScaleCorrection(&x, &y, &w, &h, -1);
 
 		tr.refdef.x = (int)x;
 		tr.refdef.y = (int)y;
 		tr.refdef.width = (int)w;
 		tr.refdef.height = (int)h;
-
-		//ri.Printf(PRINT_ALL, "RE_RenderScene() arcMode 1: x:%i y:%i w:%i h:%i\n", tr.refdef.x, tr.refdef.y, tr.refdef.width, tr.refdef.height);
 	}
-//-fnq
+//-dm
 
 	// derived info
 
@@ -515,22 +510,19 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;
 
-//openarena: engine-based aspect correction
-	// leilei - widescreen
+	//engine-based aspect correction, slightly modified code originally by leilei (openarena)
 	// recalculate fov according to widescreen parameters
 	if (r_arc_fov->integer && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
 		const float afratio = (tr.refdef.fov_x / tr.refdef.fov_y);
 		float zoomfov = tr.refdef.fov_x / 90;	// figure out our zoom or changed fov magnitiude from cg_fov and cg_zoomFOV
 
 		// try not to recalculate fov of ui and hud elements
-		//if ( (aratio > 1.3334) && (tr.refdef.width > 320) && (tr.refdef.height > 240) ) {
 		if (afratio >= 1.3333) {
-			const float aratio = (float)glConfig.vidWidth / (float)glConfig.vidHeight;
-			if (aratio >= 1.3333) {
+			const float aratio = ((float)glConfig.vidWidth / 640.0) - ((float)glConfig.vidHeight / 480.0);
+			if (aratio > 1) {
 				// undo vert-
 				parms.fovY = parms.fovY * (73.739792 / tr.refdef.fov_y) * zoomfov;
-			}
-			else {
+			} else {
 				// undo vert-
 				parms.fovY = parms.fovY * (73.739792 / tr.refdef.fov_y) * zoomfov;
 				// undo hor-
@@ -541,9 +533,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame ) {
 		parms.fovX = (atan(glConfig.vidWidth / (glConfig.vidHeight / tan((parms.fovY * M_PI) / 360.0f))) * 360.0f) / M_PI;
 		parms.fovY = (atan(glConfig.vidHeight / (glConfig.vidWidth / tan((parms.fovX * M_PI) / 360.0f))) * 360.0f) / M_PI;
 	}
-	// leilei - end
-//-openarena
-	
+
 	parms.stereoFrame = tr.refdef.stereoFrame;
 
 	VectorCopy( fd->vieworg, parms.or.origin );

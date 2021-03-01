@@ -1927,7 +1927,7 @@ void RE_VertexLighting( qboolean allowed );
 void *R_GetCommandBuffer(int bytes);
 
 // tr_arc.c
-void RE_ScaleCorrection(float *x, float *y, float *w, float *h, char *shaderName, const qboolean adjust, const int forceMode);
+void RE_ScaleCorrection(float *x, float *y, float *w, float *h, const int forceMode);
 void RE_StretchAspectPic(float x, float y, float w, float h,
 	float s1, float t1, float s2, float t2, qhandle_t hShader, const qboolean cgame);
 

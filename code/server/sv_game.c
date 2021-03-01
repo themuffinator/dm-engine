@@ -1010,7 +1010,7 @@ TODO: handle string tokens for gametypes, server ports etc?
 TODO/FIXME: fix any possible incorrect pathing in cvar values
 ==================
 */
-static char *SV_EntityFile_Path( const char *in, const char *mapname ) {
+const char *SV_EntityFile_Path( const char *in, const char *mapname ) {
 	char fname[MAX_QPATH];
 
 	Com_sprintf(fname, sizeof(fname), "maps/%s%s%s.ent", in, in[0] ? "/" : "", mapname);
@@ -1024,49 +1024,40 @@ SV_EntityFile_Read
 
 ==================
 */
-static qboolean SV_EntityFile_Read(void) {
+static qboolean SV_EntityFile_Read( void ) {
 	const char	*fname;
 	qboolean	entor = qfalse;
+	union {
+		char	*c;
+		void	*v;
+	} f;
+	long		len;
+	char		*text;
 
-	if (!sv_ent_load->integer) return qfalse;
+	if ( !sv_ent_load->integer ) return qfalse;
 
 	// load ent file if it exists
-	fname = SV_EntityFile_Path(sv_ent_load_path->string, sv_mapname->string);
+	fname = SV_EntityFile_Path( sv_ent_load_path->string, sv_mapname->string );
+	if ( !FS_FileExists( fname ) ) return qfalse;
 
-	if (FS_FileExists(fname)) {
-		union {
-			char *c;	//c[65536];
-			void *v;
-		} f;
-		long		len;
-		char *text;
+	len = FS_ReadFile(fname, &f.v);
+	if ( f.c ) {
+		text = f.c;
 
-		//Com_Printf( "Attempting to read override file (%s)...\n", fname );
-		len = FS_ReadFile(fname, &f.v);
-		//Com_Printf( "Reading entity override file (%s).\n", fname );
-		if (f.c) {
-			text = f.c;
-			//Com_Printf( "Entity override file length: %ld\n ", len );
-			////Com_Printf( "\nEntity override file string:\n " S_COLOR_CYAN "%s\n\n" S_COLOR_WHITE, text );
+		// start the entity parsing at the beginning
+		CMod_OverrideEntityString( text, len );
+		sv.entityParsePoint = CM_EntityString();
+		Com_Printf( S_COL_BASE "Entities loaded from " S_COL_VAL "%s" S_COL_BASE ".\n", fname );
 
-			// start the entity parsing at the beginning
-			//Com_Printf( "Attempting to override entity string from file (%s)...\n", fname );
-			CMod_OverrideEntityString(text, len);
-			sv.entityParsePoint = CM_EntityString();
-			Com_Printf( "Entities loaded from %s.\n", fname );
-
-			entor = qtrue;
-		}
-		else {
-			//Com_Printf( "Entity override file is empty (%s).\n", fname );
-		}
-		FS_FreeFile(f.v);
+		entor = qtrue;
+	} else {
+		Com_WPrintf( "Empty entity file: " S_COL_VAL "%s\n", fname );
 	}
-	else {
-		//Com_Printf( "No entity override file (%s) found for current map.\n", fname );
-	}
+	FS_FreeFile( f.v );
+
 	return entor;
 }
+
 
 /*
 ==================
@@ -1086,15 +1077,14 @@ static void SV_EntityFile_Write(const qboolean entor) {
 
 	fname = SV_EntityFile_Path(sv_ent_dump_path->string, sv_mapname->string);
 
-	if (!FS_FileExists(fname)) {
-		//Com_Printf( "Attempting to write entity override file: %s...\n", wfname );
-		fw = FS_FOpenFileWrite(fname);	// , qfalse);
+	if ( FS_FileExists( fname ) ) return;
 
-		if (fw) {
-			FS_Write(sv.entityParsePoint, strlen(sv.entityParsePoint), fw);
-			//Com_Printf( "Saved entity override file: %s.\n", wfname );
-			FS_FCloseFile(fw);
-		}
+	fw = FS_FOpenFileWrite( fname );
+
+	if ( fw ) {
+		FS_Write( sv.entityParsePoint, strlen(sv.entityParsePoint), fw );
+		Com_Printf( S_COL_BASE "Exported entities to file: %s.\n", fname );
+		FS_FCloseFile( fw );
 	}
 }
 
@@ -1105,8 +1095,8 @@ SV_InitEntities
 
 ==================
 */
-static void SV_InitEntities(void) {
-	SV_EntityFile_Write(SV_EntityFile_Read());
+static void SV_InitEntities( void ) {
+	SV_EntityFile_Write( SV_EntityFile_Read() );
 }
 
 
@@ -1121,7 +1111,6 @@ static void SV_InitGameVM( qboolean restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning
-	//sv.entityParsePoint = CM_EntityString();
 	SV_InitEntities();
 
 	// clear all gentity pointers that might still be set from

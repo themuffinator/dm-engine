@@ -83,10 +83,9 @@ RE_ScaleCorrection
 Correct scaling and positioning for elements
 =============
 */
-void RE_ScaleCorrection( float *x, float *y, float *w, float *h, char *shaderName, const qboolean adjust, const int forceMode ) {
+void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int forceMode ) {
 	const int mode = ( forceMode >= 0 ) ? forceMode : r_arc_uiMode->integer;
 
-	//Com_Printf( "RE_ScaleCorrection() x:%f y:%f w:%f h:%f\n", *x, *y, *w, *h );
 	if ( !mode || backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
 	else {
 		float xScale, yScale;
@@ -102,8 +101,6 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, char *shaderNam
 
 		// no adjustments needed for 4:3
 		if ( xScale == yScale ) return;
-
-		//Com_Printf( "RE_ScaleCorrection(): mx:%f my:%f mw:%f mh:%f\n", mx, my, mw, mh );
 
 		switch ( mode ) {
 		case 1:	// uniform fit to screen
@@ -264,11 +261,11 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 	else if ( /*!strstr(cmd->shader->name, "levelshots") && */Q_stricmp(mod, "cpma") && (w < glConfig.vidWidth && h < glConfig.vidHeight) ) {
 		if (/* (w == glConfig.vidWidth && h == glConfig.vidHeight) && */r_arc_uiMode->integer == 1 ) {
 			//Com_Printf( "RE_StretchAspectPic() arcMode 1: x:%f y:%f w:%f h:%f\n", x, y, w, h );
-			RE_ScaleCorrection( &x, &y, &w, &h, cmd->shader->name, X_ALIGN_CENTER, -1 );
+			RE_ScaleCorrection( &x, &y, &w, &h, -1 );
 		}
 		// uniform fill
 		else if (/* (w == glConfig.vidWidth && h == glConfig.vidHeight) && */r_arc_uiMode->integer > 1 ) {
-			RE_ScaleCorrection( &x, &y, &w, &h, cmd->shader->name, X_ALIGN_CENTER, -1 );
+			RE_ScaleCorrection( &x, &y, &w, &h, -1 );
 		}
 	}
 #if 0
