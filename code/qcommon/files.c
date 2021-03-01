@@ -301,6 +301,7 @@ typedef struct searchpath_s {
 static	char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
 static	cvar_t		*fs_debug;
 static	cvar_t		*fs_homePath;
+static	cvar_t		*fs_useBaseHome;
 
 static	cvar_t		*fs_gameDetect;
 
@@ -4796,8 +4797,10 @@ static void FS_Startup( void ) {
 
 	if ( !fs_baseGame->string[0] )
 		Com_Error( ERR_FATAL, "* fs_baseGame is not set *" );
+
+	fs_useBaseHome = Cvar_Get( "fs_useBaseHome", "0", CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, "0", "1", CV_INTEGER );
 	
-	homePath = Sys_DefaultHomePath();
+	homePath = fs_useBaseHome->integer ? fs_basePath->string : Sys_DefaultHomePath();
 	if ( !homePath || !homePath[0] ) {
 		homePath = fs_basePath->string;
 	}
