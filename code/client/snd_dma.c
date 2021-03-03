@@ -474,7 +474,7 @@ static void S_Base_StartSound( const vec3_t origin, int entityNum, int entchanne
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_WPrintf( "S_StartSound: Handle %i out of range.\n", sfxHandle );
+		Com_WPrintf( "%s: Handle %i out of range.\n", __func__, sfxHandle );
 		return;
 	}
 
@@ -612,7 +612,7 @@ static void S_Base_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_WPrintf( "S_StartLocalSound: Handle %i out of range.\n", sfxHandle );
+		Com_WPrintf( "%s: Handle %i out of range.\n", __func__, sfxHandle );
 		return;
 	}
 
@@ -721,7 +721,7 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_WPrintf( "S_AddLoopingSound: Handle %i out of range.\n", sfxHandle );
+		Com_WPrintf( "%s: Handle %i out of range.\n", __func__, sfxHandle );
 		return;
 	}
 
@@ -785,7 +785,7 @@ void S_Base_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= s_numSfx ) {
-		Com_WPrintf( "S_AddRealLoopingSound: Handle %i out of range.\n", sfxHandle );
+		Com_WPrintf( "%s: Handle %i out of range.\n", __func__, sfxHandle );
 		return;
 	}
 

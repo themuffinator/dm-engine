@@ -765,7 +765,7 @@ static void CM_SetBorderInward( facet_t *facet, const cGrid_t *grid, int gridPla
 			facet->borderPlanes[k] = -1;
 		} else {
 			// bisecting side border
-			Com_WDPrintf( "CM_SetBorderInward: Mixed plane sides.\n" );
+			Com_WDPrintf( "%s: Mixed plane sides.\n", __func__ );
 			facet->borderInward[k] = qfalse;
 			if ( !debugBlock ) {
 				debugBlock = qtrue;
@@ -983,7 +983,7 @@ static void CM_AddFacetBevels( facet_t *facet ) {
 					} //end if
 					ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
 					if (!w2) {
-						Com_WDPrintf( "CM_AddFacetBevels: Invalid bevel.\n");
+						Com_WDPrintf( "%s: Invalid bevel.\n", __func__ );
 						continue;
 					}
 					else {

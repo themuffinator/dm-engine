@@ -931,12 +931,12 @@ static SOCKET NET_IPSocket( const char *net_interface, int port, int *err ) {
 
 	if( ( newsocket = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
 		*err = socketError;
-		Com_WPrintf( "NET_IPSocket: socket:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: socket:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		return newsocket;
 	}
 	// make it non-blocking
 	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR ) {
-		Com_WPrintf( "NET_IPSocket: ioctl FIONBIO:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: ioctl FIONBIO:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		*err = socketError;
 		closesocket(newsocket);
 		return INVALID_SOCKET;
@@ -944,7 +944,7 @@ static SOCKET NET_IPSocket( const char *net_interface, int port, int *err ) {
 
 	// make it broadcast capable
 	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, (char *) &i, sizeof(i) ) == SOCKET_ERROR ) {
-		Com_WPrintf( "NET_IPSocket: setsockopt SO_BROADCAST:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: setsockopt SO_BROADCAST:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 	}
 
 	if( !net_interface || !net_interface[0]) {
@@ -968,7 +968,7 @@ static SOCKET NET_IPSocket( const char *net_interface, int port, int *err ) {
 	}
 
 	if( bind( newsocket, (void *)&address, sizeof(address) ) == SOCKET_ERROR ) {
-		Com_WPrintf( "NET_IPSocket: bind:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: bind:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		*err = socketError;
 		closesocket( newsocket );
 		return INVALID_SOCKET;
@@ -1004,13 +1004,13 @@ static SOCKET NET_IP6Socket( const char *net_interface, int port, struct sockadd
 
 	if( ( newsocket = socket( PF_INET6, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
 		*err = socketError;
-		Com_WPrintf( "NET_IP6Socket: socket:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: socket:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		return newsocket;
 	}
 
 	// make it non-blocking
 	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR ) {
-		Com_WPrintf( "NET_IP6Socket: ioctl FIONBIO:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: ioctl FIONBIO:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		*err = socketError;
 		closesocket(newsocket);
 		return INVALID_SOCKET;
@@ -1024,7 +1024,7 @@ static SOCKET NET_IP6Socket( const char *net_interface, int port, struct sockadd
 		if(setsockopt(newsocket, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &i, sizeof(i)) == SOCKET_ERROR)
 		{
 			// win32 systems don't seem to support this anyways.
-			Com_WDPrintf( "NET_IP6Socket: Setsockopt IPV6_V6ONLY: %s\n", NET_ErrorString());
+			Com_WDPrintf( "%s: Setsockopt IPV6_V6ONLY: %s\n", __func__, NET_ErrorString());
 		}
 	}
 #endif
@@ -1050,7 +1050,7 @@ static SOCKET NET_IP6Socket( const char *net_interface, int port, struct sockadd
 	}
 
 	if( bind( newsocket, (void *)&address, sizeof(address) ) == SOCKET_ERROR ) {
-		Com_WPrintf( "NET_IP6Socket: bind:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: bind:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		*err = socketError;
 		closesocket( newsocket );
 		return INVALID_SOCKET;
@@ -1075,8 +1075,8 @@ static void NET_SetMulticast6( void )
 
 	if(!*net_mcast6addr->string || !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *) &addr, sizeof(addr), AF_INET6))
 	{
-		Com_WPrintf( "NET_JoinMulticast6: Incorrect multicast address given, "
-			   "please set cvar %s to a sane value.\n", net_mcast6addr->name );
+		Com_WPrintf( "%s: Incorrect multicast address given, "
+			   "please set cvar %s to a sane value.\n", __func__, net_mcast6addr->name );
 		
 		Cvar_SetIntegerValue( net_enabled->name, net_enabled->integer | NET_DISABLEMCAST );
 		
@@ -1187,17 +1187,17 @@ static void NET_OpenSocks( int port ) {
 	Com_Printf( "Opening connection to SOCKS server.\n" );
 
 	if ( ( socks_socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET ) {
-		Com_WPrintf( "NET_OpenSocks: socket:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: socket:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		return;
 	}
 
 	h = gethostbyname( net_socksServer->string );
 	if ( h == NULL ) {
-		Com_WPrintf( "NET_OpenSocks: gethostbyname:" S_COL_VAL "%s\n", NET_ErrorString() );
+		Com_WPrintf( "%s: gethostbyname:" S_COL_VAL "%s\n", __func__, NET_ErrorString() );
 		return;
 	}
 	if ( h->h_addrtype != AF_INET ) {
-		Com_WPrintf( "NET_OpenSocks: gethostbyname: Address type was not AF_INET.\n" );
+		Com_WPrintf( "%s: gethostbyname: Address type was not AF_INET.\n", __func__ );
 		return;
 	}
 	address.sin_family = AF_INET;
