@@ -303,16 +303,12 @@ void QDECL Com_LPrintf( printParm_t level, const char *fmt, ...) {
 ================
 Com_WPrintf
 
-A Com_Printf for warning messages only in developer mode
+A Com_Printf for warning messages
 ================
 */
 void QDECL Com_WPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-
-	if ( !com_developer || !com_developer->integer ) {
-		return;			// don't confuse non-developers with techie stuff...
-	}
 
 	va_start( argptr, fmt );
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
@@ -326,12 +322,16 @@ void QDECL Com_WPrintf( const char *fmt, ... ) {
 ================
 Com_WDPrintf
 
-A Com_Printf for warning messages
+A Com_Printf for warning messages only in developer mode
 ================
 */
 void QDECL Com_WDPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
+
+	if ( !com_developer || !com_developer->integer ) {
+		return;			// don't confuse non-developers with techie stuff...
+	}
 
 	va_start( argptr, fmt );
 	Q_vsnprintf( msg, sizeof( msg ), fmt, argptr );
@@ -2856,7 +2856,7 @@ static void Com_PushEvent( const sysEvent_t *event ) {
 		// don't print the warning constantly, or it can give time for more...
 		if ( !printedWarning ) {
 			printedWarning = qtrue;
-			Com_WPrintf( "Com_PushEvent overflow.\n" );
+			Com_WPrintf( "%s: Overflow.\n", __func__ );
 		}
 
 		if ( ev->evPtr ) {
