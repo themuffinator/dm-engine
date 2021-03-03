@@ -374,9 +374,11 @@ void S_memoryLoad( sfx_t *sfx ) {
 
 	// load the sound file
 	if ( !S_LoadSound ( sfx ) ) {
-		Q_strncpyz( sfx->soundName, va( "sound/%s", sfx->soundName ), sizeof( sfx->soundName ) );
+		//dm: sound compatibility for Quake 2
+		if ( Q_strncmp( sfx->soundName, "sound/", 6 ) )
+			Q_strncpyz( sfx->soundName, va( "sound/%s", sfx->soundName ), sizeof( sfx->soundName ) );
 		if ( !S_LoadSound( sfx ) ) {
-			Com_DPrintf( S_COLOR_YELLOW "WARNING: Couldn't load sound: " S_COL_VAL "%s\n", sfx->soundName );
+			Com_WDPrintf( "Couldn't load sound: " S_COL_VAL "%s\n", sfx->soundName );
 			sfx->defaultSound = qtrue;
 		}
 	}
