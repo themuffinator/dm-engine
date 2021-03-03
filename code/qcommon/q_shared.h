@@ -434,7 +434,7 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 
 //#define SMALLCHAR_WIDTH		8
 //#define SMALLCHAR_HEIGHT	16
-#define SMALLCHAR_WIDTH		6
+#define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	12
 
 //#define BIGCHAR_WIDTH		16
