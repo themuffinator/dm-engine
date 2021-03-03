@@ -258,6 +258,9 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 	const char *limit;
 	float valuef;
 	int	  valuei;
+	qboolean	warnIntegral, warnNumeric, warnRange, warnPatterns;
+
+	warnIntegral = warnNumeric = warnRange = warnPatterns = qfalse;
 
 	if ( var->validator == CV_NONE )
 		return value;
@@ -270,13 +273,13 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 	if ( var->validator == CV_INTEGER || var->validator == CV_FLOAT ) {
 		if ( !Q_isanumber( value ) ) {
 			if ( warn )
-				Com_WPrintf( "Cvar '%s' must be numeric", var->name );
+				warnNumeric = qtrue;
 			limit = var->resetString;
 		} else {
 			if ( var->validator == CV_INTEGER ) {
 				if ( !Cvar_IsIntegral( value ) ) {
 					if ( warn )
-						Com_WPrintf( "Cvar '%s' must be integral", var->name );
+						warnIntegral = qtrue;
 					sprintf( intbuf, "%i", atoi( value ) );
 					value = intbuf; // new value
 				}
@@ -295,15 +298,16 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 				}
 			}
 
-			if ( warn ) {
-				if ( limit && ( limit == var->mins || limit == var->maxs ) ) {
-					if ( value == intbuf ) { // cast to integer
-						Com_Printf( " and" ); 
-					} else {
-						Com_Printf( "WARNING: Cvar '%s'", var->name );
-					}
-					Com_Printf( " is out of range (%s '%s')", (limit == var->mins) ? "min" : "max", limit );
+			if ( warn && limit && ( limit == var->mins || limit == var->maxs ) ) {
+#if 0
+				if ( value == intbuf ) { // cast to integer
+					Com_Printf( " and" ); 
+				} else {
+					Com_Printf( "WARNING: Cvar '%s'", var->name );
 				}
+				Com_Printf( " is out of range (%s '%s')", (limit == var->mins) ? "min" : "max", limit );
+#endif
+				warnRange = qtrue;
 			}
 		} // Q_isanumber
 	} // CV_INTEGER || CV_FLOAT
@@ -312,7 +316,7 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 		// check for directory traversal patterns
 		if ( FS_InvalidGameDir( value ) ) {
 			if ( warn ) {
-				Com_Printf( "WARNING: Cvar '%s' contains invalid patterns", var->name );
+				warnPatterns = qtrue;
 			}
 			// try to use current value if it is valid
 			if ( !FS_InvalidGameDir( var->string ) ) {
@@ -324,12 +328,23 @@ static const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn 
 			limit = var->resetString;
 		}
 	}
-
 	if ( limit || value == intbuf ) {
 		if ( !limit )
 			limit = value;
-		if ( warn )
-			Com_Printf( ", setting to '%s'\n", limit );
+
+		if ( warn ) {
+			Com_WPrintf( S_COL_BASE "Invalid setting for " S_COL_VAR "%s" S_COL_BASE ": %s%s%s%s\n",
+				var->name,
+				warnIntegral ?
+				"value must be integral" : ( warnNumeric ?
+					"value must be numeric" : ( warnPatterns ?
+						"value contains invalid patterns" : "" ) ),
+				( ( warnIntegral || warnNumeric ) && warnRange ) ? " and " : ( warnRange ? "value " : "" ),
+				warnRange ? "is out of range" : "",
+				( warnIntegral || warnNumeric || warnRange ) ? va( ", setting to " S_COL_VAL "%s", limit ) : ""
+			);
+		}
+
 		return limit;
 	} else {
 		return value;
@@ -640,10 +655,8 @@ Cvar_Set2
 cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	cvar_t	*var;
 
-//	Com_DPrintf( "Cvar_Set2: %s %s\n", var_name, value );
-
 	if ( !Cvar_ValidateName( var_name ) ) {
-		Com_Printf( "invalid cvar name string: %s\n", var_name );
+		Com_WPrintf( "Invalid cvar name string: " S_COL_VAL "%s\n", var_name );
 		var_name = "BADNAME";
 	}
 
@@ -664,6 +677,29 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 			return Cvar_Get( var_name, value, CVAR_USER_CREATED, NULL, NULL, CV_NONE );
 		} else {
 			return Cvar_Get (var_name, value, 0, NULL, NULL, CV_NONE );
+		}
+	}
+
+	//dm: move hard checks forward - no need to validate if the cvar can't be modified anyway
+	if ( !force ) {
+		if ( var->flags & CVAR_ROM ) {
+			Com_Printf( S_COL_VAR "%s " S_COL_BASE "is read-only.\n", var_name );
+			return var;
+		}
+
+		if ( var->flags & CVAR_INIT ) {
+			Com_Printf( S_COL_VAR "%s " S_COL_BASE "is write protected.\n", var_name );
+			return var;
+		}
+
+		if ( ( var->flags & CVAR_CHEAT ) && !cvar_cheats->integer ) {
+			Com_Printf( S_COL_VAR "%s " S_COL_BASE "is cheat protected.\n", var_name );
+			return var;
+		}
+
+		if ( ( var->flags & CVAR_DEVELOPER ) && !cvar_developer->integer ) {
+			Com_Printf( S_COL_VAR "%s " S_COL_BASE "can only be set in developer mode.\n", var_name );
+			return var;
 		}
 	}
 
@@ -693,29 +729,6 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 
 	if (!force)
 	{
-		if (var->flags & CVAR_ROM)
-		{
-			Com_Printf ("%s is read only.\n", var_name);
-			return var;
-		}
-
-		if (var->flags & CVAR_INIT)
-		{
-			Com_Printf ("%s is write protected.\n", var_name);
-			return var;
-		}
-
-		if ( (var->flags & CVAR_CHEAT) && !cvar_cheats->integer )
-		{
-			Com_Printf ("%s is cheat protected.\n", var_name);
-			return var;
-		}
-
-		if ( (var->flags & CVAR_DEVELOPER) && !cvar_developer->integer )
-		{
-			Com_Printf( "%s can be set only in developer mode.\n", var_name );
-			return var;
-		}
 
 		if (var->flags & CVAR_LATCH)
 		{
@@ -731,11 +744,12 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 					return var;
 			}
 
-			Com_Printf ("%s will be changed upon restarting.\n", var_name);
 			var->latchedString = CopyString(value);
 			var->modified = qtrue;
 			var->modificationCount++;
 			cvar_group[ var->group ] = 1;
+
+			Com_Printf( S_COL_VAR "%s " S_COL_BASE "will be changed to " S_COL_VAL "%s " S_COL_BASE "upon restarting.\n", var_name, var->latchedString );
 			return var;
 		}
 	}
