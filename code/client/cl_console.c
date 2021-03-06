@@ -959,7 +959,7 @@ void Con_DrawConsole( void ) {
 
 	// if disconnected, render console full screen
 	//TODO: save buffer contents to draw under console when cl_loadScreenStyle = 0
-	if ( cls.state == CA_DISCONNECTED || ( !cl_loadScreenStyle->integer && (cls.state == CA_LOADING || cls.state == CA_PRIMED || cls.state == CA_CONNECTED) ) ) {
+	if ( cls.state == CA_DISCONNECTED || ( !cl_loadScreenStyle->integer && ( cls.state >= CA_CONNECTING && cls.state <= CA_PRIMED ) ) ) {
 		if ( !( Key_GetCatcher() & ( KEYCATCH_UI | KEYCATCH_CGAME ) ) ) {
 			Con_DrawSolidConsole( ( cls.state == CA_DISCONNECTED ) ? 1.0 : 0.5, scrAdjust );
 			return;
