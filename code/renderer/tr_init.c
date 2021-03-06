@@ -168,26 +168,11 @@ cvar_t	*r_marksOnTriangleMeshes;
 
 //fnq
 cvar_t	*r_arc_fov;
-cvar_t	*r_arc_uiMode;
+cvar_t	*r_arc_hud;
 cvar_t	*r_arc_crosshairs;
 cvar_t	*r_arc_threewave_menu_fix;
 
-cvar_t *r_arc_region_left_x1;
-cvar_t *r_arc_region_left_y1;
-cvar_t *r_arc_region_left_x2;
-cvar_t *r_arc_region_left_y2;
-cvar_t *r_arc_region_right_x1;
-cvar_t *r_arc_region_right_y1;
-cvar_t *r_arc_region_right_x2;
-cvar_t *r_arc_region_right_y2;
-cvar_t *r_arc_region_top_x1;
-cvar_t *r_arc_region_top_y1;
-cvar_t *r_arc_region_top_x2;
-cvar_t *r_arc_region_top_y2;
-cvar_t *r_arc_region_bottom_x1;
-cvar_t *r_arc_region_bottom_y1;
-cvar_t *r_arc_region_bottom_x2;
-cvar_t *r_arc_region_bottom_y2;
+cvar_t *r_arc_region[SCR_MAX_REGIONS];
 
 cvar_t	*r_teleporterFlash;
 
@@ -1740,38 +1725,20 @@ static void R_Register(void)
 		}
 	}
 
-	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
-	r_arc_region_left_x1 = ri.Cvar_Get( "r_arc_region_left_x1", "8", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_left_x1, "Left-side adjusted region for UI screen correction. Top-left X coordinate." );
-	r_arc_region_left_y1 = ri.Cvar_Get( "r_arc_region_left_y1", "384", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_left_y1, "Left-side adjusted region for UI screen correction. Top-left Y coordinate." );
-	r_arc_region_left_x2 = ri.Cvar_Get( "r_arc_region_left_x2", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_left_x2, "Left-side adjusted region for UI screen correction. Bottom-right X coordinate." );
-	r_arc_region_left_y2 = ri.Cvar_Get( "r_arc_region_left_y2", "432", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_left_y2, "Left-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
-	r_arc_region_right_x1 = ri.Cvar_Get( "r_arc_region_right_x1", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_right_x1, "Right-side adjusted region for UI screen correction. Top-left X coordinate." );
-	r_arc_region_right_y1 = ri.Cvar_Get( "r_arc_region_right_y1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_right_y1, "Right-side adjusted region for UI screen correction. Top-left Y coordinate." );
-	r_arc_region_right_x2 = ri.Cvar_Get( "r_arc_region_right_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_right_x2, "Right-side adjusted region for UI screen correction. Bottom-right X coordinate." );
-	r_arc_region_right_y2 = ri.Cvar_Get( "r_arc_region_right_y2", "430", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_region_right_y2, "Right-side adjusted region for UI screen correction. Bottom-right Y coordinate." );
-
-	r_arc_region_top_x1 = ri.Cvar_Get( "r_arc_region_top_x1", "8", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_top_y1 = ri.Cvar_Get( "r_arc_region_top_y1", "384", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_top_x2 = ri.Cvar_Get( "r_arc_region_top_x2", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_top_y2 = ri.Cvar_Get( "r_arc_region_top_y2", "432", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_bottom_x1 = ri.Cvar_Get( "r_arc_region_bottom_x1", "320", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_bottom_y1 = ri.Cvar_Get( "r_arc_region_bottom_y1", "0", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_bottom_x2 = ri.Cvar_Get( "r_arc_region_bottom_x2", "640", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-	r_arc_region_bottom_y2 = ri.Cvar_Get( "r_arc_region_bottom_y2", "430", CVAR_ARCHIVE_ND, "-1000", "1000", CV_INTEGER );
-
-	r_arc_uiMode = ri.Cvar_Get( "r_arc_uiMode", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
-	ri.Cvar_SetDescription(r_arc_uiMode, "Aspect adjustment of UI elements in wide screen aspect ratios:\n 0: Disabled\n 1: Adjust aspect and coordinates\n 2: Adjust aspect, preserve coordinates\n");
+	r_arc_hud = ri.Cvar_Get( "r_arc_hud", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_hud, "Aspect adjustment of HUD elements in wide screen aspect ratios:\n 0: Disabled\n 1: Adjust aspect and coordinates\n 2: Adjust aspect, align to virtual screens (uses r_arc_region$)\n" );
 	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
+	ri.Cvar_SetDescription( r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
 	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
+
+	// regions format: x1 y1 x2 y2 width_min width_max height_min height_max screen_horz screen_vert
+	{
+		int i;
+
+		for ( i = 0; i < SCR_MAX_REGIONS; i++ ) {
+			r_arc_region[i] = ri.Cvar_Get( va( "r_arc_region%i", i + 1 ), "", 0, NULL, NULL, CV_NONE );
+		}
+	}
 
 	r_teleporterFlash = ri.Cvar_Get("r_teleporterFlash", "0", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
 	ri.Cvar_SetDescription( r_teleporterFlash, "Screen flash effect when teleporting:\n 0: Disabled\n 1: Black\n 2: White" );

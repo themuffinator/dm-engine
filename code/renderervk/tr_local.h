@@ -1367,26 +1367,12 @@ extern cvar_t	*r_marksOnTriangleMeshes;
 
 //fnq
 extern	cvar_t	*r_arc_fov;
-extern	cvar_t	*r_arc_uiMode;
+extern	cvar_t	*r_arc_hud;
 extern	cvar_t	*r_arc_crosshairs;
 extern	cvar_t	*r_arc_threewave_menu_fix;
 
-extern	cvar_t *r_arc_region_left_x1;
-extern	cvar_t *r_arc_region_left_y1;
-extern	cvar_t *r_arc_region_left_x2;
-extern	cvar_t *r_arc_region_left_y2;
-extern	cvar_t *r_arc_region_right_x1;
-extern	cvar_t *r_arc_region_right_y1;
-extern	cvar_t *r_arc_region_right_x2;
-extern	cvar_t *r_arc_region_right_y2;
-extern	cvar_t *r_arc_region_top_x1;
-extern	cvar_t *r_arc_region_top_y1;
-extern	cvar_t *r_arc_region_top_x2;
-extern	cvar_t *r_arc_region_top_y2;
-extern	cvar_t *r_arc_region_bottom_x1;
-extern	cvar_t *r_arc_region_bottom_y1;
-extern	cvar_t *r_arc_region_bottom_x2;
-extern	cvar_t *r_arc_region_bottom_y2;
+#define SCR_MAX_REGIONS	32
+extern	cvar_t *r_arc_region[SCR_MAX_REGIONS];
 
 extern	cvar_t *r_teleporterFlash;
 
@@ -1980,6 +1966,7 @@ void RE_TakeVideoFrame( int width, int height,
 void *R_GetCommandBuffer(int bytes);
 
 // tr_arc.c
+void RE_UpdateScreenRegion( const int index );
 void RE_ScaleCorrection(float *x, float *y, float *w, float *h, const int forceMode);
 void RE_StretchAspectPic(float x, float y, float w, float h,
 	float s1, float t1, float s2, float t2, qhandle_t hShader, const qboolean cgame);
