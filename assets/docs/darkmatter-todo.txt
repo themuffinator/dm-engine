@@ -8,7 +8,8 @@ FIXME:
 - Jailbreak POW: Main menu text not drawing
 - Threewave menu aspect fixes, menu player model projection
 - Console font scaling fix on video resolution changes
-- QUAKE LIVE: shader textures/ct_1997/rock_02b drawing overly bright white... see map Fuse
+- Quake 3 Fortress: crashes sporadically on fullscreen toggle
+- Quake 3 Fortress/Weapons Factory Arena: screen regions improvements
 
 TODO:
 -----
@@ -28,7 +29,6 @@ TODO:
 - Asset base rules for QL: always check for map shaders from QL path first
 - Asset base flags for map loading, ie: map -q2 q2dm1 to search only QUAKE II path for the map
 - Asset base indicators for auto-complete map lists
-
 
 Low-priority/future TODO:
 -------------------------
