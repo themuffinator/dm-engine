@@ -1824,8 +1824,8 @@ static void R_Register( void ) {
 	}
 	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
 
-	r_arc_hud = ri.Cvar_Get( "r_arc_hud", "1", CVAR_ARCHIVE, "0", "2", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_hud, "Aspect adjustment of HUD elements in wide screen aspect ratios:\n 0: Disabled\n 1: Adjust aspect and coordinates\n 2: Adjust aspect, align to virtual screens (uses r_arc_region$)\n" );
+	r_arc_hud = ri.Cvar_Get( "r_arc_hud", "2", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( r_arc_hud, "Aspect ratio adjustments of HUD elements:\n 0: Disabled\n 1: Scale 4:3 uniformly\n 2: Scale to 4:3, expand to wide or tall screen ratios (uses r_arc_region$)\n" );
 	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 	ri.Cvar_SetDescription(r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
 	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
