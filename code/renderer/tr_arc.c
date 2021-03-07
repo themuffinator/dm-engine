@@ -193,14 +193,14 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int force
 		mw = (float)*w;
 		mh = (float)*h;
 
+		xScale = ( (float)glConfig.vidWidth / 640.0 );
+		yScale = ( (float)glConfig.vidHeight / 480.0 );
+
 		//if x > 640 it's safe to assume the mod already has widescreen adjustments, so disable this
-		if ( mx > 640.0f ) {
+		if ( ( mx / xScale ) > 640.0f ) {
 			ri.Cvar_Set( "r_arc_hud", "0" );
 			return;
 		}
-
-		xScale = ( (float)glConfig.vidWidth / 640.0 );
-		yScale = ( (float)glConfig.vidHeight / 480.0 );
 
 		// no adjustments needed for 4:3
 		if ( xScale == yScale ) return;
@@ -281,11 +281,14 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int force
 				// determine horizontal screen space alignment
 				sAlign = RE_ScrCoordToAlign( qtrue, mx, my, mx + mw, my + mh, &allow_stretch );
 
+				if ( allow_stretch != STRETCH_VERT && allow_stretch != STRETCH_ALL )
+					yScale = xScale;
+
 				// scale back up uniformly
-				if ( my ) my *= allow_stretch == STRETCH_VERT ? yScale : xScale;
-				if ( mh ) mh *= allow_stretch == STRETCH_VERT ? yScale : xScale;
 				if ( mx ) mx *= xScale;
 				if ( mw ) mw *= xScale;
+				if ( my ) my *= yScale;
+				if ( mh ) mh *= yScale;
 
 				// adjust horizontal position
 				switch ( sAlign ) {
