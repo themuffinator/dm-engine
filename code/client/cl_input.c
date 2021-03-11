@@ -251,14 +251,14 @@ static void IN_SpeedUp(void) {IN_KeyUp(&in_speed);}
 static void IN_StrafeDown(void) {IN_KeyDown(&in_strafe);}
 static void IN_StrafeUp(void) {IN_KeyUp(&in_strafe);}
 
-static void IN_Button0Down(void) {IN_KeyDown(&in_buttons[0]);}
-static void IN_Button0Up(void) {IN_KeyUp(&in_buttons[0]);}
+static void IN_AttackDown(void) {IN_KeyDown(&in_buttons[0]);}
+static void IN_AttackUp(void) {IN_KeyUp(&in_buttons[0]);}
 static void IN_Button1Down(void) {IN_KeyDown(&in_buttons[1]);}
 static void IN_Button1Up(void) {IN_KeyUp(&in_buttons[1]);}
-static void IN_Button2Down(void) {IN_KeyDown(&in_buttons[2]);}
-static void IN_Button2Up(void) {IN_KeyUp(&in_buttons[2]);}
-static void IN_Button3Down(void) {IN_KeyDown(&in_buttons[3]);}
-static void IN_Button3Up(void) {IN_KeyUp(&in_buttons[3]);}
+static void IN_UseItemDown(void) {IN_KeyDown(&in_buttons[2]);}
+static void IN_UseItemUp(void) {IN_KeyUp(&in_buttons[2]);}
+static void IN_GestureDown(void) {IN_KeyDown(&in_buttons[3]);}
+static void IN_GestureUp(void) {IN_KeyUp(&in_buttons[3]);}
 static void IN_Button4Down(void) {IN_KeyDown(&in_buttons[4]);}
 static void IN_Button4Up(void) {IN_KeyUp(&in_buttons[4]);}
 static void IN_Button5Down(void) {IN_KeyDown(&in_buttons[5]);}
@@ -885,125 +885,125 @@ CL_InitInput
 ============
 */
 void CL_InitInput( void ) {
-	Cmd_AddCommand ("centerView",IN_CenterView);
+	Cmd_AddCommand( "centerView", IN_CenterView );
 
-	Cmd_AddCommand ("+moveUp",IN_UpDown);
-	Cmd_AddCommand ("-moveUp",IN_UpUp);
-	Cmd_AddCommand ("+moveDown",IN_DownDown);
-	Cmd_AddCommand ("-moveDown",IN_DownUp);
-	Cmd_AddCommand ("+left",IN_LeftDown);
-	Cmd_AddCommand ("-left",IN_LeftUp);
-	Cmd_AddCommand ("+right",IN_RightDown);
-	Cmd_AddCommand ("-right",IN_RightUp);
-	Cmd_AddCommand ("+forward",IN_ForwardDown);
-	Cmd_AddCommand ("-forward",IN_ForwardUp);
-	Cmd_AddCommand ("+back",IN_BackDown);
-	Cmd_AddCommand ("-back",IN_BackUp);
-	Cmd_AddCommand ("+lookUp", IN_LookupDown);
-	Cmd_AddCommand ("-lookUp", IN_LookupUp);
-	Cmd_AddCommand ("+lookDown", IN_LookdownDown);
-	Cmd_AddCommand ("-lookDown", IN_LookdownUp);
-	Cmd_AddCommand ("+strafe", IN_StrafeDown);
-	Cmd_AddCommand ("-strafe", IN_StrafeUp);
-	Cmd_AddCommand ("+moveLeft", IN_MoveleftDown);
-	Cmd_AddCommand ("-moveLeft", IN_MoveleftUp);
-	Cmd_AddCommand ("+moveRight", IN_MoverightDown);
-	Cmd_AddCommand ("-moveRight", IN_MoverightUp);
-	Cmd_AddCommand ("+speed", IN_SpeedDown);
-	Cmd_AddCommand ("-speed", IN_SpeedUp);
-	Cmd_AddCommand ("+attack", IN_Button0Down);
-	Cmd_AddCommand ("-attack", IN_Button0Up);
-	Cmd_AddCommand("+useItem", IN_Button2Down);
-	Cmd_AddCommand("-useItem", IN_Button2Up);
-	Cmd_AddCommand("+gesture", IN_Button3Down);
-	Cmd_AddCommand("-gesture", IN_Button3Up);
-	Cmd_AddCommand ("+button0", IN_Button0Down);
-	Cmd_AddCommand ("-button0", IN_Button0Up);
-	Cmd_AddCommand ("+button1", IN_Button1Down);
-	Cmd_AddCommand ("-button1", IN_Button1Up);
-	Cmd_AddCommand ("+button2", IN_Button2Down);
-	Cmd_AddCommand ("-button2", IN_Button2Up);
-	Cmd_AddCommand ("+button3", IN_Button3Down);
-	Cmd_AddCommand ("-button3", IN_Button3Up);
-	Cmd_AddCommand ("+button4", IN_Button4Down);
-	Cmd_AddCommand ("-button4", IN_Button4Up);
-	Cmd_AddCommand ("+button5", IN_Button5Down);
-	Cmd_AddCommand ("-button5", IN_Button5Up);
-	Cmd_AddCommand ("+button6", IN_Button6Down);
-	Cmd_AddCommand ("-button6", IN_Button6Up);
-	Cmd_AddCommand ("+button7", IN_Button7Down);
-	Cmd_AddCommand ("-button7", IN_Button7Up);
-	Cmd_AddCommand ("+button8", IN_Button8Down);
-	Cmd_AddCommand ("-button8", IN_Button8Up);
-	Cmd_AddCommand ("+button9", IN_Button9Down);
-	Cmd_AddCommand ("-button9", IN_Button9Up);
-	Cmd_AddCommand ("+button10", IN_Button10Down);
-	Cmd_AddCommand ("-button10", IN_Button10Up);
-	Cmd_AddCommand ("+button11", IN_Button11Down);
-	Cmd_AddCommand ("-button11", IN_Button11Up);
-	Cmd_AddCommand ("+button12", IN_Button12Down);
-	Cmd_AddCommand ("-button12", IN_Button12Up);
-	Cmd_AddCommand ("+button13", IN_Button13Down);
-	Cmd_AddCommand ("-button13", IN_Button13Up);
-	Cmd_AddCommand ("+button14", IN_Button14Down);
-	Cmd_AddCommand ("-button14", IN_Button14Up);
-	Cmd_AddCommand ("+button15", IN_Button15Down);
-	Cmd_AddCommand ("-button15", IN_Button15Up);
-	Cmd_AddCommand ("+mLook", IN_MLookDown);
-	Cmd_AddCommand ("-mLook", IN_MLookUp);
+	Cmd_AddCommand( "+moveUp", IN_UpDown );
+	Cmd_AddCommand( "-moveUp", IN_UpUp );
+	Cmd_AddCommand( "+moveDown", IN_DownDown );
+	Cmd_AddCommand( "-moveDown", IN_DownUp );
+	Cmd_AddCommand( "+left", IN_LeftDown );
+	Cmd_AddCommand( "-left", IN_LeftUp );
+	Cmd_AddCommand( "+right", IN_RightDown );
+	Cmd_AddCommand( "-right", IN_RightUp );
+	Cmd_AddCommand( "+forward", IN_ForwardDown );
+	Cmd_AddCommand( "-forward", IN_ForwardUp );
+	Cmd_AddCommand( "+back", IN_BackDown );
+	Cmd_AddCommand( "-back", IN_BackUp );
+	Cmd_AddCommand( "+lookUp", IN_LookupDown );
+	Cmd_AddCommand( "-lookUp", IN_LookupUp );
+	Cmd_AddCommand( "+lookDown", IN_LookdownDown );
+	Cmd_AddCommand( "-lookDown", IN_LookdownUp );
+	Cmd_AddCommand( "+strafe", IN_StrafeDown );
+	Cmd_AddCommand( "-strafe", IN_StrafeUp );
+	Cmd_AddCommand( "+moveLeft", IN_MoveleftDown );
+	Cmd_AddCommand( "-moveLeft", IN_MoveleftUp );
+	Cmd_AddCommand( "+moveRight", IN_MoverightDown );
+	Cmd_AddCommand( "-moveRight", IN_MoverightUp );
+	Cmd_AddCommand( "+speed", IN_SpeedDown );
+	Cmd_AddCommand( "-speed", IN_SpeedUp );
+	Cmd_AddCommand( "+attack", IN_AttackDown );
+	Cmd_AddCommand( "-attack", IN_AttackUp );
+	Cmd_AddCommand( "+useItem", IN_UseItemDown );
+	Cmd_AddCommand( "-useItem", IN_UseItemUp );
+	Cmd_AddCommand( "+gesture", IN_GestureDown );
+	Cmd_AddCommand( "-gesture", IN_GestureUp );
+	Cmd_AddCommand( "+mLook", IN_MLookDown );
+	Cmd_AddCommand( "-mLook", IN_MLookUp );
+	Cmd_AddCommand( "+button0", IN_AttackDown );
+	Cmd_AddCommand( "-button0", IN_AttackUp );
+	Cmd_AddCommand( "+button1", IN_Button1Down );
+	Cmd_AddCommand( "-button1", IN_Button1Up );
+	Cmd_AddCommand( "+button2", IN_UseItemDown );
+	Cmd_AddCommand( "-button2", IN_UseItemUp );
+	Cmd_AddCommand( "+button3", IN_GestureDown );
+	Cmd_AddCommand( "-button3", IN_GestureUp );
+	Cmd_AddCommand( "+button4", IN_Button4Down );
+	Cmd_AddCommand( "-button4", IN_Button4Up );
+	Cmd_AddCommand( "+button5", IN_Button5Down );
+	Cmd_AddCommand( "-button5", IN_Button5Up );
+	Cmd_AddCommand( "+button6", IN_Button6Down );
+	Cmd_AddCommand( "-button6", IN_Button6Up );
+	Cmd_AddCommand( "+button7", IN_Button7Down );
+	Cmd_AddCommand( "-button7", IN_Button7Up );
+	Cmd_AddCommand( "+button8", IN_Button8Down );
+	Cmd_AddCommand( "-button8", IN_Button8Up );
+	Cmd_AddCommand( "+button9", IN_Button9Down );
+	Cmd_AddCommand( "-button9", IN_Button9Up );
+	Cmd_AddCommand( "+button10", IN_Button10Down );
+	Cmd_AddCommand( "-button10", IN_Button10Up );
+	Cmd_AddCommand( "+button11", IN_Button11Down );
+	Cmd_AddCommand( "-button11", IN_Button11Up );
+	Cmd_AddCommand( "+button12", IN_Button12Down );
+	Cmd_AddCommand( "-button12", IN_Button12Up );
+	Cmd_AddCommand( "+button13", IN_Button13Down );
+	Cmd_AddCommand( "-button13", IN_Button13Up );
+	Cmd_AddCommand( "+button14", IN_Button14Down );
+	Cmd_AddCommand( "-button14", IN_Button14Up );
+	Cmd_AddCommand( "+button15", IN_Button15Down );
+	Cmd_AddCommand( "-button15", IN_Button15Up );
 
 	cl_noDelta = Cvar_Get( "cl_noDelta", "0", CVAR_DEVELOPER, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_noDelta, "Disables delta compression on uploaded user commands." );
+	Cvar_SetDescription( cl_noDelta, "Disables delta compression on uploaded user commands." );
 	cl_debugMove = Cvar_Get( "cl_debugMove", "0", CVAR_DEVELOPER, "0", "2", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_debugMove, "Prints a graph of view angle deltas.\n 0: Disabled\n 1: Yaw\n 2: Pitch" );
+	Cvar_SetDescription( cl_debugMove, "Prints a graph of view angle deltas.\n 0: Disabled\n 1: Yaw\n 2: Pitch" );
 
 	cl_showSend = Cvar_Get( "cl_showSend", "0", CVAR_TEMP | CVAR_DEVELOPER, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_showSend, "Prints client to server packet information." );
+	Cvar_SetDescription( cl_showSend, "Prints client to server packet information." );
 
 	cl_yawSpeed = Cvar_Get( "cl_yawSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_yawSpeed, "Side-to-side turning speed using keys (+left and +right)." );
+	Cvar_SetDescription( cl_yawSpeed, "Side-to-side turning speed using keys (+left and +right)." );
 	cl_pitchSpeed = Cvar_Get( "cl_pitchSpeed", "140", CVAR_ARCHIVE_ND, "10", "1000", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_pitchSpeed, "Up and down pitching speed using keys (+lookUp and +lookDown)." );
+	Cvar_SetDescription( cl_pitchSpeed, "Up and down pitching speed using keys (+lookUp and +lookDown)." );
 	cl_angleSpeedKey = Cvar_Get( "cl_angleSpeedKey", "1.5", 0, "0.1", "10.0", CV_FLOAT );
 
 	cl_maxPackets = Cvar_Get( "cl_maxPackets", "60", CVAR_ARCHIVE, "15", "125", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_maxPackets, "Maximum packet upload rate." );
+	Cvar_SetDescription( cl_maxPackets, "Maximum packet upload rate." );
 	cl_packetDup = Cvar_Get( "cl_packetDup", "1", CVAR_ARCHIVE_ND, "0", "5", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_packetDup, "Limits the number of duplicate commands allowed per packet." );
+	Cvar_SetDescription( cl_packetDup, "Limits the number of duplicate commands allowed per packet." );
 
 	cl_run = Cvar_Get( "cl_run", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_run, "Persistent player running movement, +speed then becomes walk speed." );
+	Cvar_SetDescription( cl_run, "Persistent player running movement, +speed then becomes walk speed." );
 	cl_sensitivity = Cvar_Get( "sensitivity", "2", CVAR_ARCHIVE, "0.01", "10.0", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_sensitivity, "Sets base mouse sensitivity." );
+	Cvar_SetDescription( cl_sensitivity, "Sets base mouse sensitivity." );
 	cl_mouseAccel = Cvar_Get( "cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "-10.0", "10.0", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_mouseAccel, "Enables mouse acceleration." );
+	Cvar_SetDescription( cl_mouseAccel, "Enables mouse acceleration." );
 	cl_freeLook = Cvar_Get( "cl_freeLook", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_freeLook, "Allow pitching or up/down look with mouse." );
+	Cvar_SetDescription( cl_freeLook, "Allow pitching or up/down look with mouse." );
 
 	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_mouseAccelStyle, "Enables newer mouse acceleration algorithm." );
+	Cvar_SetDescription( cl_mouseAccelStyle, "Enables newer mouse acceleration algorithm." );
 
 	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "0.001", "50000", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_mouseAccelOffset, "Mouse acceleration power function for \\cl_mouseAccelStyle 1. This should be set to the max rate value." );
+	Cvar_SetDescription( cl_mouseAccelOffset, "Mouse acceleration power function for \\cl_mouseAccelStyle 1. This should be set to the max rate value." );
 
 	cl_showMouseRate = Cvar_Get( "cl_showMouseRate", "0", 0, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_showMouseRate, "Prints mouse acceleration info when \\cl_mouseAccel has a value set." );
+	Cvar_SetDescription( cl_showMouseRate, "Prints mouse acceleration info when \\cl_mouseAccel has a value set." );
 
 	m_pitch = Cvar_Get( "m_pitch", "0.022", CVAR_ARCHIVE_ND, "-100", "100", CV_FLOAT );
-	/**/Cvar_SetDescription( m_pitch, "Post-acceleration vertical mouse sensitivity." );
+	Cvar_SetDescription( m_pitch, "Post-acceleration vertical mouse sensitivity." );
 	m_yaw = Cvar_Get( "m_yaw", "0.022", CVAR_ARCHIVE_ND, "-100", "100", CV_FLOAT );
-	/**/Cvar_SetDescription( m_yaw, "Post-acceleration horizontal mouse sensitivity." );
+	Cvar_SetDescription( m_yaw, "Post-acceleration horizontal mouse sensitivity." );
 	m_forward = Cvar_Get( "m_forward", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
-	/**/Cvar_SetDescription( m_forward, "Forward and backward mouse sensitivity when strafing." );
+	Cvar_SetDescription( m_forward, "Forward and backward mouse sensitivity when strafing." );
 	m_side = Cvar_Get( "m_side", "0.25", CVAR_ARCHIVE_ND, "0.001", "10", CV_FLOAT );
-	/**/Cvar_SetDescription( m_side, "Side-to-side mouse sensitivity when strafing." );
+	Cvar_SetDescription( m_side, "Side-to-side mouse sensitivity when strafing." );
 #ifdef MACOS_X
 	// Input is jittery on OS X w/o this
 	m_filter = Cvar_Get( "m_filter", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #else
 	m_filter = Cvar_Get( "m_filter", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #endif
-	/**/Cvar_SetDescription( m_filter, "Enables mouse smoothing." );
+	Cvar_SetDescription( m_filter, "Enables mouse smoothing." );
 }
 
 
@@ -1013,70 +1013,70 @@ CL_InitInput
 ============
 */
 void CL_ClearInput( void ) {
-	Cmd_RemoveCommand ("centerView");
+	Cmd_RemoveCommand( "centerView" );
 
-	Cmd_RemoveCommand ("+moveUp");
-	Cmd_RemoveCommand ("-moveUp");
-	Cmd_RemoveCommand ("+moveDown");
-	Cmd_RemoveCommand ("-moveDown");
-	Cmd_RemoveCommand ("+left");
-	Cmd_RemoveCommand ("-left");
-	Cmd_RemoveCommand ("+right");
-	Cmd_RemoveCommand ("-right");
-	Cmd_RemoveCommand ("+forward");
-	Cmd_RemoveCommand ("-forward");
-	Cmd_RemoveCommand ("+back");
-	Cmd_RemoveCommand ("-back");
-	Cmd_RemoveCommand ("+lookUp");
-	Cmd_RemoveCommand ("-lookUp");
-	Cmd_RemoveCommand ("+lookDown");
-	Cmd_RemoveCommand ("-lookDown");
-	Cmd_RemoveCommand ("+strafe");
-	Cmd_RemoveCommand ("-strafe");
-	Cmd_RemoveCommand ("+moveLeft");
-	Cmd_RemoveCommand ("-moveLeft");
-	Cmd_RemoveCommand ("+moveRight");
-	Cmd_RemoveCommand ("-moveRight");
-	Cmd_RemoveCommand ("+speed");
-	Cmd_RemoveCommand ("-speed");
-	Cmd_RemoveCommand ("+attack");
-	Cmd_RemoveCommand ("-attack");
-	Cmd_RemoveCommand ("+useItem");
-	Cmd_RemoveCommand ("-useItem");
-	Cmd_RemoveCommand ("+gesture");
-	Cmd_RemoveCommand ("-gesture");
-	Cmd_RemoveCommand ("+button0");
-	Cmd_RemoveCommand ("-button0");
-	Cmd_RemoveCommand ("+button1");
-	Cmd_RemoveCommand ("-button1");
-	Cmd_RemoveCommand ("+button2");
-	Cmd_RemoveCommand ("-button2");
-	Cmd_RemoveCommand ("+button3");
-	Cmd_RemoveCommand ("-button3");
-	Cmd_RemoveCommand ("+button4");
-	Cmd_RemoveCommand ("-button4");
-	Cmd_RemoveCommand ("+button5");
-	Cmd_RemoveCommand ("-button5");
-	Cmd_RemoveCommand ("+button6");
-	Cmd_RemoveCommand ("-button6");
-	Cmd_RemoveCommand ("+button7");
-	Cmd_RemoveCommand ("-button7");
-	Cmd_RemoveCommand ("+button8");
-	Cmd_RemoveCommand ("-button8");
-	Cmd_RemoveCommand ("+button9");
-	Cmd_RemoveCommand ("-button9");
-	Cmd_RemoveCommand ("+button10");
-	Cmd_RemoveCommand ("-button10");
-	Cmd_RemoveCommand ("+button11");
-	Cmd_RemoveCommand ("-button11");
-	Cmd_RemoveCommand ("+button12");
-	Cmd_RemoveCommand ("-button12");
-	Cmd_RemoveCommand ("+button13");
-	Cmd_RemoveCommand ("-button13");
-	Cmd_RemoveCommand ("+button14");
-	Cmd_RemoveCommand ("-button14");
-	Cmd_RemoveCommand ("+button15");
-	Cmd_RemoveCommand ("-button15");
-	Cmd_RemoveCommand ("+mLook");
-	Cmd_RemoveCommand ("-mLook");
+	Cmd_RemoveCommand( "+moveUp" );
+	Cmd_RemoveCommand( "-moveUp" );
+	Cmd_RemoveCommand( "+moveDown" );
+	Cmd_RemoveCommand( "-moveDown" );
+	Cmd_RemoveCommand( "+left" );
+	Cmd_RemoveCommand( "-left" );
+	Cmd_RemoveCommand( "+right" );
+	Cmd_RemoveCommand( "-right" );
+	Cmd_RemoveCommand( "+forward" );
+	Cmd_RemoveCommand( "-forward" );
+	Cmd_RemoveCommand( "+back" );
+	Cmd_RemoveCommand( "-back" );
+	Cmd_RemoveCommand( "+lookUp" );
+	Cmd_RemoveCommand( "-lookUp" );
+	Cmd_RemoveCommand( "+lookDown" );
+	Cmd_RemoveCommand( "-lookDown" );
+	Cmd_RemoveCommand( "+strafe" );
+	Cmd_RemoveCommand( "-strafe" );
+	Cmd_RemoveCommand( "+moveLeft" );
+	Cmd_RemoveCommand( "-moveLeft" );
+	Cmd_RemoveCommand( "+moveRight" );
+	Cmd_RemoveCommand( "-moveRight" );
+	Cmd_RemoveCommand( "+speed" );
+	Cmd_RemoveCommand( "-speed" );
+	Cmd_RemoveCommand( "+attack" );
+	Cmd_RemoveCommand( "-attack" );
+	Cmd_RemoveCommand( "+useItem" );
+	Cmd_RemoveCommand( "-useItem" );
+	Cmd_RemoveCommand( "+gesture" );
+	Cmd_RemoveCommand( "-gesture" );
+	Cmd_RemoveCommand( "+mLook" );
+	Cmd_RemoveCommand( "-mLook" );
+	Cmd_RemoveCommand( "+button0" );
+	Cmd_RemoveCommand( "-button0" );
+	Cmd_RemoveCommand( "+button1" );
+	Cmd_RemoveCommand( "-button1" );
+	Cmd_RemoveCommand( "+button2" );
+	Cmd_RemoveCommand( "-button2" );
+	Cmd_RemoveCommand( "+button3" );
+	Cmd_RemoveCommand( "-button3" );
+	Cmd_RemoveCommand( "+button4" );
+	Cmd_RemoveCommand( "-button4" );
+	Cmd_RemoveCommand( "+button5" );
+	Cmd_RemoveCommand( "-button5" );
+	Cmd_RemoveCommand( "+button6" );
+	Cmd_RemoveCommand( "-button6" );
+	Cmd_RemoveCommand( "+button7" );
+	Cmd_RemoveCommand( "-button7" );
+	Cmd_RemoveCommand( "+button8" );
+	Cmd_RemoveCommand( "-button8" );
+	Cmd_RemoveCommand( "+button9" );
+	Cmd_RemoveCommand( "-button9" );
+	Cmd_RemoveCommand( "+button10" );
+	Cmd_RemoveCommand( "-button10" );
+	Cmd_RemoveCommand( "+button11" );
+	Cmd_RemoveCommand( "-button11" );
+	Cmd_RemoveCommand( "+button12" );
+	Cmd_RemoveCommand( "-button12" );
+	Cmd_RemoveCommand( "+button13" );
+	Cmd_RemoveCommand( "-button13" );
+	Cmd_RemoveCommand( "+button14" );
+	Cmd_RemoveCommand( "-button14" );
+	Cmd_RemoveCommand( "+button15" );
+	Cmd_RemoveCommand( "-button15" );
 }
