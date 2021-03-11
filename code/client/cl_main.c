@@ -3165,16 +3165,17 @@ static void CL_InitRenderer( void ) {
 	g_consoleField.widthInChars = g_console_field_width;
 
 	// for 640x480 virtualized screen
-	cls.biasY = 0;
-	cls.biasX = 0;
-	if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
+	cls.cine_xScale = (float)cls.glconfig.vidWidth / 640.0;
+	cls.cine_yScale = (float)cls.glconfig.vidHeight / 480.0;
+
+	if ( cls.cine_xScale > cls.cine_yScale ) {
 		// wide screen, scale by height
-		cls.scale = cls.glconfig.vidHeight * (1.0/480.0);
-		cls.biasX = 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * (640.0/480.0) ) );
+		cls.cine_xAdjust = 0.5 * ( (float)cls.glconfig.vidWidth - ( 640.0 * cls.cine_yScale ) );
+		cls.cine_yAdjust = 0.5 * ( (float)cls.glconfig.vidHeight - ( 480.0 * cls.cine_yScale ) );
 	} else {
 		// no wide screen, scale by width
-		cls.scale = cls.glconfig.vidWidth * (1.0/640.0);
-		cls.biasY = 0.5 * ( cls.glconfig.vidHeight - ( cls.glconfig.vidWidth * (480.0/640) ) );
+		cls.cine_xAdjust = 0.5 * ( (float)cls.glconfig.vidWidth - ( 640.0 * cls.cine_xScale ) );
+		cls.cine_yAdjust = 0.5 * ( (float)cls.glconfig.vidHeight - ( 480.0 * cls.cine_xScale ) );
 	}
 }
 
@@ -3272,6 +3273,7 @@ Sets console chars height
 */
 static void CL_SetScaling( float factor, int captureWidth, int captureHeight ) {
 
+#if 0
 	float scale;
 	int h;
 
@@ -3282,15 +3284,19 @@ static void CL_SetScaling( float factor, int captureWidth, int captureHeight ) {
 		scale = 1.0f;
 
 	factor *= scale;
-
+#endif
+	float scale;
+	scale = (float)captureHeight / 480.0f;
+	factor *= scale;
+	
 	// set console scaling
 	cls.smallchar_width = SMALLCHAR_WIDTH * factor;
 	cls.smallchar_height = SMALLCHAR_HEIGHT * factor;
 	cls.bigchar_width = BIGCHAR_WIDTH * factor;
 	cls.bigchar_height = BIGCHAR_HEIGHT * factor;
 
-	SCR_AdjustFrom640( NULL, NULL, &cls.smallchar_width, &cls.smallchar_height, SA_CENTER );
-	SCR_AdjustFrom640( NULL, NULL, &cls.bigchar_width, &cls.bigchar_height, SA_CENTER );
+	//SCR_AdjustFrom640( NULL, NULL, &cls.smallchar_width, &cls.smallchar_height, SA_CENTER );
+	//SCR_AdjustFrom640( NULL, NULL, &cls.bigchar_width, &cls.bigchar_height, SA_CENTER );
 
 	// set custom capture resolution
 	cls.captureWidth = captureWidth;
@@ -3720,54 +3726,54 @@ static qboolean isValidRenderer( const char *s ) {
 static void CL_InitGLimp_Cvars( void ) {
 	// shared with GLimp
 	r_allowSoftwareGL = Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( r_allowSoftwareGL, "Allows software video emulation in the pixel format descriptor." );
+	Cvar_SetDescription( r_allowSoftwareGL, "Allows software video emulation in the pixel format descriptor." );
 	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE_ND, NULL, NULL, CV_INTEGER );
-	/**/Cvar_SetDescription( r_swapInterval, "V-blanks to wait before swapping buffers.\n 0: No V-Sync\n N: Synced to the monitor's refresh rate divided by N" );
+	Cvar_SetDescription( r_swapInterval, "V-blanks to wait before swapping buffers.\n 0: No V-Sync\n N: Synced to the monitor's refresh rate divided by N" );
 	r_glDriver = Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription( r_glDriver, "Specifies the OpenGL driver to use, will revert back to default if driver name set is invalid." );
+	Cvar_SetDescription( r_glDriver, "Specifies the OpenGL driver to use, will revert back to default if driver name set is invalid." );
 	
 	r_displayRefresh = Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH, "0", "1000", CV_INTEGER );
-	/**/Cvar_SetDescription( r_displayRefresh, "Specify a display refresh rate in Hz, leave as 0 to let the hardware drivers decide." );
+	Cvar_SetDescription( r_displayRefresh, "Specify a display refresh rate in Hz, leave as 0 to let the hardware drivers decide." );
 
 	r_window_xPos = Cvar_Get( "r_window_xPos", "3", CVAR_ARCHIVE, "0", NULL, CV_INTEGER );
-	/**/Cvar_SetDescription( r_window_xPos, "Sets window X-coordinate, requires \\vid_restart." );
+	Cvar_SetDescription( r_window_xPos, "Sets window X-coordinate, requires \\vid_restart." );
 	r_window_yPos = Cvar_Get( "r_window_yPos", "22", CVAR_ARCHIVE, "0", NULL, CV_INTEGER );
-	/**/Cvar_SetDescription( r_window_xPos, "Sets window Y-coordinate, requires \\vid_restart." );
+	Cvar_SetDescription( r_window_xPos, "Sets window Y-coordinate, requires \\vid_restart." );
 
 	r_window_border = Cvar_Get( "r_window_border", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( r_window_border, "Setting to 0 will remove window borders and titlebar in windowed mode, hold ALT to drag & drop it with opened console." );
+	Cvar_SetDescription( r_window_border, "Setting to 0 will remove window borders and titlebar in windowed mode, hold ALT to drag & drop it with opened console." );
 
 	r_mode = Cvar_Get( "r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH, "-2", va( "%i", s_numVidModes-1 ), CV_INTEGER );
-	/**/Cvar_SetDescription( r_mode, "Set video mode:\n -2: use current desktop resolution\n -1: use \\r_customWidth and \\r_customHeight\n 0..N: enter \\listVideoModes for details." );
+	Cvar_SetDescription( r_mode, "Set video mode:\n -2: use current desktop resolution\n -1: use \\r_customWidth and \\r_customHeight\n 0..N: enter \\listVideoModes for details." );
 	r_modeFullscreen = Cvar_Get( "r_modeFullscreen", "-2", CVAR_ARCHIVE | CVAR_LATCH, "-2", va( "%i", s_numVidModes-1 ), CV_INTEGER );
-	/**/Cvar_SetDescription( r_modeFullscreen, "Dedicated fullscreen mode, set to \"\" to use \\r_mode in all cases." );
+	Cvar_SetDescription( r_modeFullscreen, "Dedicated fullscreen mode, set to \"\" to use \\r_mode in all cases." );
 
 	r_fullscreen = Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( r_fullscreen, "Fullscreen mode. Set to 0 for windowed mode." );
+	Cvar_SetDescription( r_fullscreen, "Fullscreen mode. Set to 0 for windowed mode." );
 	r_customPixelAspect = Cvar_Get( "r_customPixelAspect", "1", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_FLOAT );
 	r_customWidth = Cvar_Get( "r_customWidth", "1600", CVAR_ARCHIVE | CVAR_LATCH, "4", NULL, CV_INTEGER );
-	/**/Cvar_SetDescription(r_customWidth, "Custom width to use with \\r_mode -1");
+	Cvar_SetDescription(r_customWidth, "Custom width to use with \\r_mode -1");
 	r_customHeight = Cvar_Get( "r_customHeight", "1024", CVAR_ARCHIVE | CVAR_LATCH, "4", NULL, CV_INTEGER );
-	/**/Cvar_SetDescription( r_customHeight, "Custom height to use with \\r_mode -1" );
+	Cvar_SetDescription( r_customHeight, "Custom height to use with \\r_mode -1" );
 
 	r_colorBits = Cvar_Get( "r_colorBits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "32", CV_INTEGER );
-	/**/Cvar_SetDescription( r_colorBits, "Sets color bit depth, set to 0 to use desktop settings." );
+	Cvar_SetDescription( r_colorBits, "Sets color bit depth, set to 0 to use desktop settings." );
 
 	// shared with renderer:
 	cl_stencilBits = Cvar_Get( "r_stencilBits", "8", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "8", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_stencilBits, "Stencil buffer size, value decreases Z-buffer depth." );
+	Cvar_SetDescription( cl_stencilBits, "Stencil buffer size, value decreases Z-buffer depth." );
 	cl_depthBits = Cvar_Get( "r_depthBits", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "32", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_depthBits, "Sets precision of Z-buffer." );
+	Cvar_SetDescription( cl_depthBits, "Sets precision of Z-buffer." );
 
 	cl_drawBuffer = Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription( cl_drawBuffer, "Specifies buffer to draw from: GL_FRONT or GL_BACK." );
+	Cvar_SetDescription( cl_drawBuffer, "Specifies buffer to draw from: GL_FRONT or GL_BACK." );
 //dm
-	cl_cinematics_arc = Cvar_Get( "cl_cinematics_arc", "1", 0, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_cinematics_arc, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Use source aspect ratio." );
+	cl_cinematics_arc = Cvar_Get( "cl_cinematics_arc", "1", 0, "0", "2", CV_INTEGER );
+	Cvar_SetDescription( cl_cinematics_arc, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Uniform scaling to shorter screen boundary\n 2: Uniform scaling to longer screen boundary" );
 	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
+	Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
 	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style:\n 0: Show console (idTech2 style)\n 1: idTech3/idTech4 connecting and info screens" );
+	Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style:\n 0: Show console (idTech2 style)\n 1: idTech3/idTech4 connecting and info screens" );
 //-dm
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get( "cl_renderer", "vulkan", CVAR_ARCHIVE | CVAR_LATCH, NULL, NULL, CV_NONE );
@@ -3807,7 +3813,7 @@ void CL_Init( void ) {
 	cl_timeout = Cvar_Get( "cl_timeout", "200", 0, "5", NULL, CV_INTEGER );
 
 	cl_autoNudge = Cvar_Get( "cl_autoNudge", "0", CVAR_TEMP, "0", "1", CV_FLOAT );
-	/**/Cvar_SetDescription( cl_autoNudge, "Automatic time nudge that uses your average ping as the time nudge, values:\n 0 - use fixed \\cl_timeNudge\n (0..1] - factor of median average ping to use as timenudge\n" );
+	Cvar_SetDescription( cl_autoNudge, "Automatic time nudge that uses your average ping as the time nudge, values:\n 0 - use fixed \\cl_timeNudge\n (0..1] - factor of median average ping to use as timenudge\n" );
 	cl_timeNudge = Cvar_Get( "cl_timeNudge", "0", CVAR_TEMP, "-30", "30", CV_INTEGER );
 
 	cl_showNet = Cvar_Get( "cl_showNet", "0", CVAR_TEMP, "0", "4", CV_INTEGER );
@@ -3816,7 +3822,7 @@ void CL_Init( void ) {
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP, NULL, NULL, CV_NONE );
 
 	cl_autoRecordDemo = Cvar_Get( "cl_autoRecordDemo", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(cl_autoRecordDemo, "Auto-record demos when starting or joining a game." );
+	Cvar_SetDescription(cl_autoRecordDemo, "Auto-record demos when starting or joining a game." );
 
 	cl_aviFrameRate = Cvar_Get( "cl_aviFrameRate", "25", CVAR_ARCHIVE, "1", "1000", CV_INTEGER );
 	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
@@ -3830,10 +3836,10 @@ void CL_Init( void ) {
 	rconAddress = Cvar_Get( "rconAddress", "", 0, NULL, NULL, CV_NONE );
 
 	cl_allowDownload = Cvar_Get( "cl_allowDownload", "1", CVAR_ARCHIVE_ND, "0", "7", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_allowDownload, "Enables downloading of content needed in server. Valid bitmask flags:\n 1: Downloading enabled\n 2: Do not use HTTP/FTP downloads\n 4: Do not use UDP downloads" );
+	Cvar_SetDescription( cl_allowDownload, "Enables downloading of content needed in server. Valid bitmask flags:\n 1: Downloading enabled\n 2: Do not use HTTP/FTP downloads\n 4: Do not use UDP downloads" );
 #ifdef USE_CURL
 	cl_mapAutoDownload = Cvar_Get( "cl_mapAutoDownload", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( cl_mapAutoDownload, "Automatic map download for play and demo playback (via automatic \\dlmap call)" );
+	Cvar_SetDescription( cl_mapAutoDownload, "Automatic map download for play and demo playback (via automatic \\dlmap call)" );
 #ifdef USE_CURL_DLOPEN
 	cl_cURLLib = Cvar_Get( "cl_cURLLib", DEFAULT_CURL_LIB, 0, NULL, NULL, CV_NONE );
 #endif
@@ -3845,7 +3851,7 @@ void CL_Init( void ) {
 #else
 	cl_inGameVideo = Cvar_Get( "r_inGameVideo", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 #endif
-	/**/Cvar_SetDescription( cl_inGameVideo, "Enable/disable drawing in-game video surfaces" );
+	Cvar_SetDescription( cl_inGameVideo, "Enable/disable drawing in-game video surfaces" );
 
 	cl_serverStatusResendTime = Cvar_Get( "cl_serverStatusResendTime", "750", 0, "100", "60000", CV_INTEGER );
 
@@ -3867,7 +3873,7 @@ void CL_Init( void ) {
 	s = va( "Save downloads initiated by \\dlmap and \\download commands in:\n"
 		" 0 - current game directory\n"
 		" 1 - fs_baseGame (%s) directory\n", FS_GetBaseGameDir() );
-	/**/Cvar_SetDescription( cl_dlDirectory, s );
+	Cvar_SetDescription( cl_dlDirectory, s );
 
 	// userinfo
 	Cvar_Get ("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );

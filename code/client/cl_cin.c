@@ -1614,18 +1614,38 @@ void CIN_DrawCinematic( int handle ) {
 	h = cinTable[handle].height;
 	buf = cinTable[handle].buf;
 
-	if (cl_cinematics_arc->integer) {
-		if (cls.biasX || cls.biasY) {
+	switch ( cl_cinematics_arc->integer ) {
+	case 1:		// uniform scale to shorter boundaries
+	{
+		const float scale = cls.cine_xScale > cls.cine_yScale ? cls.cine_yScale : cls.cine_xScale;
+		if ( cls.cine_xScale != cls.cine_yScale ) {
 			// clear side areas
-			re.SetColor(colorBlack);
-			re.DrawStretchPic(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 1, 1, cls.whiteShader);
+			re.SetColor( colorBlack );
+			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 1, 1, cls.whiteShader );
 		}
-		x = x * cls.scale + cls.biasX;
-		y = y * cls.scale + cls.biasY;
-		w = w * cls.scale;
-		h = h * cls.scale;
-	} else {
+		x = x * scale + cls.cine_xAdjust;
+		y = y * scale + cls.cine_yAdjust;
+		w = w * scale;
+		h = h * scale;
+		break;
+	}
+	case 2:		// uniform scale to longer boundaries
+	{
+		const float scale = cls.cine_xScale > cls.cine_yScale ? cls.cine_xScale : cls.cine_yScale;
+		if ( cls.cine_xScale != cls.cine_yScale ) {
+			// clear side areas
+			re.SetColor( colorBlack );
+			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 1, 1, cls.whiteShader );
+		}
+		w = w * scale;
+		h = h * scale;
+		x = ( cls.glconfig.vidWidth * 0.5 ) - ( w * 0.5 );
+		y = ( cls.glconfig.vidHeight * 0.5 ) - ( h * 0.5 );
+		break;
+	}
+	default:	// stretch to screen
 		SCR_AdjustFrom640( &x, &y, &w, &h, SA_STRETCH );
+		break;
 	}
 
 	if (cinTable[handle].dirty && (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY)) {

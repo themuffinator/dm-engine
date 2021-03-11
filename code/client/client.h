@@ -354,9 +354,8 @@ typedef struct {
 	int			captureWidth;
 	int			captureHeight;
 
-	float		scale;
-	float		biasX;
-	float		biasY;
+	float		cine_xScale, cine_yScale;
+	float		cine_xAdjust, cine_yAdjust;
 
 	float		bigchar_width;
 	float		bigchar_height;
