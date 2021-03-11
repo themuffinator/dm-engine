@@ -848,7 +848,8 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 		Com_RealTime( &t );
 		
 		if ( con_drawClock->integer > 1 ) {
-			ts = va( "%d:%02d:%02d %s", t.tm_hour % 12, t.tm_min, t.tm_sec, ( t.tm_hour >= 12 ) ? "PM" : "AM" );
+			int h = t.tm_hour % 12;
+			ts = va( "%d:%02d:%02d %s", h ? h : 12, t.tm_min, t.tm_sec, ( t.tm_hour >= 12 ) ? "PM" : "AM" );
 		} else {
 			ts = va( "%d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec );
 		}
