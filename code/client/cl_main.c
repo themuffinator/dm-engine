@@ -89,7 +89,7 @@ cvar_t *cl_stencilBits;
 cvar_t *cl_depthBits;
 cvar_t *cl_drawBuffer;
 //dm
-cvar_t *cl_cinematics_arc;
+cvar_t *arc_cinematics;
 cvar_t *cl_allowConsoleChat;
 cvar_t *cl_loadScreenStyle;
 //-dm
@@ -3768,8 +3768,8 @@ static void CL_InitGLimp_Cvars( void ) {
 	cl_drawBuffer = Cvar_Get( "r_drawBuffer", "GL_BACK", CVAR_CHEAT, NULL, NULL, CV_NONE );
 	Cvar_SetDescription( cl_drawBuffer, "Specifies buffer to draw from: GL_FRONT or GL_BACK." );
 //dm
-	cl_cinematics_arc = Cvar_Get( "cl_cinematics_arc", "1", 0, "0", "2", CV_INTEGER );
-	Cvar_SetDescription( cl_cinematics_arc, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Uniform scaling to shorter screen boundary\n 2: Uniform scaling to longer screen boundary" );
+	arc_cinematics = Cvar_Get( "arc_cinematics", "1", 0, "0", "2", CV_INTEGER );
+	Cvar_SetDescription( arc_cinematics, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Uniform scaling to shorter screen boundary\n 2: Uniform scaling to longer screen boundary" );
 	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
 	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );

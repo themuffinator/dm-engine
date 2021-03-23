@@ -1614,7 +1614,7 @@ void CIN_DrawCinematic( int handle ) {
 	h = cinTable[handle].height;
 	buf = cinTable[handle].buf;
 
-	switch ( cl_cinematics_arc->integer ) {
+	switch ( arc_cinematics->integer ) {
 	case 1:		// uniform scale to shorter boundaries
 	{
 		const float scale = cls.cine_xScale > cls.cine_yScale ? cls.cine_yScale : cls.cine_xScale;
