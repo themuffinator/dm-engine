@@ -1366,13 +1366,15 @@ extern	cvar_t	*r_printShaders;
 extern cvar_t	*r_marksOnTriangleMeshes;
 
 //fnq
-extern	cvar_t	*r_arc_fov;
-extern	cvar_t	*r_arc_hud;
-extern	cvar_t	*r_arc_crosshairs;
-extern	cvar_t	*r_arc_threewave_menu_fix;
+extern	cvar_t	*arc_fov;
+extern	cvar_t	*arc_hud;
+extern	cvar_t	*arc_hud_width;
+extern	cvar_t	*arc_hud_height;
+extern	cvar_t	*arc_crosshairs;
+extern	cvar_t	*arc_threewave_menu_fix;
 
 #define SCR_MAX_REGIONS	32
-extern	cvar_t *r_arc_region[SCR_MAX_REGIONS];
+extern	cvar_t *arc_hud_region[SCR_MAX_REGIONS];
 
 extern	cvar_t *r_teleporterFlash;
 

@@ -444,9 +444,10 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 
 //dm
 	RE_UpdateScreenRegion( -1 );
-
+	
 	// do aspect correction for 3D HUD elements
-	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && r_arc_hud->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
+	//if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && arc_hud->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
+	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && arc_hud->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 
 		RE_ScaleCorrection( &x, &y, &w, &h, -1 );
@@ -522,7 +523,8 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 
 	//engine-based aspect correction, slightly modified code originally by leilei (openarena)
 	// recalculate fov according to widescreen parameters
-	if (r_arc_fov->integer && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+	//if (arc_fov->integer && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+	if (arc_fov->integer && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
 		const float afratio = (tr.refdef.fov_x / tr.refdef.fov_y);
 		float zoomfov = tr.refdef.fov_x / 90;	// figure out our zoom or changed fov magnitiude from cg_fov and cg_zoomFOV
 

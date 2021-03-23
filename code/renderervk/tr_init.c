@@ -166,12 +166,14 @@ cvar_t	*r_saveFontData;
 cvar_t	*r_marksOnTriangleMeshes;
 
 //fnq
-cvar_t	*r_arc_fov;
-cvar_t	*r_arc_hud;
-cvar_t *r_arc_crosshairs;
-cvar_t *r_arc_threewave_menu_fix;
+cvar_t	*arc_fov;
+cvar_t	*arc_hud;
+cvar_t	*arc_hud_width;
+cvar_t	*arc_hud_height;
+cvar_t	*arc_crosshairs;
+cvar_t	*arc_threewave_menu_fix;
 
-cvar_t *r_arc_region[SCR_MAX_REGIONS];
+cvar_t *arc_hud_region[SCR_MAX_REGIONS];
 
 cvar_t *r_teleporterFlash;
 
@@ -1816,26 +1818,30 @@ static void R_Register( void ) {
 	ri.Cvar_SetDescription( r_marksOnTriangleMeshes, "Enables impact marks on triangle mesh surfaces (ie: MD3 models.) Requires impact marks to be enabled in the game code." );
 
 //fnq
-	r_arc_fov = ri.Cvar_Get( "r_arc_fov", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	if (r_arc_fov->integer) {
+	arc_fov = ri.Cvar_Get( "arc_fov", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	if (arc_fov->integer) {
 		if (ri.Cvar_VariableIntegerValue("cg_fovAdjust")) {
 			ri.Cvar_Set("cg_fovAdjust", "0");
 		}
 	}
-	ri.Cvar_SetDescription(r_arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
+	ri.Cvar_SetDescription(arc_fov, "Corrects the viewport field of vision for widescreen aspect ratios.");
 
-	r_arc_hud = ri.Cvar_Get( "r_arc_hud", "2", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
-	ri.Cvar_SetDescription( r_arc_hud, "Aspect ratio adjustments of HUD elements:\n 0: Disabled\n 1: Scale 4:3 uniformly\n 2: Scale 4:3 uniformly, expand to wide or tall screen ratios using \\r_arc_region$\n" );
-	r_arc_crosshairs = ri.Cvar_Get( "r_arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	ri.Cvar_SetDescription(r_arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
-	r_arc_threewave_menu_fix = ri.Cvar_Get( "r_arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	arc_hud = ri.Cvar_Get( "arc_hud", "2", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	ri.Cvar_SetDescription( arc_hud, "Aspect ratio adjustments of HUD elements:\n 0: Disabled\n 1: Scale 4:3 uniformly\n 2: Scale 4:3 uniformly, expand to wide or tall screen ratios using \\arc_hud_region$. Uses virtual screen spaces when set (\\arc_hud_width, \\arc_hud_height)." );
+	arc_hud_width = ri.Cvar_Get( "arc_hud_width", "0", CVAR_ARCHIVE, "0", "10000", CV_INTEGER );
+	ri.Cvar_SetDescription( arc_hud_width, "Sets virtual screen width to expand HUD to when using \\arc_hud 2." );
+	arc_hud_height = ri.Cvar_Get( "arc_hud_height", "0", CVAR_ARCHIVE, "0", "10000", CV_INTEGER );
+	ri.Cvar_SetDescription( arc_hud_height, "Sets virtual screen height to expand HUD to when using \\arc_hud 2." );
+	arc_crosshairs = ri.Cvar_Get( "arc_crosshairs", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
+	ri.Cvar_SetDescription(arc_crosshairs, "Aspect adjustment of crosshairs in wide screen aspect ratios." );
+	arc_threewave_menu_fix = ri.Cvar_Get( "arc_threewave_menu_fix", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
 
 	// regions format: x1 y1 x2 y2 width_min width_max height_min height_max screen_horz screen_vert
 	{
 		int i;
 
 		for ( i = 0; i < SCR_MAX_REGIONS; i++ ) {
-			r_arc_region[i] = ri.Cvar_Get( va("r_arc_region%i", i+1), "", 0, NULL, NULL, CV_NONE );
+			arc_hud_region[i] = ri.Cvar_Get( va("arc_hud_region%i", i+1), "", 0, NULL, NULL, CV_NONE );
 		}
 	}
 

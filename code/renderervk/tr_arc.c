@@ -73,7 +73,7 @@ int RE_CharToStretch( const char *in ) {
 void RE_UpdateScreenRegion( const int index ) {
 	int i;
 
-	if ( r_arc_hud->integer < 2 ) return;
+	if ( arc_hud->integer < 2 ) return;
 
 	if ( !scr_init ) {
 		memset( &sr, 0, sizeof( sr ) );
@@ -81,14 +81,14 @@ void RE_UpdateScreenRegion( const int index ) {
 
 	for ( i = 0; i < SCR_MAX_REGIONS; i++ ) {
 		if ( scr_init && index >= 0 && i != index ) continue;
-		if ( !scr_init || sr.reg[i].cvar_mod_count != r_arc_region[i]->modificationCount ) {
+		if ( !scr_init || sr.reg[i].cvar_mod_count != arc_hud_region[i]->modificationCount ) {
 			char *s[11];
 			char v[1024];
 
-			sr.reg[i].cvar_mod_count = r_arc_region[i]->modificationCount;
-			if ( !r_arc_region[i]->string ) continue;
+			sr.reg[i].cvar_mod_count = arc_hud_region[i]->modificationCount;
+			if ( !arc_hud_region[i]->string ) continue;
 
-			strcpy( v, r_arc_region[i]->string );
+			strcpy( v, arc_hud_region[i]->string );
 			Com_Split( v, s, 11, ' ' );
 
 			sr.reg[i].x1 = Q_atof(s[0]);
@@ -177,12 +177,10 @@ Correct scaling and positioning for elements
 =============
 */
 void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int forceMode ) {
-	const int mode = ( forceMode >= 0 ) ? forceMode : r_arc_hud->integer;
-	int allow_stretch;
+	const int mode = ( forceMode >= 0 ) ? forceMode : arc_hud->integer;
 
 	if ( !mode || backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) return;
 	else {
-		float xScale, yScale;
 		float mx, my, mw, mh;
 
 		mx = (float)*x;
@@ -190,26 +188,32 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int force
 		mw = (float)*w;
 		mh = (float)*h;
 
-		xScale = ( (float)glConfig.vidWidth / 640.0 );
-		yScale = ( (float)glConfig.vidHeight / 480.0 );
-
+#if 0
 		//if x > 640 it's safe to assume the mod already has widescreen adjustments, so disable this
 		if ( ( mx / xScale ) > 640.0f ) {
-			ri.Cvar_Set( "r_arc_hud", "0" );
+			ri.Cvar_Set( "arc_hud", "0" );
 			return;
 		}
-
-		// no adjustments needed for 4:3
-		if ( xScale == yScale ) return;
-
+#endif
 		switch ( mode ) {
-		case 1:	// uniform fit to screen
+		case 1:	// uniform 4:3 fit to nearest screen boundary
 			{
+				float xScale, yScale;
+				float sAspect;
+
+				// do nothing for 4:3 screens
+				if ( glConfig.vidWidth * 480 == glConfig.vidHeight * 640 ) return;
+
+				xScale = ( (float)glConfig.vidWidth / 640.0f );
+				yScale = ( (float)glConfig.vidHeight / 480.0f );
+				sAspect = xScale - yScale;
+				if ( !sAspect ) return;
+
 				if ( xScale > yScale ) {	// wide aspect - scale x w to height
 					if ( mx ) {
 						mx /= xScale;
 						mx *= yScale;
-						mx += ( glConfig.vidWidth - ( 640.0 * yScale ) ) * 0.5;
+						mx += ( glConfig.vidWidth - ( 640.0f * yScale ) ) * 0.5;
 					}
 					if ( mw ) {
 						mw /= xScale;
@@ -219,7 +223,7 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int force
 					if ( my ) {
 						my /= yScale;
 						my *= xScale;
-						my += ( glConfig.vidHeight - ( 480.0 * xScale ) ) * 0.5;
+						my += ( glConfig.vidHeight - ( 480.0f * xScale ) ) * 0.5;
 					}
 					if ( mh ) {
 						mh /= yScale;
@@ -228,75 +232,80 @@ void RE_ScaleCorrection( float *x, float *y, float *w, float *h, const int force
 				}
 				break;
 			}
-		case 2:	// screen adjusted uniform scale
+		case 2:	// screen adjusted uniform scale + virtual screen space
 			{
-				if ( xScale > yScale ) {	// wide aspect
-					int sAlign;
-					
-					// revert to 640x480
-					if ( mx ) mx /= xScale;
-					if ( mw ) mw /= xScale;
-					if ( my ) my /= yScale;
-					if ( mh ) mh /= yScale;
+				float xScale, yScale;
+				float sAspect;
+				int allow_stretch = 0, sAlign;
+				int vWidth = arc_hud_width->integer && mode > 1 ? arc_hud_width->integer : glConfig.vidWidth;
+				int vHeight = arc_hud_height->integer && mode > 1 ? arc_hud_height->integer : glConfig.vidHeight;
+				float vxScale = (float)glConfig.vidWidth / (float)vWidth;
+				float vyScale = (float)glConfig.vidHeight / (float)vHeight;
 
-					// determine horizontal screen space alignment
-					sAlign = RE_ScrCoordToAlign( qfalse, mx, my, mx + mw, my + mh, &allow_stretch );
-					//if ( sAlign != SCR_V_MID && sAlign != SCR_H_MID ) ri.Printf( PRINT_ALL, S_COLOR_MAGENTA "adjusted an element to region %i: x1=%f y1=%f x2=%f y2=%f\n", sAlign, mx, my, (int)(mx + mw), (int)(my + mh) );
-					//if ( allow_stretch ) ri.Printf( PRINT_ALL, "streeeeeeetch = %i\n", allow_stretch );
+				if ( vxScale > vyScale ) { 	//virtually narrower aspect, scale to height
+					vWidth *= vyScale;
+					vHeight *= vyScale;
+					vxScale = vyScale = (float)glConfig.vidWidth / (float)vWidth;
+				} else if ( vxScale < vyScale ) {	//virtually wider aspect, scale to height
+					vWidth *= vxScale;
+					vHeight *= vxScale;
+					vxScale = vyScale = (float)glConfig.vidHeight / (float)vHeight;
+				}
 
-					if ( allow_stretch != STRETCH_HORZ && allow_stretch != STRETCH_ALL )
+				xScale = ( (float)vWidth / 640.0f );
+				yScale = ( (float)vHeight / 480.0f );
+				sAspect = xScale - yScale;
+
+				// revert to 640x480
+				if ( mx ) mx /= ( glConfig.vidWidth / 640.0f );
+				if ( mw ) mw /= ( glConfig.vidWidth / 640.0f );
+				if ( my ) my /= ( glConfig.vidHeight / 480.0f );
+				if ( mh ) mh /= ( glConfig.vidHeight / 480.0f );
+
+				// determine screen space alignment
+				sAlign = RE_ScrCoordToAlign( sAspect < 0, mx, my, mx + mw, my + mh, &allow_stretch );
+
+				// check to allow stretching
+				if ( sAspect >= 0 ) {
+					if ( allow_stretch != STRETCH_HORZ && allow_stretch != STRETCH_ALL ) {
 						xScale = yScale;
-
-					// scale back up uniformly
-					mx *= xScale;
-					mw *= xScale;
-					my *= yScale;
-					mh *= yScale;
-
-					// adjust horizontal position
-					switch ( sAlign ) {
-					case SCR_H_MID:
-						mx += ( glConfig.vidWidth - ( 640.0f * yScale ) ) * 0.5f;
-						break;
-					case SCR_H_RIGHT:
-						mx += glConfig.vidWidth - ( 640.0f * yScale );
-						break;
-					default: //SCR_H_LEFT
-						break;
 					}
-				} else {	//narrow/tall aspect
-					int sAlign;
-
-					// revert to 640x480
-					if ( mx ) mx /= xScale;
-					if ( mw ) mw /= xScale;
-					if ( my ) my /= yScale;
-					if ( mh ) mh /= yScale;
-
-					// determine horizontal screen space alignment
-					sAlign = RE_ScrCoordToAlign( qtrue, mx, my, mx + mw, my + mh, &allow_stretch );
-
-					if ( allow_stretch != STRETCH_VERT && allow_stretch != STRETCH_ALL )
+				} else {
+					if ( allow_stretch != STRETCH_VERT && allow_stretch != STRETCH_ALL ) {
 						yScale = xScale;
-
-					// scale back up uniformly
-					if ( mx ) mx *= xScale;
-					if ( mw ) mw *= xScale;
-					if ( my ) my *= yScale;
-					if ( mh ) mh *= yScale;
-
-					// adjust horizontal position
-					switch ( sAlign ) {
-					case SCR_V_MID:
-						my += ( glConfig.vidHeight - ( 480.0f * xScale ) ) * 0.5f;
-						break;
-					case SCR_V_BOTTOM:
-						my += glConfig.vidHeight - ( 480.0f * xScale );
-						break;
-					default: //SCR_V_TOP
-						break;
 					}
 				}
+
+				// scale back up to virtual boundary
+				mx *= xScale;
+				mw *= xScale;
+				my *= yScale;
+				mh *= yScale;
+
+				// adjust horizontal position
+				switch ( sAlign ) {
+				case SCR_H_MID:
+					mx += ( (float)vWidth - ( 640.0f * xScale ) ) * 0.5f;
+					break;
+				case SCR_H_RIGHT:
+					mx += ( (float)vWidth - ( 640.0f * xScale ) );
+					break;
+				case SCR_V_MID:
+					my += ( (float)vHeight - ( 480.0f * yScale ) ) * 0.5f;
+					break;
+				case SCR_V_BOTTOM:
+					my += ( (float)vHeight - ( 480.0f * yScale ) );
+					break;
+				case SCR_V_TOP:
+					break;
+				default: //SCR_H_LEFT or SCR_V_TOP
+					break;
+				}
+
+				// centralize to screen
+				mx += (float)( glConfig.vidWidth - vWidth ) * 0.5f;
+				my += (float)( glConfig.vidHeight - vHeight ) * 0.5f;
+
 				break;
 			}
 
@@ -333,11 +342,11 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 	}
 
 	if ( !cgame && !strstr( cmd->shader->name, "ui/assets/" ) ) {
-		if ( !Q_stricmp( mod, "threewave" ) && r_arc_threewave_menu_fix->integer ) {
+		if ( !Q_stricmp( mod, "threewave" ) && arc_threewave_menu_fix->integer ) {
 			float xScale = glConfig.vidWidth / 640.0;
 			float yScale = glConfig.vidHeight / 480.0;
 
-			switch ( r_arc_threewave_menu_fix->integer ) {
+			switch ( arc_threewave_menu_fix->integer ) {
 			case 1:
 				x -= ( (float)glConfig.vidWidth - ( ( 640.0f ) * ( (float)glConfig.vidHeight / 480.0f ) ) ) / 2;
 				break;
@@ -352,7 +361,7 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 		goto shader_parms;
 	}
 	// detect crosshairs and fix aspect
-	else if ( strstr( cmd->shader->name, "crosshair" ) && r_arc_crosshairs->integer ) {
+	else if ( strstr( cmd->shader->name, "crosshair" ) && arc_crosshairs->integer ) {
 		float oldW = w;
 
 		// excessive dawn already adjusts crosshairs for widescreen
