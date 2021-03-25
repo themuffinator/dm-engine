@@ -85,7 +85,7 @@ SafeFS_Write
 static ID_INLINE void SafeFS_Write( const void *buf, int len, fileHandle_t f )
 {
   if ( FS_Write( buf, len, f ) < len )
-		Com_Error( ERR_DROP, "Failed to write avi file" );
+		Com_Error( ERR_DROP, "Failed to write AVI file." );
 }
 
 
@@ -138,7 +138,7 @@ static ID_INLINE void START_CHUNK( const char *s )
 {
 	if( afd.chunkStackTop >= MAX_RIFF_CHUNKS )
 	{
-		Com_Error( ERR_DROP, "ERROR: Top of chunkstack breached" );
+		Com_Error( ERR_DROP, "ERROR: Top of chunkstack breached." );
 	} 
 	else 
 	{
@@ -161,7 +161,7 @@ static ID_INLINE void END_CHUNK( void )
 
 	if( afd.chunkStackTop <= 0 )
 	{
-		Com_Error( ERR_DROP, "ERROR: Bottom of chunkstack breached" );
+		Com_Error( ERR_DROP, "ERROR: Bottom of chunkstack breached." );
 	} 
 	else
 	{
@@ -367,7 +367,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName, qboolean pipe )
     const char *ospath;
 
     if ( !CL_ValidatePipeFormat( cl_aviPipeFormat->string ) ) {
-        Com_WPrintf( "Invalid pipe format: %s\n", cl_aviPipeFormat->string );
+        Com_WPrintf( "Invalid pipe format: " S_COL_VAL "%s\n", cl_aviPipeFormat->string );
         return qfalse;
     }
 
@@ -608,7 +608,7 @@ void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size )
 
 	if( bytesInBuffer + size > PCM_BUFFER_SIZE )
 	{
-		Com_WPrintf( "Audio capture buffer overflow -- truncating\n" );
+		Com_WPrintf( "Audio capture buffer overflow, truncating.\n" );
 		size = PCM_BUFFER_SIZE - bytesInBuffer;
 	}
 
@@ -668,7 +668,7 @@ qboolean CL_CloseAVI( void )
 
 	if ( afd.pipe )
 	{
-		Com_Printf( "Wrote %d:%d frames to pipe:%s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
+		Com_Printf( S_COL_BASE "Wrote " S_COL_VAL "%d:%d " S_COL_BASE "frames to pipe:" S_COL_VAL "%s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
 		FS_FCloseFile( afd.f );
 		afd.f = FS_INVALID_HANDLE;
 		afd.fileOpen = qfalse;
@@ -734,7 +734,7 @@ qboolean CL_CloseAVI( void )
 
 	FS_FCloseFile( afd.f );
 
-	Com_DPrintf( "Wrote %d:%d frames to %s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
+	Com_Printf( S_COL_BASE "Wrote " S_COL_VAL "%d:%d " S_COL_BASE "frames to " S_COL_VAL "%s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
 
 	return qtrue;
 }
