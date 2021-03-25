@@ -1302,6 +1302,7 @@ static void RoQShutdown( void ) {
 
 	if (cinTable[currentHandle].alterGameState) {
 		cls.state = CA_DISCONNECTED;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		// we can't just do a vstr nextmap, because
 		// if we are aborting the intro cinematic with
 		// a devmap command, nextmap would be valid by
@@ -1499,6 +1500,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 		if (cinTable[currentHandle].alterGameState) {
 			cls.state = CA_CINEMATIC;
+			Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		}
 		
 		Con_Close();

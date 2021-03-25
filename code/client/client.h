@@ -454,6 +454,7 @@ extern	cvar_t *cl_allowConsoleChat;
 extern	cvar_t *cl_demoRecordMessage;
 extern	cvar_t *cl_demoRecordMessage_y;
 extern	cvar_t *cl_loadScreenStyle;
+extern	cvar_t *cl_state;
 //-dm
 //=================================================
 

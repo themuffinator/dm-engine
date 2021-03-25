@@ -94,6 +94,8 @@ cvar_t *cl_allowConsoleChat;
 cvar_t *cl_demoRecordMessage;
 cvar_t *cl_demoRecordMessage_y;
 cvar_t *cl_loadScreenStyle;
+
+cvar_t *cl_state;
 //-dm
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -914,6 +916,7 @@ static void CL_PlayDemo_f( void ) {
 	Con_Close();
 
 	cls.state = CA_CONNECTED;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 	clc.demoplaying = qtrue;
 	Q_strncpyz( cls.servername, shortname, sizeof( cls.servername ) );
 
@@ -1061,6 +1064,7 @@ memory on the hunk from cgame, ui, and renderer
 void CL_MapLoading( void ) {
   	if ( com_dedicated->integer ) {
   		cls.state = CA_DISCONNECTED;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
  		Key_SetCatcher( KEYCATCH_CONSOLE );
   		return;
   	}
@@ -1075,6 +1079,7 @@ void CL_MapLoading( void ) {
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
 		cls.state = CA_CONNECTED;		// so the connect screen is drawn
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		Com_Memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
 		Com_Memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
 		Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
@@ -1087,6 +1092,7 @@ void CL_MapLoading( void ) {
 		CL_Disconnect( qtrue );
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
 		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		Key_SetCatcher( 0 );
 		cls.framecount++;
 		SCR_UpdateScreen();
@@ -1265,6 +1271,7 @@ qboolean CL_Disconnect( qboolean showMainMenu ) {
 	Com_Memset( &clc, 0, sizeof( clc ) );
 
 	cls.state = CA_DISCONNECTED;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	// allow cheats locally
 	Cvar_Set( "sv_cheats", "1" );
@@ -1643,8 +1650,10 @@ static void CL_Connect_f( void ) {
 	// with the cd key
 	if ( NET_IsLocalAddress( &clc.serverAddress ) ) {
 		cls.state = CA_CHALLENGING;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 	} else {
 		cls.state = CA_CONNECTING;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 		// Set a client challenge number that ideally is mirrored back by the server.
 		//clc.challenge = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
@@ -2017,6 +2026,7 @@ static void CL_DownloadsComplete( void ) {
 
 	// let the client game init and load data
 	cls.state = CA_LOADING;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	// Pump the loop, this may change gamestate!
 	Com_EventLoop();
@@ -2209,6 +2219,7 @@ void CL_InitDownloads( void ) {
 		if ( *clc.downloadList ) {
 			// if autodownloading is not enabled on the server
 			cls.state = CA_CONNECTED;
+			Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 			*clc.downloadTempName = *clc.downloadName = '\0';
 			Cvar_Set( "cl_downloadName", "" );
@@ -2234,6 +2245,7 @@ void CL_InitDownloads( void ) {
 			if ( CL_Download( "dlMap", mapname, qtrue ) )
 			{
 				cls.state = CA_CONNECTED; // prevent continue loading and shows the ui download progress screen
+				Cvar_Set( "cl_state", va( "%i", cls.state ) );
 				return;
 			}
 		}
@@ -2673,6 +2685,7 @@ static qboolean CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 		// start sending connect instead of challenge request packets
 		clc.challenge = atoi(Cmd_Argv(1));
 		cls.state = CA_CHALLENGING;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		clc.connectPacketCount = 0;
 		clc.connectTime = -99999;
 
@@ -2721,6 +2734,7 @@ static qboolean CL_ConnectionlessPacket( const netadr_t *from, msg_t *msg ) {
 			clc.challenge, clc.compat );
 
 		cls.state = CA_CONNECTED;
+		Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return qtrue;
 	}
@@ -3802,6 +3816,7 @@ void CL_Init( void ) {
 
 	CL_ClearState();
 	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	CL_ResetOldGame();
 
@@ -3879,6 +3894,8 @@ void CL_Init( void ) {
 		" 0 - current game directory\n"
 		" 1 - fs_baseGame (%s) directory\n", FS_GetBaseGameDir() );
 	Cvar_SetDescription( cl_dlDirectory, s );
+
+	cl_state = Cvar_Get( "cl_state", "0", CVAR_ROM, NULL, NULL, CV_NONE );
 
 	// userinfo
 	Cvar_Get ("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE_ND, NULL, NULL, CV_NONE );

@@ -852,6 +852,7 @@ void CL_InitCGame( void ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
 	cls.state = CA_LOADING;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
@@ -865,6 +866,7 @@ void CL_InitCGame( void ) {
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
 	cls.state = CA_PRIMED;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	t2 = Sys_Milliseconds();
 
@@ -999,6 +1001,7 @@ static void CL_FirstSnapshot( void ) {
 		return;
 	}
 	cls.state = CA_ACTIVE;
+	Cvar_Set( "cl_state", va( "%i", cls.state ) );
 
 	// clear old game so we will not switch back to old mod on disconnect
 	CL_ResetOldGame();

@@ -158,6 +158,7 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 	if ( msg->overflowed ) {
 		if ( cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC ) {
 			cls.state = CA_CONNECTING; // to avoid recursive error
+			Cvar_Set( "cl_state", va( "%i", cls.state ) );
 		}
 		Com_Error( ERR_DROP, "%s: message overflowed", __func__ );
 	}

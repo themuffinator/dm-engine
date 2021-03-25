@@ -372,6 +372,18 @@ void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, flo
 
 void *R_GetCommandBuffer( int bytes );
 
+typedef enum {
+	RCA_UNINITIALIZED,
+	RCA_DISCONNECTED, 	// not talking to a server
+	RCA_AUTHORIZING,		// not used any more, was checking cd key 
+	RCA_CONNECTING,		// sending request packets to the server
+	RCA_CHALLENGING,		// sending challenge packets to the server
+	RCA_CONNECTED,		// netchan_t established, getting gamestate
+	RCA_LOADING,			// only during cgame initialization, never during main loop
+	RCA_PRIMED,			// got gamestate, waiting for first frame
+	RCA_ACTIVE,			// game views should be displayed
+	RCA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
+} rconnstate_t;
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -390,6 +402,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 #endif
 	viewParms_t		parms;
 	int				startTime;
+	int				connState;
 
 	if ( !tr.registered ) {
 		return;
@@ -404,6 +417,8 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		ri.Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
+
+	connState = ri.Cvar_VariableIntegerValue( "cl_state" );
 
 	Com_Memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
 
@@ -446,7 +461,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 	RE_UpdateScreenRegion( -1 );
 	
 	// do aspect correction for 3D HUD elements
-	if ((tr.refdef.rdflags & RDF_NOWORLDMODEL) && cgame && arc_hud->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
+	if ( cgame && connState == RCA_ACTIVE && (tr.refdef.rdflags & RDF_NOWORLDMODEL) && arc_hud->integer && !backEnd.isHyperspace && !( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		float x = tr.refdef.x, y = tr.refdef.y, w = tr.refdef.width, h = tr.refdef.height;
 
 		RE_ScaleCorrection( &x, &y, &w, &h, -1 );
@@ -522,7 +537,7 @@ void RE_RenderScene( const refdef_t *fd, const qboolean cgame) {
 
 	//engine-based aspect correction, slightly modified code originally by leilei (openarena)
 	// recalculate fov according to widescreen parameters
-	if (arc_fov->integer && cgame && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+	if (arc_fov->integer && cgame && connState == CA_ACTIVE && !(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
 		const float afratio = (tr.refdef.fov_x / tr.refdef.fov_y);
 		float zoomfov = tr.refdef.fov_x / 90;	// figure out our zoom or changed fov magnitiude from cg_fov and cg_zoomFOV
 
