@@ -1562,9 +1562,9 @@ static qboolean NET_GetCvars( void ) {
 
 	
 #ifdef USE_IPV6
-	/**/Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n 2: Enable IPv6\n 4: Prioritize IPv6 connections over IPv4\n 8: Disable IPv6 multicast" );
+	Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n 2: Enable IPv6\n 4: Prioritize IPv6 connections over IPv4\n 8: Disable IPv6 multicast" );
 #else
-	/**/Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n" );
+	Cvar_SetDescription( net_enabled, "Networking options, bitmask:\n 1: Enable IPv4\n" );
 #endif
 
 	modified = net_enabled->modified;
