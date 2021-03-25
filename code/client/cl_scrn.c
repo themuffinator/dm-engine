@@ -33,24 +33,6 @@ cvar_t *cl_graphShift;
 
 /*
 ================
-SCR_DrawNamedPic
-
-Coordinates are 640*480 virtual values
-=================
-*/
-void SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname, const int scrAdjust ) {
-	qhandle_t	hShader;
-
-	assert( width != 0 );
-
-	hShader = re.RegisterShader( picname );
-	SCR_AdjustFrom640( &x, &y, &width, &height, scrAdjust );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
-}
-
-
-/*
-================
 SCR_AdjustFrom640
 
 Adjusted for resolution and screen aspect ratio
@@ -63,7 +45,7 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 
 	// scale for screen sizes
 	xScale = (float)cls.glconfig.vidWidth / 640.0f;
-	yScale = (float)cls.glconfig.vidHeight / 480.0f;
+	yScale = cls.vidScale;
 
 	// simply scale to screen boundaries if 4:3
 	if ( xScale == yScale ) {
@@ -112,15 +94,11 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 ================
 SCR_FillRect
 
-Coordinates are 640x480 virtual values
 =================
 */
-void SCR_FillRect( float x, float y, float width, float height, const float *color, const int scrAdjust ) {
+void SCR_FillRect( int x, int y, int width, int height, const float *color ) {
 	re.SetColor( color );
-
-	SCR_AdjustFrom640( &x, &y, &width, &height, scrAdjust );
 	re.DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
-
 	re.SetColor( NULL );
 }
 
@@ -129,20 +107,20 @@ void SCR_FillRect( float x, float y, float width, float height, const float *col
 ================
 SCR_DrawPic
 
-Coordinates are 640*480 virtual values
 =================
 */
-void SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader, const int scrAdjust ) {
-	SCR_AdjustFrom640( &x, &y, &width, &height, scrAdjust );
+void SCR_DrawPic( int x, int y, int width, int height, qhandle_t hShader ) {
 	re.DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 
 /*
-** SCR_DrawChar
-** chars are drawn at 640*480 virtual screen size
+================
+SCR_DrawChar
+
+=================
 */
-static void SCR_DrawChar( float x, float y, float charWidth, float charHeight, int ch, const int scrAdjust ) {
+static void SCR_DrawChar( int x, int y, int charWidth, int charHeight, int ch ) {
 	int row, col;
 	float frow, fcol;
 	float	ax, ay, aw, ah;
@@ -161,7 +139,7 @@ static void SCR_DrawChar( float x, float y, float charWidth, float charHeight, i
 	ay = y;
 	aw = charWidth;
 	ah = charHeight;
-	SCR_AdjustFrom640( &ax, &ay, &aw, &ah, scrAdjust );
+	SCR_AdjustFrom640( &ax, &ay, &aw, &ah, SA_NONE );
 
 	row = ch >> 4;
 	col = ch & 15;
@@ -180,7 +158,7 @@ static void SCR_DrawChar( float x, float y, float charWidth, float charHeight, i
 ** SCR_DrawSmallChar
 ** small chars are drawn at native screen resolution
 */
-void SCR_DrawSmallChar( float x, float y, int ch ) {
+void SCR_DrawSmallChar( int x, int y, int ch ) {
 	int		row, col;
 	float	frow, fcol;
 	float	size;
@@ -214,11 +192,11 @@ void SCR_DrawSmallChar( float x, float y, int ch ) {
 ** SCR_DrawSmallString
 ** small string are drawn at native screen resolution
 */
-void SCR_DrawSmallString( float x, float y, const char *s, int len, const int scrAdjust ) {
+void SCR_DrawSmallString( int x, int y, const char *s, int len ) {
 	int		row, col, ch, i;
 	float	frow, fcol;
 	float	size;
-	float	aX, aY;
+	int		aX, aY;
 
 	if ( y < -cls.smallchar_height ) {
 		return;
@@ -227,15 +205,14 @@ void SCR_DrawSmallString( float x, float y, const char *s, int len, const int sc
 	size = 0.0625;
 	aX = x;
 	aY = y;
-	SCR_AdjustFrom640( &aX, &aY, NULL, NULL, scrAdjust );
 
 	for ( i = 0; i < len; i++ ) {
 		ch = *s++ & 255;
 		row = ch >> 4;
 		col = ch & 15;
 
-		frow = row * 0.0625;
-		fcol = col * 0.0625;
+		frow = row * size;
+		fcol = col * size;
 
 		re.DrawStretchPic( aX, aY, cls.smallchar_width, cls.smallchar_height,
 			fcol, frow, fcol + size, frow + size,
@@ -256,7 +233,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust ) {
+void SCR_DrawStringExt( int x, int y, int charWidth, int charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -272,7 +249,7 @@ void SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, con
 			s += 2;
 			continue;
 		}
-		SCR_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s, scrAdjust );
+		SCR_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s );
 		xx += charWidth;
 		s++;
 	}
@@ -293,7 +270,7 @@ void SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, con
 				continue;
 			}
 		}
-		SCR_DrawChar( xx, y, charWidth, charHeight, *s, scrAdjust );
+		SCR_DrawChar( xx, y, charWidth, charHeight, *s );
 		xx += charWidth;
 		s++;
 	}
@@ -304,14 +281,16 @@ void SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, con
 /*
 ==================
 SCR_DrawBigString
+
+Draws a string with embedded color control characters with fade.
 ==================
 */
-void SCR_DrawBigString( float x, float y, const char *s, float alpha, qboolean noColorEscape ) {
+void SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape ) {
 	float	color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawStringExt( x, y, cls.bigchar_width, cls.bigchar_height, s, color, qfalse, noColorEscape, SA_NONE );
+	SCR_DrawStringExt( x, y, cls.bigchar_width, cls.bigchar_height, s, color, qfalse, noColorEscape );
 }
 
 
@@ -323,7 +302,7 @@ Draws a multi-colored string with a drop shadow, optionally forcing
 to a fixed color.
 ==================
 */
-void SCR_DrawSmallStringExt( float x, float y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape ) {
+void SCR_DrawSmallStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 
@@ -352,7 +331,11 @@ void SCR_DrawSmallStringExt( float x, float y, const char *string, const float *
 
 
 /*
-** SCR_Strlen -- skips color escape codes
+==================
+SCR_Strlen
+
+Skips color escape codes
+==================
 */
 static int SCR_Strlen( const char *str ) {
 	const char *s = str;
@@ -373,7 +356,10 @@ static int SCR_Strlen( const char *str ) {
 
 
 /*
-** SCR_GetBigStringWidth
+==================
+SCR_GetBigStringWidth
+
+==================
 */
 int SCR_GetBigStringWidth( const char *str ) {
 	return SCR_Strlen( str ) * cls.bigchar_width;
@@ -397,17 +383,18 @@ void SCR_DrawDemoRecording( void ) {
 		int		pos;
 
 		pos = FS_FTell( clc.recordFile );
-
+		
 		sprintf( string, "RECORDING %s: %ik", clc.recordNameShort, pos / 1024 );
-		SCR_DrawStringExt( 320 - strlen( string ) * 4, cl_demoRecordMessage_y->integer, 8, 8, string, colorWhite, qtrue, qfalse, SA_CENTER );
+		SCR_DrawStringExt( ( cls.glconfig.vidWidth - strlen( string ) * cls.smallchar_width ) / 2, (int)( cl_demoRecordMessage_y->integer * cls.vidScale ), cls.smallchar_width, cls.smallchar_height, string, colorWhite, qtrue, qfalse );
 	} else {
-		const int iconSize = 12, textSize = 8;
-		float x = 1;
+		const int iconSize = (int)( cls.smallchar_height * 1.5 );
+		int offset = (int)( 1.0f * cls.vidScale );
+		int x = offset;
 		if ( cls.recordShader ) {
-			SCR_DrawPic( x, SCREEN_HEIGHT - iconSize - 1, iconSize, iconSize, cls.recordShader, SA_LEFT );
-			x += iconSize + 1;
+			SCR_DrawPic( x, cls.glconfig.vidHeight - iconSize - offset, iconSize, iconSize, cls.recordShader );
+			x += iconSize + offset;
 		}
-		SCR_DrawStringExt( x, SCREEN_HEIGHT - 1 - iconSize + ( iconSize - textSize ) / 2, textSize, textSize, "REC", colorWhite, qtrue, qfalse, SA_LEFT );
+		SCR_DrawStringExt( x, cls.glconfig.vidHeight - offset - iconSize + (int)(( iconSize - cls.smallchar_width ) / 2), cls.smallchar_width, cls.smallchar_height, "REC", colorWhite, qtrue, qfalse );
 	}
 }
 
@@ -447,7 +434,7 @@ void SCR_DrawVoipMeter( void ) {
 	buffer[i] = '\0';
 
 	sprintf( string, "VoIP: [%s]", buffer );
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 10, 8, 8, string, g_color_table[ColorIndex( COLOR_WHITE )], qtrue, qfalse, SA_CENTER );
+	SCR_DrawStringExt( cls.glconfig.vidWidth - strlen( string ) * (int)( cls.smallchar_width / 2 ), (int)( cls.smallchar_height * 1.5 ), cls.smallchar_width, cls.smallchar_height, string, colorWhite, qtrue, qfalse, SA_CENTER );
 }
 #endif
 

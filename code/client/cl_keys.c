@@ -29,7 +29,7 @@ key up events are sent even if in console mode
 
 field_t		consoleField;
 field_t		chatField;
-qboolean	chat_mode;
+//qboolean	chat_mode;
 
 int			chat_playerNum;
 
@@ -52,7 +52,7 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, qboolean bigFont, qboolean showCursor, qboolean noColorEscape ) {
+static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, qboolean bigFont, qboolean showCursor, qboolean noColorEscape ) {
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -118,11 +118,11 @@ static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, 
 	} else {
 		if ( len > drawLen + prestep ) {
 			SCR_DrawStringExt( x + ( edit->widthInChars - 1 ) * cls.bigchar_width, y, cls.bigchar_width, cls.bigchar_height, ">",
-				g_color_table[ColorIndex( COLOR_WHITE )], qfalse, noColorEscape, SA_NONE );
+				colorWhite, qfalse, noColorEscape );
 		}
 		// draw big string with drop shadow
 		SCR_DrawStringExt( x, y, cls.bigchar_width, cls.bigchar_height, str, g_color_table[ColorIndexFromChar( curColor )],
-			qfalse, noColorEscape, SA_NONE );
+			qfalse, noColorEscape );
 	}
 
 	// draw the cursor
@@ -148,7 +148,7 @@ static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, 
 }
 
 
-void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape ) {
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape ) {
 	Field_VariableSizeDraw( edit, x, y, width, bigFont, showCursor, noColorEscape );
 }
 
@@ -234,6 +234,9 @@ static void Field_KeyDownEvent( field_t *edit, int key ) {
 		break;
 
 	case K_RIGHTARROW:
+#if 0	//FIXME: only when numlock is active
+	case K_KP_RIGHTARROW:
+#endif
 		if ( edit->cursor < len ) {
 			if ( keys[K_CTRL].down ) {
 				Field_SeekWord( edit, 1 );
@@ -245,6 +248,9 @@ static void Field_KeyDownEvent( field_t *edit, int key ) {
 		break;
 
 	case K_LEFTARROW:
+#if 0	//FIXME: only when numlock is active
+	case K_KP_LEFTARROW:
+#endif
 		if ( edit->cursor > 0 ) {
 			if ( keys[K_CTRL].down ) {
 				Field_SeekWord( edit, -1 );
@@ -503,7 +509,7 @@ static void Console_Key( int key ) {
 	// command history (ctrl-p ctrl-n for unix style)
 
 	if ( ( key == K_UPARROW )
-#if 0	//muff: TODO: only allow this behaviour when numlock is on
+#if 0	//FIXME: only when numlock is active
 		|| ( key == K_KP_UPARROW )
 #endif
 		|| ( ( tolower( key ) == 'p' ) && keys[K_CTRL].down ) ) {
@@ -512,7 +518,7 @@ static void Console_Key( int key ) {
 		return;
 	}
 	if ( ( key == K_DOWNARROW )
-#if 0	//muff: TODO: only allow this behaviour when numlock is on
+#if 0	//FIXME: only when numlock is active
 		|| ( key == K_KP_DOWNARROW )
 #endif
 		|| ( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) ) {
@@ -547,15 +553,20 @@ static void Message_Key( int key ) {
 	if ( key == K_ENTER || key == K_KP_ENTER )
 	{
 		if ( chatField.buffer[0] && cls.state == CA_ACTIVE ) {
-			if ( chat_playerNum != -1 )
-
-				Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
-
-			else if ( chat_mode )
-
+			switch ( chat_mode ) {
+			case CHATMODE_TEAM:
 				Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
-			else
+				break;
+			case CHATMODE_TARGET:
+			case CHATMODE_ATTACKER:
+				if ( chat_playerNum != -1 )
+					Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
+				else return;
+				break;
+			default:	//CHATMODE_ALL
 				Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
+				break;
+			}
 
 			CL_AddReliableCommand( buffer, qfalse );
 		}

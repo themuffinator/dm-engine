@@ -3291,6 +3291,7 @@ static void CL_SetScaling( float factor, int captureWidth, int captureHeight ) {
 	float scale;
 	scale = (float)captureHeight / 480.0f;
 	factor *= scale;
+	cls.vidScale = scale;
 	
 	// set console scaling
 	cls.smallchar_width = ceil( (float)SMALLCHAR_WIDTH * factor );

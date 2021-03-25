@@ -63,8 +63,8 @@ typedef struct {
 } console_t;
 console_t con;
 
-extern  chatModeEnum_t		chat_mode;
-extern  int					chat_playerNum;
+chatModeEnum_t		chat_mode;
+extern  int			chat_playerNum;
 
 cvar_t *con_speed;
 cvar_t *con_notifyTime;
@@ -335,6 +335,8 @@ void Con_CheckResize( void ) {
 		cls.smallchar_height = SMALLCHAR_HEIGHT;
 		cls.bigchar_width = BIGCHAR_WIDTH;
 		cls.bigchar_height = BIGCHAR_HEIGHT;
+
+		cls.vidScale = 1.0;
 	}
 
 	if ( cls.glconfig.vidWidth == 0 ) // video hasn't been initialized yet
@@ -354,7 +356,7 @@ void Con_CheckResize( void ) {
 		if ( !conWidth ) {
 			conWidth = cls.glconfig.vidWidth;
 		} else if ( conWidth < 0 ) {
-			conWidth = 640 * ( (float)cls.glconfig.vidHeight / 480.0f );
+			conWidth = (int)(640.0f * cls.vidScale);
 		} else {
 			if ( conWidth < 480 ) conWidth = 480;
 		}
@@ -669,19 +671,21 @@ Con_DrawInput
 Draw the editline after a ] prompt
 ================
 */
-static void Con_DrawInput( float x, float y ) {
+static void Con_DrawInput( int x, int y ) {
 
 	if ( cls.state != CA_DISCONNECTED && !( Key_GetCatcher() & KEYCATCH_CONSOLE ) ) {
 		return;
 	}
 
-	x += 1.0f;
+	x += 1;
 
 	re.SetColor( con.color );
 	
 	SCR_DrawSmallChar( x + cls.smallchar_width, y, ']' );
 
-	Field_Draw( &consoleField, x + 2 * cls.smallchar_width, y, consoleField.widthInChars - 1, qtrue, qfalse, qtrue );
+	Field_Draw( &consoleField, x + (int)(2 * cls.smallchar_width), y, consoleField.widthInChars - 1, qtrue, qfalse, qtrue );
+
+	re.SetColor( NULL );
 }
 
 
@@ -692,7 +696,7 @@ Con_DrawNotify
 Draws the last few lines of output transparently over the game top
 ================
 */
-void Con_DrawNotify( const int scrAdjust ) {
+void Con_DrawNotify( void ) {
 	int		x;
 	short	*text;
 	int		i;
@@ -764,7 +768,7 @@ Con_DrawSolidConsole
 Draws the console with the solid background
 ================
 */
-void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
+void Con_DrawSolidConsole( float frac ) {
 	static float backColorValue[4] = { 0.0, 0.0, 0.0, 0.0 };
 	static float foreColorValue[4] = { 0.0, 0.0, 0.0, 0.0 };
 
@@ -781,7 +785,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	int		currentColorIndex;
 	int		colorIndex;
 	int		yf, wf;
-	int		ax, ay, breakerWidth;
+	int		ax, ay, breakerWidth, endHeight;
 	char	*v[4];
 #ifdef USE_CURL
 	int		dlx1 = 0, dlx2 = 0;
@@ -801,6 +805,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 
 	if ( lines > cls.glconfig.vidHeight )
 		lines = cls.glconfig.vidHeight;
+	endHeight = (int)( (float)cls.glconfig.vidHeight * 0.5f );
 
 	wf = con.conWidth;
 	yf = frac * cls.glconfig.vidHeight;
@@ -808,7 +813,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	ax = ( cls.glconfig.vidWidth - wf ) / 2;
 	ay = 0;
 
-	breakerWidth = 3 * (cls.glconfig.vidHeight / 480);
+	breakerWidth = (int)ceil(2.0f * cls.vidScale);
 
 	//Com_Printf( "ax=%i ay=%i wf=%i yf=%i lines=%i linesBottom=%i, breakerWidth=%i smallchar_width=%i smallchar_height=%i\n", ax, ay, wf, yf, lines, linesBottom, breakerWidth, cls.smallchar_width, cls.smallchar_height );
 
@@ -854,12 +859,13 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 	if ( yf < 1 ) {
 		yf = 0;
 	} else {
+		int backy = ay + yf - (int)( (float)cls.glconfig.vidHeight / 2.0f );
 		if ( con_background->integer ) {
-			re.SetColor( con_background->integer > 1 ? backColorValue : g_color_table[ColorIndex( COLOR_WHITE )] );
-			SCR_DrawPic( ax, ay, wf, ay + yf, cls.consoleShader, SA_NONE );
+			re.SetColor( con_background->integer > 1 ? backColorValue : colorWhite );
+			SCR_DrawPic( ax, backy, wf, endHeight, cls.consoleShader );
 		} else {
 			re.SetColor( backColorValue );
-			SCR_DrawPic( ax, ay, wf, ay + yf, cls.whiteShader, SA_NONE );
+			SCR_DrawPic( ax, backy, wf, endHeight, cls.whiteShader );
 		}
 	}
 
@@ -870,7 +876,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 		re.SetColor( g_color_table[currentColorIndex] );
 		i = (int)strlen( download.progress );
 		dw = i * cls.smallchar_width;
-		dx = ( cls.glconfig.vidWidth - dw ) / 2;
+		dx = (int)(( cls.glconfig.vidWidth - dw ) / 2);
 		dlx1 = dx;
 		dlx2 = dx + dw;
 		for ( x = 0; x < i; x++ ) {
@@ -883,19 +889,7 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 
 	// draw breaker
 	re.SetColor( foreColorValue );
-	SCR_DrawPic( ax, ay + yf, wf, breakerWidth, cls.whiteShader, SA_NONE );
-
-	// draw the version number
-	if ( con_showVersion->integer ) {
-		int vx = wf - ( ( ARRAY_LEN( PRODUCT_VERSION ) + 2 ) * cls.smallchar_width );
-#ifdef USE_CURL
-		if ( !download.progress[0] || ( download.progress[0] && dlx2 < vx ) ) {
-#endif
-			SCR_DrawSmallString( ax + vx, lines, PRODUCT_VERSION, ARRAY_LEN( PRODUCT_VERSION ) - 1, SA_NONE );
-#ifdef USE_CURL
-		}
-#endif
-	}
+	SCR_DrawPic( ax, ay + yf, wf, breakerWidth, cls.whiteShader );
 
 	// draw clock
 	if ( con_showClock->integer ) {
@@ -919,11 +913,24 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 #ifdef USE_CURL
 		if ( !download.progress[0] || ( download.progress[0] && dlx1 > cx + ( tl * cls.smallchar_width ) ) ) {
 #endif
-			SCR_DrawSmallString( cx, lines, ts, tl, SA_NONE );
+			SCR_DrawSmallString( cx, lines, ts, tl );
 #ifdef USE_CURL
 		}
 #endif
 	}
+
+	// draw the version number
+	if ( con_showVersion->integer ) {
+		int vx = ax + wf - (int)( ARRAY_LEN( PRODUCT_VERSION ) * cls.smallchar_width );
+#ifdef USE_CURL
+		if ( !download.progress[0] || ( download.progress[0] && dlx2 < vx ) ) {
+#endif
+			SCR_DrawSmallString( vx, lines, PRODUCT_VERSION, ARRAY_LEN( PRODUCT_VERSION ) - 1 );
+#ifdef USE_CURL
+		}
+#endif
+	}
+
 	re.SetColor( NULL );
 
 	// draw the text
@@ -975,22 +982,22 @@ void Con_DrawSolidConsole( float frac, const int scrAdjust ) {
 
 	// draw scrollbar
 	if ( con_scrollBar->integer ) {
+		const int height = endHeight - linesBottom;
 		const int mx = ax + wf - cls.smallchar_width;
-		const int my = 0;
-		const int height = lines;
-		const float tic = height / con.totalUsedLines;
-		const float visHeight = tic * rows;
+		const int my = ay + yf - height - linesBottom;
+		const float tic = (float)height / (float)con.totalUsedLines;
+		const float visHeight = tic * (float)rows;
 		if ( con.totalUsedLines > rows ) {
 			re.SetColor( colorBlack );
-			SCR_DrawPic( mx, my, breakerWidth, height, cls.whiteShader, SA_NONE );
+			SCR_DrawPic( mx, my, breakerWidth, height, cls.whiteShader );
 
 			re.SetColor( foreColorValue );
-			SCR_DrawPic( mx, my + height - visHeight - abs( tic * ( con.current - con.display ) ), breakerWidth, visHeight, cls.whiteShader, SA_NONE );
+			SCR_DrawPic( mx, my + height - visHeight - abs( tic * ( con.current - con.display ) ), breakerWidth, visHeight, cls.whiteShader );
 		}
 	}
 
 	// draw the input prompt, user text, and cursor if desired
-	Con_DrawInput( ax, lines - ceil((float)cls.smallchar_height * 1.25) );
+	Con_DrawInput( ax, lines - (int)ceil((float)cls.smallchar_height * 1.25) );
 
 	re.SetColor( NULL );
 }
@@ -1002,7 +1009,6 @@ Con_DrawConsole
 ==================
 */
 void Con_DrawConsole( void ) {
-	const int scrAdjust = SA_NONE;
 	// check for console width changes from a vid mode change
 	Con_CheckResize();
 
@@ -1010,17 +1016,17 @@ void Con_DrawConsole( void ) {
 	//TODO: save buffer contents to draw under console when cl_loadScreenStyle = 0
 	if ( cls.state == CA_DISCONNECTED || ( !cl_loadScreenStyle->integer && ( cls.state >= CA_CONNECTING && cls.state <= CA_PRIMED ) ) ) {
 		if ( !( Key_GetCatcher() & ( KEYCATCH_UI | KEYCATCH_CGAME ) ) ) {
-			Con_DrawSolidConsole( ( cls.state == CA_DISCONNECTED ) ? 1.0 : 0.5, scrAdjust );
+			Con_DrawSolidConsole( ( cls.state == CA_DISCONNECTED ) ? 1.0 : 0.5 );
 			return;
 		}
 	}
 
 	if ( con.displayFrac ) {
-		Con_DrawSolidConsole( con.displayFrac, scrAdjust );
+		Con_DrawSolidConsole( con.displayFrac );
 	} else {
 		// draw notify lines
 		if ( cls.state == CA_ACTIVE ) {
-			Con_DrawNotify( SA_LEFT );
+			Con_DrawNotify();
 		}
 	}
 }

@@ -713,9 +713,9 @@ static int Com_DL_CallbackProgress( void *data, double dltotal, double dlnow, do
 
 	if ( dl->Size ) {
 		percentage = ( dlnow / dltotal ) * 100.0;
-		sprintf( dl->progress, " downloading %s: %s (%i%%)", dl->Name, sizeToString( dl->Count ), (int)percentage );
+		sprintf( dl->progress, "downloading %s: %s (%.1f%%)", dl->Name, sizeToString( dl->Count ), percentage );
 	} else {
-		sprintf( dl->progress, " downloading %s: %s", dl->Name, sizeToString( dl->Count ) );
+		sprintf( dl->progress, "waiting for download" );
 	}
 
 	if ( dl->func.easy_getinfo( dl->cURL, CURLINFO_SPEED_DOWNLOAD, &speed ) == CURLE_OK ) {

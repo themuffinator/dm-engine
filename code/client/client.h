@@ -363,6 +363,8 @@ typedef struct {
 	int			bigchar_height;
 	int			smallchar_width;
 	int			smallchar_height;
+
+	float		vidScale;
 } clientStatic_t;
 
 typedef enum {
@@ -372,7 +374,7 @@ typedef enum {
 	CHATMODE_ATTACKER,
 	CHATMODE_TOTAL
 } chatModeEnum_t;
-
+extern  chatModeEnum_t		chat_mode;
 extern	clientStatic_t		cls;
 
 extern	char		cl_oldGame[MAX_QPATH];
@@ -504,7 +506,7 @@ void CL_WritePacket( void );
 extern  field_t     chatField;
 extern  field_t     consoleField;
 
-void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape );
+void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape );
 
 //
 // cl_parse.c
@@ -523,7 +525,6 @@ qboolean CL_ValidPakSignature( const byte *data, int len );
 //
 // console
 //
-void Con_CheckResize( void );
 void Con_Init( void );
 void Con_Shutdown( void );
 void Con_ToggleConsole_f( void );
@@ -536,9 +537,6 @@ void Con_Top( void );
 void Con_Bottom( void );
 void Con_Close( void );
 
-void CL_LoadConsoleHistory( void );
-void CL_SaveConsoleHistory( void );
-
 //
 // cl_scrn.c
 //
@@ -547,18 +545,18 @@ void	SCR_UpdateScreen (void);
 
 void	SCR_DebugGraph( float value );
 
-int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
+int		SCR_GetBigStringWidth( const char *str );
 
 void	SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdjustEnum_t scrAlign );
-void	SCR_FillRect( float x, float y, float width, float height, const float *color, const int scrAdjust);
-void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader, const int scrAdjust );
-void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname, const int scrAdjust );
 
-void	SCR_DrawBigString( float x, float y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawStringExt( float x, float y, float charWidth, float charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape, const int scrAdjust );
-void	SCR_DrawSmallStringExt( float x, float y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
-void	SCR_DrawSmallChar( float x, float y, int ch);
-void	SCR_DrawSmallString( float x, float y, const char *s, int len, const int scrAdjust );
+void	SCR_FillRect( int x, int y, int width, int height, const float *color );
+void	SCR_DrawPic( int x, int y, int width, int height, qhandle_t hShader );
+
+void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );
+void	SCR_DrawStringExt( int x, int y, int charWidth, int charHeight, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawSmallStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean noColorEscape );
+void	SCR_DrawSmallChar( int x, int y, int ch);
+void	SCR_DrawSmallString( int x, int y, const char *s, int len );
 
 //
 // cl_cin.c
