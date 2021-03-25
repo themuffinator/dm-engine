@@ -775,7 +775,7 @@ static intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case CG_IS_RECORDING_DEMO:
-		return clc.demorecording;
+		return clc.demoRecording;
 
 	case CG_TRAP_GETVALUE:
 		VM_CHECKBOUNDS( cgvm, args[1], args[2] );

@@ -412,17 +412,17 @@ void S_Init( void )
 	Com_Printf( "------ Initializing Sound ------\n" );
 
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
-	/**/Cvar_SetDescription(s_volume, "Sets master volume for all game audio.");
+	Cvar_SetDescription(s_volume, "Sets master volume for all game audio.");
 	s_announcerScale = Cvar_Get( "s_announcerScale", "1.0", CVAR_ARCHIVE, "0", "2", CV_FLOAT );
-	/**/Cvar_SetDescription( s_announcerScale, "Scales volume of the in-game announcer.");
+	Cvar_SetDescription( s_announcerScale, "Scales volume of the in-game announcer.");
 	s_musicVolume = Cvar_Get( "s_musicVolume", "0.25", CVAR_ARCHIVE, "0", "1", CV_FLOAT );
-	/**/Cvar_SetDescription(s_musicVolume, "Sets volume for in-game music.");
+	Cvar_SetDescription(s_musicVolume, "Sets volume for in-game music.");
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(s_doppler, "Enables doppler effect on moving projectiles.");
+	Cvar_SetDescription(s_doppler, "Enables doppler effect on moving projectiles.");
 	s_muteWhenUnfocused = Cvar_Get( "s_muteWhenUnfocused", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(s_muteWhenUnfocused, "Mutes all audio while game window is unfocused.");
+	Cvar_SetDescription(s_muteWhenUnfocused, "Mutes all audio while game window is unfocused.");
 	s_muteWhenMinimized = Cvar_Get( "s_muteWhenMinimized", "1", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(s_muteWhenMinimized, "Mutes all audio while game is minimized.");
+	Cvar_SetDescription(s_muteWhenMinimized, "Mutes all audio while game is minimized.");
 
 	cv = Cvar_Get( "s_init", "1", 0, "0", "1", CV_INTEGER );
 	if ( !cv->integer ) {

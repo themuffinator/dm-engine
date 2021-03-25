@@ -308,11 +308,11 @@ static void Cmd_Exec_f( void ) {
 	FS_ReadFile( filename, &f.v );
 	FS_RestorePure();
 	if ( f.v == NULL ) {
-		Com_Printf( "Couldn't exec %s\n", filename );
+		Com_WPrintf( "Couldn't exec " S_COL_VAL "%s\n", filename );
 		return;
 	}
 	if (!quiet)
-		Com_Printf ("execing %s\n", filename);
+		Com_Printf( S_COL_BASE "Execing " S_COL_VAL "%s" S_COL_BASE "...\n", filename);
 	
 	Cbuf_InsertText( f.c );
 
