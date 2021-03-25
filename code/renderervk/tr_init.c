@@ -1866,7 +1866,7 @@ static void R_Register( void ) {
 	ri.Cvar_SetDescription(r_dlightDesaturate, "Colour desaturation for dynamic lights. Set to 0 to revert to original colour values.");
 
 	r_fogGreyScale = ri.Cvar_Get("r_fogGreyScale", "0", CVAR_ARCHIVE_ND | CVAR_LATCH, "0", "1", CV_FLOAT);
-	ri.Cvar_SetDescription(r_fogGreyScale, "Desaturates fog volumes, works independently from \\r_greyScale.");
+	ri.Cvar_SetDescription(r_fogGreyScale, "Desaturates fog volumes in world, works independently from \\r_greyScale.");
 //-fnq
 
 	r_aviMotionJpegQuality = ri.Cvar_Get( "r_aviMotionJpegQuality", "90", CVAR_ARCHIVE_ND, "0", "100", CV_INTEGER );
