@@ -27,7 +27,7 @@ key up events are sent even if in console mode
 
 */
 
-field_t		g_consoleField;
+field_t		consoleField;
 field_t		chatField;
 qboolean	chat_mode;
 
@@ -113,11 +113,11 @@ static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, 
 	if ( !bigFont ) {
 		SCR_DrawSmallStringExt( x, y, str, g_color_table[ColorIndexFromChar( curColor )], qfalse, noColorEscape );
 		if ( len > drawLen + prestep ) {
-			SCR_DrawSmallChar( x + (float)( edit->widthInChars - 1 ) * cls.smallchar_width, y, '>' );
+			SCR_DrawSmallChar( x + ( edit->widthInChars - 1 ) * cls.smallchar_width, y, '>' );
 		}
 	} else {
 		if ( len > drawLen + prestep ) {
-			SCR_DrawStringExt( x + (float)( edit->widthInChars - 1 ) * cls.bigchar_width, y, cls.bigchar_width, cls.bigchar_height, ">",
+			SCR_DrawStringExt( x + ( edit->widthInChars - 1 ) * cls.bigchar_width, y, cls.bigchar_width, cls.bigchar_height, ">",
 				g_color_table[ColorIndex( COLOR_WHITE )], qfalse, noColorEscape, SA_NONE );
 		}
 		// draw big string with drop shadow
@@ -136,25 +136,20 @@ static void Field_VariableSizeDraw( field_t *edit, float x, float y, int width, 
 		i = drawLen - strlen( str );
 
 		if ( !bigFont ) {
-			SCR_DrawSmallChar( (float)((float)x + (float)( edit->cursor - prestep - i ) * cls.smallchar_width), y, cursorChar );
+			SCR_DrawSmallChar( x + ( edit->cursor - prestep - i ) * cls.smallchar_width, y, cursorChar );
 		} else {
+			int cursor_x = x + ( edit->cursor - prestep - i ) * cls.bigchar_width;
 			str[0] = cursorChar;
 			str[1] = '\0';
-			SCR_DrawBigString( x + (float)( edit->cursor - prestep - i ) * cls.bigchar_width, y, str, 1.0, qfalse );
+			//Com_Printf( "cursor_x=%i bigchar_width=%i\n", cursor_x, cls.bigchar_width );
+			SCR_DrawBigString( cursor_x, y, str, 1.0, qfalse );
 		}
 	}
 }
 
 
-void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape )
-{
-	Field_VariableSizeDraw( edit, x, y, width, qfalse, showCursor, noColorEscape );
-}
-
-
-void Field_BigDraw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape )
-{
-	Field_VariableSizeDraw( edit, x, y, width, qtrue, showCursor, noColorEscape );
+void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape ) {
+	Field_VariableSizeDraw( edit, x, y, width, bigFont, showCursor, noColorEscape );
 }
 
 
@@ -396,42 +391,42 @@ static void Console_Key( int key ) {
 	if ( key == K_ENTER || key == K_KP_ENTER ) {
 		// if not in the game explicitly prepend a slash if needed
 		if ( cls.state != CA_ACTIVE
-			&& g_consoleField.buffer[0] != '\0'
-			&& g_consoleField.buffer[0] != '\\'
-			&& g_consoleField.buffer[0] != '/' ) {
+			&& consoleField.buffer[0] != '\0'
+			&& consoleField.buffer[0] != '\\'
+			&& consoleField.buffer[0] != '/' ) {
 			//dm
 						//char	temp[MAX_EDIT_LINE-1];
 			//-dm
 
-			Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
-			Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
-			g_consoleField.cursor++;
+			Q_strncpyz( temp, consoleField.buffer, sizeof( temp ) );
+			Com_sprintf( consoleField.buffer, sizeof( consoleField.buffer ), "\\%s", temp );
+			consoleField.cursor++;
 		}
 
-		Com_Printf( "]%s\n", g_consoleField.buffer );
+		Com_Printf( "]%s\n", consoleField.buffer );
 
 		// leading slash is an explicit command
-		if ( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' ) {
-			Cbuf_AddText( g_consoleField.buffer + 1 );	// valid command
+		if ( consoleField.buffer[0] == '\\' || consoleField.buffer[0] == '/' ) {
+			Cbuf_AddText( consoleField.buffer + 1 );	// valid command
 			Cbuf_AddText( "\n" );
 		}
 		else {
 			// other text will be chat messages
-			if ( !g_consoleField.buffer[0] ) {
+			if ( !consoleField.buffer[0] ) {
 				return;	// empty lines just scroll the console without adding to history
 			}
 			else {
 				//dm
 				if ( !cl_allowConsoleChat->integer ) {
-					Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
-					Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
-					g_consoleField.cursor++;
-					Cbuf_AddText( g_consoleField.buffer + 1 );	// valid command
+					Q_strncpyz( temp, consoleField.buffer, sizeof( temp ) );
+					Com_sprintf( consoleField.buffer, sizeof( consoleField.buffer ), "\\%s", temp );
+					consoleField.cursor++;
+					Cbuf_AddText( consoleField.buffer + 1 );	// valid command
 					Cbuf_AddText( "\n" );
 				}
 				else {
 					Cbuf_AddText( "cmd say " );
-					Cbuf_AddText( g_consoleField.buffer );
+					Cbuf_AddText( consoleField.buffer );
 					Cbuf_AddText( "\n" );
 				}
 				//-dm
@@ -439,10 +434,10 @@ static void Console_Key( int key ) {
 		}
 
 		// copy line to history buffer
-		Con_SaveField( &g_consoleField );
+		Con_SaveField( &consoleField );
 
-		Field_Clear( &g_consoleField );
-		g_consoleField.widthInChars = g_console_field_width;
+		Field_Clear( &consoleField );
+		consoleField.widthInChars = con_field_width;
 
 		if ( cls.state == CA_DISCONNECTED ) {
 			SCR_UpdateScreen();	// force an update, because the command
@@ -453,7 +448,7 @@ static void Console_Key( int key ) {
 	// command completion
 
 	if ( key == K_TAB ) {
-		Field_AutoComplete( &g_consoleField );
+		Field_AutoComplete( &consoleField );
 		return;
 	}
 
@@ -507,22 +502,26 @@ static void Console_Key( int key ) {
 
 	// command history (ctrl-p ctrl-n for unix style)
 
-	if ( ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
-		( ( tolower( key ) == 'p' ) && keys[K_CTRL].down ) ) {
-		Con_HistoryGetPrev( &g_consoleField );
-		g_consoleField.widthInChars = g_console_field_width;
+	if ( ( key == K_UPARROW )
+#if 0	//muff: TODO: only allow this behaviour when numlock is on
+		|| ( key == K_KP_UPARROW )
+#endif
+		|| ( ( tolower( key ) == 'p' ) && keys[K_CTRL].down ) ) {
+		Con_HistoryGetPrev( &consoleField );
+		consoleField.widthInChars = con_field_width;
 		return;
 	}
-
-	if ( ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
-		( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) ) {
-		Con_HistoryGetNext( &g_consoleField );
-		g_consoleField.widthInChars = g_console_field_width;
+	if ( ( key == K_DOWNARROW )
+#if 0	//muff: TODO: only allow this behaviour when numlock is on
+		|| ( key == K_KP_DOWNARROW )
+#endif
+		|| ( ( tolower( key ) == 'n' ) && keys[K_CTRL].down ) ) {
+		Con_HistoryGetNext( &consoleField );
+		consoleField.widthInChars = con_field_width;
 		return;
 	}
-
 	// pass to the normal editline routine
-	Field_KeyDownEvent( &g_consoleField, key );
+	Field_KeyDownEvent( &consoleField, key );
 }
 
 //============================================================================
@@ -781,7 +780,7 @@ void CL_CharEvent( int key )
 	// distribute the key down event to the apropriate handler
 	if ( Key_GetCatcher() & KEYCATCH_CONSOLE )
 	{
-		Field_CharEvent( &g_consoleField, key );
+		Field_CharEvent( &consoleField, key );
 	}
 	else if ( Key_GetCatcher() & KEYCATCH_UI )
 	{
@@ -793,7 +792,7 @@ void CL_CharEvent( int key )
 	}
 	else if ( cls.state == CA_DISCONNECTED )
 	{
-		Field_CharEvent( &g_consoleField, key );
+		Field_CharEvent( &consoleField, key );
 	}
 }
 

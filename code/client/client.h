@@ -96,7 +96,7 @@ typedef struct {
 // it can be un-deltad from the original 
 #define	MAX_PARSE_ENTITIES	( PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES )
 
-extern int g_console_field_width;
+extern int con_field_width;
 
 typedef struct {
 	int			timeoutcount;		// it requres several frames in a timeout condition
@@ -233,12 +233,12 @@ typedef struct {
 	char		recordNameShort[TRUNCATE_LENGTH]; // for recording message
 	qboolean	dm68compat;
 	qboolean	spDemoRecording;
-	qboolean	demorecording;
+	qboolean	demoRecording;
 	qboolean	demoplaying;
 	qboolean	demowaiting;	// don't record until a non-delta message is received
 	qboolean	firstDemoFrameSkipped;
 	fileHandle_t	demofile;
-	fileHandle_t	recordfile;
+	fileHandle_t	recordFile;
 
 	int		timeDemoFrames;		// counter of rendered frames
 	int		timeDemoStart;		// cls.realtime before first frame
@@ -346,6 +346,8 @@ typedef struct {
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
 
+	qhandle_t	recordShader;
+
 	int			lastVidRestart;
 	int			soundMuted;
 
@@ -357,11 +359,10 @@ typedef struct {
 	float		cine_xScale, cine_yScale;
 	float		cine_xAdjust, cine_yAdjust;
 
-	float		bigchar_width;
-	float		bigchar_height;
-	float		smallchar_width;
-	float		smallchar_height;
-
+	int			bigchar_width;
+	int			bigchar_height;
+	int			smallchar_width;
+	int			smallchar_height;
 } clientStatic_t;
 
 typedef enum {
@@ -448,6 +449,8 @@ extern	cvar_t	*cl_drawBuffer;
 //dm
 extern	cvar_t *arc_cinematics;
 extern	cvar_t *cl_allowConsoleChat;
+extern	cvar_t *cl_demoRecordMessage;
+extern	cvar_t *cl_demoRecordMessage_y;
 extern	cvar_t *cl_loadScreenStyle;
 //-dm
 //=================================================
@@ -499,10 +502,9 @@ void CL_WritePacket( void );
 // cl_keys.c
 //
 extern  field_t     chatField;
-extern  field_t     g_consoleField;
+extern  field_t     consoleField;
 
-void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape );
-void Field_BigDraw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean noColorEscape );
+void Field_Draw( field_t *edit, float x, float y, int width, qboolean showCursor, qboolean bigFont, qboolean noColorEscape );
 
 //
 // cl_parse.c

@@ -62,8 +62,8 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 	if ( scrAlign == SA_NONE ) return;
 
 	// scale for screen sizes
-	xScale = (float)cls.glconfig.vidWidth / 640.0;
-	yScale = (float)cls.glconfig.vidHeight / 480.0;
+	xScale = (float)cls.glconfig.vidWidth / 640.0f;
+	yScale = (float)cls.glconfig.vidHeight / 480.0f;
 
 	// simply scale to screen boundaries if 4:3
 	if ( xScale == yScale ) {
@@ -83,8 +83,8 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 		break;
 	case SA_CENTER:
 		if ( x != NULL ) {
-			if ( x ) *x *= yScale;
-			*x -= cls.glconfig.vidWidth * 0.5;
+			*x *= yScale;
+			*x += ( (float)cls.glconfig.vidWidth - (640.0f * yScale) ) * 0.5;
 		}
 		if ( y ) *y *= yScale;
 		if ( w ) *w *= yScale;
@@ -92,8 +92,8 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 		break;
 	case SA_RIGHT:
 		if ( x != NULL ) {
-			if ( x ) *x *= yScale;
-			*x -= cls.glconfig.vidWidth;
+			*x *= yScale;
+			*x += (float)cls.glconfig.vidWidth - ( 640.0f * yScale );
 		}
 		if ( y ) *y *= yScale;
 		if ( w ) *w *= yScale;
@@ -112,7 +112,7 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h, const screenAdju
 ================
 SCR_FillRect
 
-Coordinates are 640*480 virtual values
+Coordinates are 640x480 virtual values
 =================
 */
 void SCR_FillRect( float x, float y, float width, float height, const float *color, const int scrAdjust ) {
@@ -203,7 +203,7 @@ void SCR_DrawSmallChar( float x, float y, int ch ) {
 	size = 0.0625;
 #if 0
 	if ( ch == 10 )
-		Com_Printf( "x=%f y=%f w=%f h=%f --> %f\n", x, y, cls.smallchar_width, cls.smallchar_height, (x-1)/cls.smallchar_width );
+		Com_Printf( "x=%f y=%f w=%i h=%i --> %i\n", x, y, cls.smallchar_width, cls.smallchar_height, (x-1)/cls.smallchar_width );
 #endif
 	re.DrawStretchPic( x, y, cls.smallchar_width, cls.smallchar_height,
 		fcol, frow, fcol + size, frow + size, cls.charSetShader );
@@ -388,20 +388,27 @@ SCR_DrawDemoRecording
 =================
 */
 void SCR_DrawDemoRecording( void ) {
-	char	string[sizeof( clc.recordNameShort ) + 32];
-	int		pos;
+	if ( !clc.demoRecording ) return;
+	if ( clc.spDemoRecording ) return;
+	if ( !cl_demoRecordMessage->integer ) return;
 
-	if ( !clc.demorecording ) {
-		return;
+	if ( cl_demoRecordMessage->integer == 1 ) {
+		char	string[sizeof( clc.recordNameShort ) + 32];
+		int		pos;
+
+		pos = FS_FTell( clc.recordFile );
+
+		sprintf( string, "RECORDING %s: %ik", clc.recordNameShort, pos / 1024 );
+		SCR_DrawStringExt( 320 - strlen( string ) * 4, cl_demoRecordMessage_y->integer, 8, 8, string, colorWhite, qtrue, qfalse, SA_CENTER );
+	} else {
+		const int iconSize = 12, textSize = 8;
+		float x = 1;
+		if ( cls.recordShader ) {
+			SCR_DrawPic( x, SCREEN_HEIGHT - iconSize - 1, iconSize, iconSize, cls.recordShader, SA_LEFT );
+			x += iconSize + 1;
+		}
+		SCR_DrawStringExt( x, SCREEN_HEIGHT - 1 - iconSize + ( iconSize - textSize ) / 2, textSize, textSize, "REC", colorWhite, qtrue, qfalse, SA_LEFT );
 	}
-	if ( clc.spDemoRecording ) {
-		return;
-	}
-
-	pos = FS_FTell( clc.recordfile );
-	sprintf( string, "RECORDING %s: %ik", clc.recordNameShort, pos / 1024 );
-
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 20, 8, 8, string, g_color_table[ColorIndex( COLOR_WHITE )], qtrue, qfalse, SA_CENTER );
 }
 
 

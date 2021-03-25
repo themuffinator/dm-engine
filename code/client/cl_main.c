@@ -91,6 +91,8 @@ cvar_t *cl_drawBuffer;
 //dm
 cvar_t *arc_cinematics;
 cvar_t *cl_allowConsoleChat;
+cvar_t *cl_demoRecordMessage;
+cvar_t *cl_demoRecordMessage_y;
 cvar_t *cl_loadScreenStyle;
 //-dm
 clientActive_t		cl;
@@ -221,13 +223,13 @@ static void CL_WriteDemoMessage( msg_t *msg, int headerBytes ) {
 	// write the packet sequence
 	len = clc.serverMessageSequence;
 	swlen = LittleLong( len );
-	FS_Write( &swlen, 4, clc.recordfile );
+	FS_Write( &swlen, 4, clc.recordFile );
 
 	// skip the packet sequencing information
 	len = msg->cursize - headerBytes;
 	swlen = LittleLong(len);
-	FS_Write( &swlen, 4, clc.recordfile );
-	FS_Write( msg->data + headerBytes, len, clc.recordfile );
+	FS_Write( &swlen, 4, clc.recordFile );
+	FS_Write( msg->data + headerBytes, len, clc.recordFile );
 }
 
 
@@ -240,7 +242,7 @@ stop recording a demo
 */
 void CL_StopRecord_f( void ) {
 
-	if ( clc.recordfile != FS_INVALID_HANDLE ) {
+	if ( clc.recordFile != FS_INVALID_HANDLE ) {
 		char tempName[MAX_OSPATH];
 		char finalName[MAX_OSPATH];
 		int protocol;
@@ -248,10 +250,10 @@ void CL_StopRecord_f( void ) {
 
 		// finish up
 		len = -1;
-		FS_Write( &len, 4, clc.recordfile );
-		FS_Write( &len, 4, clc.recordfile );
-		FS_FCloseFile( clc.recordfile );
-		clc.recordfile = FS_INVALID_HANDLE;
+		FS_Write( &len, 4, clc.recordFile );
+		FS_Write( &len, 4, clc.recordFile );
+		FS_FCloseFile( clc.recordFile );
+		clc.recordFile = FS_INVALID_HANDLE;
 
 		// select proper extension
 		if ( clc.dm68compat || clc.demoplaying )
@@ -277,9 +279,9 @@ void CL_StopRecord_f( void ) {
 		FS_Rename( tempName, finalName );
 	}
 
-	Com_Printf( clc.demorecording ? "Stopped demo recording.\n" : "Not recording a demo.\n" );
+	Com_Printf( clc.demoRecording ? va( S_COL_BASE "Stopped demo recording: " S_COL_VAL "%s\n", clc.recordName) : S_COL_BASE "Not recording a demo.\n" );
 
-	clc.demorecording = qfalse;
+	clc.demoRecording = qfalse;
 	clc.spDemoRecording = qfalse;
 }
 
@@ -384,11 +386,11 @@ static void CL_WriteGamestate( qboolean initial )
 	else
 		len = LittleLong( clc.serverMessageSequence - 1 );
 
-	FS_Write( &len, 4, clc.recordfile );
+	FS_Write( &len, 4, clc.recordFile );
 
 	len = LittleLong( msg.cursize );
-	FS_Write( &len, 4, clc.recordfile );
-	FS_Write( msg.data, msg.cursize, clc.recordfile );
+	FS_Write( &len, 4, clc.recordFile );
+	FS_Write( msg.data, msg.cursize, clc.recordFile );
 }
 
 
@@ -514,11 +516,11 @@ static void CL_WriteSnapshot( void ) {
 		len = LittleLong( clc.demoMessageSequence );
 	else
 		len = LittleLong( clc.serverMessageSequence );
-	FS_Write( &len, 4, clc.recordfile );
+	FS_Write( &len, 4, clc.recordFile );
 
 	len = LittleLong( msg.cursize );
-	FS_Write( &len, 4, clc.recordfile );
-	FS_Write( msg.data, msg.cursize, clc.recordfile );
+	FS_Write( &len, 4, clc.recordFile );
+	FS_Write( msg.data, msg.cursize, clc.recordFile );
 
 	// save last sent state so if there any need - we can skip any further incoming messages
 	for ( i = 0; i < snap->numEntities; i++ )
@@ -553,21 +555,21 @@ static void CL_Record_f( void ) {
 		return;
 	}
 
-	if ( clc.demorecording ) {
+	if ( clc.demoRecording ) {
 		if ( !clc.spDemoRecording ) {
-			Com_Printf( "Already recording.\n" );
+			Com_Printf( S_COL_BASE "Already recording a demo.\n" );
 		}
 		return;
 	}
 
 	if ( cls.state != CA_ACTIVE ) {
-		Com_Printf( "You must be in a level to record.\n" );
+		Com_Printf( S_COL_BASE "You must be in a level to record a demo.\n" );
 		return;
 	}
 
 	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
 	if ( NET_IsLocalAddress( &clc.serverAddress ) && !Cvar_VariableIntegerValue( "g_synchronousClients" ) ) {
-		Com_WPrintf( "You should set 'g_synchronousClients 1' for smoother demo recording." );
+		Com_WPrintf( "You should set 'g_synchronousClients 1' for smoother demo recording.\n" );
 	}
 
 	if ( Cmd_Argc() == 2 ) {
@@ -602,20 +604,20 @@ static void CL_Record_f( void ) {
 	// save desired filename without extension
 	Q_strncpyz( clc.recordName, name, sizeof( clc.recordName ) );
 
-	Com_Printf( "Recording to: %s.\n", name );
+	Com_Printf( S_COL_BASE "Recording to: " S_COL_VAL "%s\n", name );
 
 	// start new record with temporary extension
 	Q_strcat( name, sizeof( name ), ".tmp" );
 
 	// open the demo file
-	clc.recordfile = FS_FOpenFileWrite( name );
-	if ( clc.recordfile == FS_INVALID_HANDLE ) {
-		Com_Printf( "ERROR: Couldn't open demo file: %s\n", name );
+	clc.recordFile = FS_FOpenFileWrite( name );
+	if ( clc.recordFile == FS_INVALID_HANDLE ) {
+		Com_WPrintf( "ERROR: Couldn't open demo file: " S_COL_VAL "%s\n", name );
 		clc.recordName[0] = '\0';
 		return;
 	}
 
-	clc.demorecording = qtrue;
+	clc.demoRecording = qtrue;
 
 	Com_TruncateLongString( clc.recordNameShort, clc.recordName );
 
@@ -739,7 +741,7 @@ void CL_ReadDemoMessage( void ) {
 
 	CL_ParseServerMessage( &buf );
 
-	if ( clc.demorecording ) {
+	if ( clc.demoRecording ) {
 		// track changes and write new message	
 		if ( clc.eventMask & EM_GAMESTATE ) {
 			CL_WriteGamestate( qfalse );
@@ -1195,7 +1197,7 @@ qboolean CL_Disconnect( qboolean showMainMenu ) {
 	cl_disconnecting = qtrue;
 
 	// Stop demo recording
-	if ( clc.demorecording ) {
+	if ( clc.demoRecording ) {
 		CL_StopRecord_f();
 	}
 
@@ -1777,7 +1779,7 @@ static void CL_Vid_Restart( void ) {
 	if ( CL_VideoRecording() )
 		CL_CloseAVI();
 
-	if ( clc.demorecording )
+	if ( clc.demoRecording )
 		CL_StopRecord_f();
 
 	// don't let them loop during the restart
@@ -2840,7 +2842,7 @@ void CL_PacketEvent( const netadr_t *from, msg_t *msg ) {
 	// we don't know if it is ok to save a demo message until
 	// after we have parsed the frame
 	//
-	if ( clc.demorecording && !clc.demowaiting && !clc.demoplaying ) {
+	if ( clc.demoRecording && !clc.demowaiting && !clc.demoplaying ) {
 		CL_WriteDemoMessage( msg, headerBytes );
 	}
 }
@@ -3011,7 +3013,7 @@ void CL_Frame( int msec, int realMsec ) {
 	}
 	
 	if ( cl_autoRecordDemo->integer && !clc.demoplaying ) {
-		if ( cls.state == CA_ACTIVE && !clc.demorecording ) {
+		if ( cls.state == CA_ACTIVE && !clc.demoRecording ) {
 			// If not recording a demo, and we should be, start one
 			qtime_t	now;
 			const char	*nowString;
@@ -3042,7 +3044,7 @@ void CL_Frame( int msec, int realMsec ) {
 			Cbuf_ExecuteText( EXEC_NOW,
 					va( "record %s-%s-%s", nowString, serverName, mapName ) );
 		}
-		else if( cls.state != CA_ACTIVE && clc.demorecording ) {
+		else if( cls.state != CA_ACTIVE && clc.demoRecording ) {
 			// Recording, but not CA_ACTIVE, so stop recording
 			CL_StopRecord_f( );
 		}
@@ -3161,8 +3163,9 @@ static void CL_InitRenderer( void ) {
 	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );
 	cls.whiteShader = re.RegisterShader( "white" );
 	cls.consoleShader = re.RegisterShader( "console" );
-	g_console_field_width = cls.glconfig.vidWidth / cls.smallchar_width - 2;
-	g_consoleField.widthInChars = g_console_field_width;
+	cls.recordShader = re.RegisterShader( "gfx/2d/recording" );
+	con_field_width = cls.glconfig.vidWidth / cls.smallchar_width - 4;
+	consoleField.widthInChars = con_field_width;
 
 	// for 640x480 virtualized screen
 	cls.cine_xScale = (float)cls.glconfig.vidWidth / 640.0;
@@ -3290,13 +3293,10 @@ static void CL_SetScaling( float factor, int captureWidth, int captureHeight ) {
 	factor *= scale;
 	
 	// set console scaling
-	cls.smallchar_width = SMALLCHAR_WIDTH * factor;
-	cls.smallchar_height = SMALLCHAR_HEIGHT * factor;
-	cls.bigchar_width = BIGCHAR_WIDTH * factor;
-	cls.bigchar_height = BIGCHAR_HEIGHT * factor;
-
-	//SCR_AdjustFrom640( NULL, NULL, &cls.smallchar_width, &cls.smallchar_height, SA_CENTER );
-	//SCR_AdjustFrom640( NULL, NULL, &cls.bigchar_width, &cls.bigchar_height, SA_CENTER );
+	cls.smallchar_width = ceil( (float)SMALLCHAR_WIDTH * factor );
+	cls.smallchar_height = ceil( (float)SMALLCHAR_HEIGHT * factor );
+	cls.bigchar_width = ceil( (float)BIGCHAR_WIDTH * factor );
+	cls.bigchar_height = ceil( (float)BIGCHAR_HEIGHT * factor );
 
 	// set custom capture resolution
 	cls.captureWidth = captureWidth;
@@ -3769,9 +3769,13 @@ static void CL_InitGLimp_Cvars( void ) {
 	Cvar_SetDescription( cl_drawBuffer, "Specifies buffer to draw from: GL_FRONT or GL_BACK." );
 //dm
 	arc_cinematics = Cvar_Get( "arc_cinematics", "1", 0, "0", "2", CV_INTEGER );
-	Cvar_SetDescription( arc_cinematics, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Uniform scaling to shorter screen boundary\n 2: Uniform scaling to longer screen boundary" );
+	Cvar_SetDescription( arc_cinematics, "Show cinematics at intended aspect ratio. Valid options: 0: Stretch video to screen.\n 1: Uniform scaling to near screen boundary\n 2: Uniform scaling to far screen boundary" );
 	cl_allowConsoleChat = Cvar_Get( "cl_allowConsoleChat", "0", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	Cvar_SetDescription(cl_allowConsoleChat, "Console command capture behaviour. Valid options: 0: Console always assumes input as commands.\n 1: Console assumes chat command when cvars or commands are not found." );
+	cl_demoRecordMessage = Cvar_Get( "cl_demoRecordMessage", "1", CVAR_ARCHIVE_ND, "0", "2", CV_INTEGER );
+	Cvar_SetDescription( cl_demoRecordMessage, "Draw demo recording message\n 0: Hidden\n 1: Legacy\n 2: Minimal" );
+	cl_demoRecordMessage_y = Cvar_Get( "cl_demoRecordMessage_y", "420", CVAR_ARCHIVE_ND, "0", "472", CV_INTEGER );
+	Cvar_SetDescription( cl_demoRecordMessage_y, "Demo record message y-coordinate when \\cl_demoRecordMessage 1." );
 	cl_loadScreenStyle = Cvar_Get( "cl_loadScreenStyle", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
 	Cvar_SetDescription( cl_loadScreenStyle, "Sets loading screen display style:\n 0: Show console (idTech2 style)\n 1: idTech3/idTech4 connecting and info screens" );
 //-dm
@@ -4960,7 +4964,7 @@ qboolean CL_Download( const char *cmd, const char *pakname, qboolean autoDownloa
 		s = va( "maps/%s.bsp", name );
 		if ( FS_FileIsInPAK( s, NULL, url ) )
 		{
-			Com_WPrintf( "Map %s already exists in %s.pk3\n", name, url );
+			Com_Printf( S_COL_BASE "Map " S_COL_VAL "%s " S_COL_BASE "already exists in " S_COL_VAL "%s.pk3\n", name, url );
 			return qfalse;
 		}
 	}
