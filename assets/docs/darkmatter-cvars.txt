@@ -1,0 +1,140 @@
+DarkMatter: extended console variables list
+----------
+		
+Aspect Ratio Correction:
+------------------------
+	arc_cinematics [0|1|2]: Show cinematics at intended aspect ratio. Valid options:
+		0: Stretch video to screen.
+		1: Uniform scaling to near screen boundary
+		2: Uniform scaling to far screen boundary
+		
+	arc_crosshairs [0|1]: Aspect correction for crosshairs, works seperately from \arc_hud.
+
+	arc_fov [0|1]: Enables horizontal expansion for corrected field of vision on widescreen aspect ratios.
+
+	arc_hud [0|1|2]: Aspect ratio adjustments of HUD elements:
+		0: Disabled
+		1: Scale 4:3 uniformly to near screen boundary
+		2: Scale 4:3 uniformly to near screen boundary, expand to wide or tall screen ratios using \arc_hud_region$.
+			Uses virtual screen spaces when set (\arc_hud_width, \arc_hud_height).
+
+	arc_hud_region[1-32] <x1 y1 x2 y2 w_min w_max h_min h_max hor vert flag>: HUD adjustment regions when \r_hud 2.
+		Checks values of a HUD element within a region of a 640x480 space to apply adjustments/alignments to.
+		Keys:
+			x1: top-left x-coordinate of region
+			y1: top-left y-coordinate of region
+			w1: bottom-right y-coordinate of region
+			h1: bottom-right y-coordinate of region
+			w_min: minimum element width required, 0 to avoid checking
+			w_max: maximum element width required, 0 to avoid checking
+			h_min: minimum element height required, 0 to avoid checking
+			h_max: maximum element height required, 0 to avoid checking
+			hor: horizontal adjustment in wide aspects (l = left, m = middle, r = right)
+			vert: vertical adjustment in tall aspects (t = top, c = center, b = bottom)
+			flag: additional adjustment flag (h = allow stretching horizontally, v = allow stretching vertically)
+		
+	Virtual HUD screen space
+		\arc_hud_width and \arc_hud_height set a virtual screen space within the video frame.
+		Useful for triple monitor setups to confine the HUD to the middle screen.
+		Also works well for ultrawide screens to keep all the HUD information in easy view.
+
+Client:
+-------
+	cl_allowConsoleChat [0|1]: Console command capture behaviour. Valid options:
+		0: Console always assumes input as commands.
+		1: Console assumes chat command when cvars or commands are not found.
+		
+	con_background [0|1]: Draws the background shader.
+		0: Flat color, set by con_backColor
+		1: Normal background image
+		
+	con_backColor [R G B A]: Console background color, set as R G B A values from 0-255.
+	
+	con_foreColor [R G B A]: Console info text and breaker color, set as R G B A values from 0-255.
+	
+	cl_demoRecordMessage [0|1|2]: Draw demo recording message
+		0: Hidden
+		1: Legacy
+		2: Minimal
+		
+	cl_demoRecordMessage_y [0..432]: Demo record message y-coordinate when \cl_demoRecordMessage 1.
+
+	cl_loadScreenStyle[0|1]: Sets loading screen display style:
+		0: Show console (idTech2 style)
+		1: idTech3/idTech4 connecting and info screens
+	
+	con_scrollBar [0|1]: Draws the console scroll bar.
+	
+	con_scrollLines [1..8]: Console line scroll factor.
+		
+	con_showClock [0|1|2]: Draws current time in console.
+		0: Hidden
+		1: 24 hour clock
+		2: AM/PM clock
+		
+	con_showVersion [0|1]: Draw engine version information to console.
+
+	con_width <value>: Console window width.
+		-1: Scale from 640x480
+		0: Scale to video width
+		480..n: Set native width value
+	
+File System:
+------------
+	fs_%GAME%_load [0|1|2|3]: Enable detection and loading of assets from set QUAKE game titles.
+		Valid values for GAME: q, q2, q3, ql.
+		Loading priority is: CD installation path, Steam, GOG. Higher values skip to Steam or GOG, 0 disables altogether.
+		NOTE: running DarkMatter directly from a game installation directory will override this behaviour for the detected game(s).
+		
+	fs_%GAME%_path <string>: Path to game assets for a specific QUAKE game title.
+		Valid values for GAME: q, q2, q3, ql.
+		The cvar is autoset by the matching fs_%GAME%_load
+		NOTE: DarkMatter will set the cvar to the current directory if a detected game is found there.
+
+	fs_useBaseHome [0|1]: Sets fs_homePath to fs_basePath (avoids using %APPDATA%/DarkMatter in Windows)
+
+Rendering:
+----------
+	r_clearColor [0|1]: Set color to clear buffer to in hex RGB format. Requires \r_clear 1.
+			
+	r_defaultImageSize <value>: Set image size for default images.
+		
+	r_defaultImageStyle [0|1|2]: Default image style for missing or invalid shaders/textures:
+			0: QUAKE III grey with white outlines
+			1: QUAKE checkerboard
+			2: QUAKE II small red and black tiles
+
+	r_dlightDesaturate <0.0..1.0>: Colour desaturation for dynamic lights. Set to 0 to revert to original colour values.
+
+	r_drawSkyFloor [0|1]: Draw the bottom plane of scrolling sky boxes.
+
+	r_fogGreyScale <0.0..1.0>: Desaturates fog volumes in world, works independently from r_greyScale.
+		
+	r_screenshotNameFormat [string]: Set naming convention for screenshots. Valid hashtag tokens to use:
+		[#02/#04]y: year, [#02/#]m = month, [#02/#]d = day, [#02/#]h = hour, [#02/#]n = minute, [#02/#]s = second, #l = mapname, #g = gametype
+		Example: r_screenshotNameFormat "#l-#g" //This will name screenshots as current map name gametype index, such as screenshots/pro-q3dm6-3.tga, screenshots/pro-q3dm6-3-0002.tga, etc.
+
+	r_teleporterFlash [0|1|2]: Screen flash effect when teleporting:
+			0: Disabled
+			1: Black
+			2: White
+
+Sound System:
+-------------
+	s_announcerScale <0.0-2.0>: Scales volume of the in-game announcer.
+
+Server:
+-------
+	Entity override dumping/loading to modify map entities:
+		sv_ent_dump [0|1]: Enabling saving .ent entity files on level loads and map_restart.
+		sv_ent_dump_path: Path within maps/ directory where .ent entity files are to be saved to.
+		sv_ent_load [0|1]: Enabling loading .ent entity files to override map entities.
+		sv_ent_load_path: Path within maps/ directory where .ent entity files are to be loaded from.
+
+Misc:
+-----
+	verbose <bitmask>: Enable additional system console notifications for each category:
+		& 1: Common
+		& 2: Client
+		& 4: Server
+		& 8: Renderer
