@@ -348,6 +348,9 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 		goto shader_parms;
 	}
 
+	if ( !Q_stricmp( cmd->shader->name, "gfx/2d/backtile" ) )
+		goto shader_parms;
+
 	if ( !cgame && !strstr( cmd->shader->name, "ui/assets/" ) ) {
 		if ( !Q_stricmp( mod, "threewave" ) && arc_threewave_menu_fix->integer ) {
 			float xScale = glConfig.vidWidth / 640.0;

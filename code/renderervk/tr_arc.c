@@ -336,10 +336,13 @@ void RE_StretchAspectPic( float x, float y, float w, float h,
 	cmd->commandId = RC_STRETCH_PIC;
 
 	cmd->shader = R_GetShaderByHandle( hShader );
-
+	
 	if ( backEnd.isHyperspace || ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) ) {
 		goto shader_parms;
 	}
+
+	if ( !Q_stricmp( cmd->shader->name, "gfx/2d/backtile" ) )
+		goto shader_parms;
 
 	if ( !cgame && !strstr( cmd->shader->name, "ui/assets/" ) ) {
 		if ( !Q_stricmp( mod, "threewave" ) && arc_threewave_menu_fix->integer ) {
