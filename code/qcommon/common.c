@@ -3698,7 +3698,7 @@ void Com_Init( char *commandLine ) {
 
 	Com_StartupVariable( "vm_rtChecks" );
 	vm_rtChecks = Cvar_Get( "vm_rtChecks", "15", CVAR_INIT | CVAR_PROTECTED, "0", "15", CV_INTEGER );
-	/**/Cvar_SetDescription( vm_rtChecks, "Runtime checks in compiled vm code, bitmask:\n 1: Program stack overflow\n 2: Opcode stack overflow\n 4: Jump target range\n 8: Data read/write range" );
+	Cvar_SetDescription( vm_rtChecks, "Runtime checks in compiled vm code, bitmask:\n 1: Program stack overflow\n 2: Opcode stack overflow\n 4: Jump target range\n 8: Data read/write range" );
 
 	Com_StartupVariable( "journal" );
 	com_journal = Cvar_Get( "journal", "0", CVAR_INIT | CVAR_PROTECTED, "0", "2", CV_INTEGER );
@@ -3728,7 +3728,7 @@ void Com_Init( char *commandLine ) {
 #else
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH, "0", "2", CV_INTEGER );
 #endif
-	/**/Cvar_SetDescription(com_dedicated, "Enables dedicated server mode.\n 0: Listen server\n 1: Unlisted dedicated server \n 2: Listed dedicated server");
+	Cvar_SetDescription(com_dedicated, "Enables dedicated server mode.\n 0: Listen server\n 1: Unlisted dedicated server \n 2: Listed dedicated server");
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();
 
@@ -3741,11 +3741,11 @@ void Com_Init( char *commandLine ) {
 	//
 #ifndef DEDICATED
 	com_maxFPS = Cvar_Get( "com_maxFPS", "125", CVAR_ARCHIVE_ND, "1", "1000", CV_INTEGER ); // try to force that in some light way
-	/**/Cvar_SetDescription(com_maxFPS, "Sets maximum renderer frames per second.");
+	Cvar_SetDescription(com_maxFPS, "Sets maximum renderer frames per second.");
 	com_maxFPSUnfocused = Cvar_Get( "com_maxFPSUnfocused", "60", CVAR_ARCHIVE_ND, "1", "1000", CV_INTEGER );
-	/**/Cvar_SetDescription(com_maxFPSUnfocused, "Sets maximum renderer frames per second in unfocused game window.");
+	Cvar_SetDescription(com_maxFPSUnfocused, "Sets maximum renderer frames per second in unfocused game window.");
 	com_yieldCPU = Cvar_Get( "com_yieldCPU", "1", CVAR_ARCHIVE_ND, "0", "16", CV_INTEGER );
-	/**/Cvar_SetDescription(com_yieldCPU, "Attempt to sleep specified amout of time between rendered frames when game is active, this will greatly reduce CPU load. Use 0 only if you're experiencing some lag.");
+	Cvar_SetDescription(com_yieldCPU, "Attempt to sleep specified amout of time between rendered frames when game is active, this will greatly reduce CPU load. Use 0 only if you're experiencing some lag.");
 #endif
 
 #ifdef USE_AFFINITY_MASK
@@ -3754,13 +3754,13 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	com_blood = Cvar_Get ("com_blood", "1", CVAR_ARCHIVE_ND, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( com_blood, "Tells the client game module to enable blood and gore effects." );
+	Cvar_SetDescription( com_blood, "Tells the client game module to enable blood and gore effects." );
 
 	com_logFile = Cvar_Get( "logFile", "0", CVAR_TEMP, "0", "4", CV_INTEGER );
-	/**/Cvar_SetDescription( com_logFile, "System console logging:\n 0: Disabled\n 1: Overwrite mode, buffered\n 2: Overwrite mode, synced\n 3: Append mode, buffered\n 4: Append mode, synced" );
+	Cvar_SetDescription( com_logFile, "System console logging:\n 0: Disabled\n 1: Overwrite mode, buffered\n 2: Overwrite mode, synced\n 3: Append mode, buffered\n 4: Append mode, synced" );
 
 	com_timeScale = Cvar_Get( "timeScale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO, "0", "100", CV_FLOAT );
-	/**/Cvar_SetDescription(com_timeScale, "System timing factor:\n <1: Slows the game down\n =1: Regular speed\n >1: Speeds the game up" );
+	Cvar_SetDescription(com_timeScale, "System timing factor:\n <1: Slows the game down\n =1: Regular speed\n >1: Speeds the game up" );
 	com_fixedTime = Cvar_Get ("fixedTime", "0", CVAR_CHEAT, "0", NULL, CV_INTEGER );
 	com_showTrace = Cvar_Get ("com_showTrace", "0", CVAR_CHEAT, "0", "1", CV_INTEGER );
 	com_viewLog = Cvar_Get( "viewLog", "0", 0, "0", "1", CV_INTEGER );
@@ -3775,24 +3775,24 @@ void Com_Init( char *commandLine ) {
 #endif
 
 	sv_paused = Cvar_Get( "sv_paused", "0", CVAR_ROM, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription(sv_paused, "Game is paused in single player.");
+	Cvar_SetDescription(sv_paused, "Game is paused in single player.");
 	sv_packetDelay = Cvar_Get( "sv_packetDelay", "0", CVAR_CHEAT, NULL, NULL, CV_NONE );
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription(com_sv_running, "Communicates to game modules if there is a server currently running.");
+	Cvar_SetDescription(com_sv_running, "Communicates to game modules if there is a server currently running.");
 
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(com_buildScript, "Loads all game assets, regardless whether they are required or not.");
+	Cvar_SetDescription(com_buildScript, "Loads all game assets, regardless whether they are required or not.");
 
 	Cvar_Get( "com_errorMessage", "", CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
 
 	com_bspVersion = Cvar_Get( "com_bspVersion", "", CVAR_ROM | CVAR_NORESTART, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription( com_bspVersion, "Communicates the current BSP header version across game modules." );
+	Cvar_SetDescription( com_bspVersion, "Communicates the current BSP header version across game modules." );
 
 #ifndef DEDICATED
 	com_introPlayed = Cvar_Get( "com_introPlayed", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(com_introPlayed, "Skips the introduction cinematic.");
+	Cvar_SetDescription(com_introPlayed, "Skips the introduction cinematic.");
 	com_skipIdLogo  = Cvar_Get( "com_skipIdLogo", "0", CVAR_ARCHIVE, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription(com_skipIdLogo, "Skip playing Id Software logo cinematic at startup.");
+	Cvar_SetDescription(com_skipIdLogo, "Skip playing Id Software logo cinematic at startup.");
 #endif
 
 	if ( com_dedicated->integer ) {
@@ -4855,6 +4855,7 @@ char *Com_ReplaceSubString(const char *s, const char *old, const char *new) {
 Com_AssetBaseString
 ==================
 */
+#if 0
 int Com_AssetBaseString( char *str ) {
 	char *s;
 
@@ -4863,7 +4864,7 @@ int Com_AssetBaseString( char *str ) {
 
 
 }
-
+#endif
 #if 0
 /*
 ==================
