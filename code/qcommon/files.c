@@ -4792,7 +4792,7 @@ static void FS_Startup( void ) {
 	
 #ifndef USE_HANDLE_CACHE
 	fs_locked = Cvar_Get( "fs_locked", "0", CVAR_INIT, "0", "1", CV_INTEGER );
-	/**/Cvar_SetDescription( fs_locked, "Set file handle policy for pk3 files:\n  0: Release after use, unlimited number of pk3 files can be loaded\n 1: Keep file handle locked, more consistent, total pk3 files count limited to ~1k-4k\n" );
+	Cvar_SetDescription( fs_locked, "Set file handle policy for pk3 files:\n  0: Release after use, unlimited number of pk3 files can be loaded\n 1: Keep file handle locked, more consistent, total pk3 files count limited to ~1k-4k\n" );
 #endif
 
 	if ( !fs_baseGame->string[0] )
@@ -4806,7 +4806,7 @@ static void FS_Startup( void ) {
 	}
 
 	fs_homePath = Cvar_Get( "fs_homePath", homePath, CVAR_INIT | CVAR_PROTECTED | CVAR_PRIVATE, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription( fs_homePath, "Directory to store user configuration and downloaded files." );
+	Cvar_SetDescription( fs_homePath, "Directory to store user configuration and downloaded files." );
 
 	fs_game = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO, NULL, NULL, CV_FSPATH );
 
@@ -4815,7 +4815,7 @@ static void FS_Startup( void ) {
 	}
 
 	fs_excludeReference = Cvar_Get( "fs_excludeReference", "", CVAR_ARCHIVE_ND | CVAR_LATCH, NULL, NULL, CV_NONE );
-	/**/Cvar_SetDescription( fs_excludeReference, "Exclude specified pak files from download list on client side.\n Format is <moddir>/<pakname> (without .pk3 suffix), you may list multiple entries separated by space." );
+	Cvar_SetDescription( fs_excludeReference, "Exclude specified pak files from download list on client side.\n Format is <moddir>/<pakname> (without .pk3 suffix), you may list multiple entries separated by space." );
 
 	start = Sys_Milliseconds();
 
